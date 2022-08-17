@@ -173,7 +173,7 @@ function LeftNavigation() {
                   </ul>
                 </li>
 
-                {/* Customer Section */}
+                {/* Users Section */}
                 <li>
                   <Link
                     className="has-arrow waves-dark"
@@ -181,7 +181,7 @@ function LeftNavigation() {
                     aria-expanded="false"
                   >
                     <i className="mdi mdi-account-plus"></i>
-                    <span className="hide-menu">Customer</span>
+                    <span className="hide-menu">USERS</span>
                   </Link>
 
                   <ul aria-expanded="false" className="collapse">
@@ -190,7 +190,7 @@ function LeftNavigation() {
                         to="/branch/customers"
                         onClick={removeLeftNavigation}
                       >
-                        Customers List
+                        User Lists
                       </Link>
                     </li>
                   </ul>
@@ -262,7 +262,7 @@ function LeftNavigation() {
                   <ul aria-expanded="false" className="collapse">
                     <li>
                       <Link
-                        to="/branch/parentCategory"
+                        to="/branch/parentCategories"
                         onClick={removeLeftNavigation}
                       >
                         Parent Category
@@ -270,7 +270,7 @@ function LeftNavigation() {
                     </li>
                     <li>
                       <Link
-                        to="/branch/category"
+                        to="/branch/categories"
                         onClick={removeLeftNavigation}
                       >
                         Sub Category
@@ -333,6 +333,37 @@ function LeftNavigation() {
                     <li>
                       <Link to="/branch/orders" onClick={removeLeftNavigation}>
                         Order List
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+
+                {/* Report Section */}
+                <li>
+                  <Link
+                    className="has-arrow waves-dark"
+                    to="/"
+                    aria-expanded="false"
+                  >
+                    <i className="mdi mdi-chart-bar"></i>
+                    <span className="hide-menu">REPORTS</span>
+                  </Link>
+
+                  <ul aria-expanded="false" className="collapse">
+                    <li>
+                      <Link
+                        to="/branch/report/customers"
+                        onClick={removeLeftNavigation}
+                      >
+                        Top 10 Customers
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/branch/report/products"
+                        onClick={removeLeftNavigation}
+                      >
+                        Top 10 Prodcucts
                       </Link>
                     </li>
                   </ul>

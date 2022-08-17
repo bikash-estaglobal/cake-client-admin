@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import M from "materialize-css";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
 
-const AddParentCategory = () => {
+const EditParentCategory = () => {
   const history = useHistory();
+  const { id } = useParams();
   const [progress, setProgress] = useState(0);
   const [isAddLaoded, setIsAddLaoded] = useState(true);
   const [uploaded, setUploaded] = useState(true);
@@ -40,9 +41,17 @@ const AddParentCategory = () => {
       return;
     }
 
-    fetch(Config.SERVER_URL + "/parent-category", {
-      method: "POST",
-      body: JSON.stringify(formData),
+    // Data for update
+    const updatedData = {
+      name: formData.name,
+      slug: formData.slug,
+      image: formData.image,
+      description: formData.description,
+    };
+
+    fetch(Config.SERVER_URL + "/parent-category/" + formData._id, {
+      method: "PUT",
+      body: JSON.stringify(updatedData),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -119,6 +128,30 @@ const AddParentCategory = () => {
       }
     );
   };
+
+  // get Records
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/parent-category/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            setFormData(result.body);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
 
   return (
     <div className="page-wrapper">
@@ -299,4 +332,4 @@ const AddParentCategory = () => {
   );
 };
 
-export default AddParentCategory;
+export default EditParentCategory;

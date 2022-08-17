@@ -4,12 +4,12 @@ import { useHistory } from "react-router-dom";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
 
-const AddParentCategory = () => {
+const AddSubCategory = () => {
   const history = useHistory();
   const [progress, setProgress] = useState(0);
   const [isAddLaoded, setIsAddLaoded] = useState(true);
   const [uploaded, setUploaded] = useState(true);
-
+  const [allParentCategory, setAllParentCategory] = useState([]);
   const [isAdded, setIsAdded] = useState(false);
 
   const [data, setData] = useState({});
@@ -18,6 +18,7 @@ const AddParentCategory = () => {
     name: "",
     slug: "",
     image: "null",
+    parentCategories: [],
     description: "",
   });
 
@@ -40,7 +41,7 @@ const AddParentCategory = () => {
       return;
     }
 
-    fetch(Config.SERVER_URL + "/parent-category", {
+    fetch(Config.SERVER_URL + "/category", {
       method: "POST",
       body: JSON.stringify(formData),
       headers: {
@@ -64,7 +65,6 @@ const AddParentCategory = () => {
             errorKeys.forEach((key) => {
               M.toast({ html: result.error[key], classes: "bg-danger" });
             });
-            M.toast({ html: result.message, classes: "bg-danger" });
           }
         },
         (error) => {
@@ -120,6 +120,29 @@ const AddParentCategory = () => {
     );
   };
 
+  // Get All Parent Category
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/parent-category?skip=0&limit=5000`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status == 200) {
+            setAllParentCategory(result.body || []);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
   return (
     <div className="page-wrapper">
       <div className="container-fluid">
@@ -128,12 +151,12 @@ const AddParentCategory = () => {
         {/* <!-- ============================================================== --> */}
         <div className="row page-titles">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Parent Category</h3>
+            <h3 className="text-themecolor">ADD SUB CATEGORY</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <a href="#">Home</a>
               </li>
-              <li className="breadcrumb-item active">Add Parent Category</li>
+              <li className="breadcrumb-item active">Add Sub Category</li>
             </ol>
           </div>
         </div>
@@ -179,21 +202,29 @@ const AddParentCategory = () => {
                   />
                 </div>
 
-                {/* Description */}
+                {/* Parent Category */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Description</label>
-                  <input
-                    type="text"
-                    onChange={(evt) =>
+                  <label className={"text-dark h6"}>Parent Category</label>
+                  <select
+                    name=""
+                    id=""
+                    className="form-control"
+                    onChange={(e) =>
                       setFormData({
                         ...formData,
-                        description: evt.target.value,
+                        parentCategories: [e.target.value],
                       })
                     }
-                    value={formData.description}
-                    className="form-control"
-                    placeholder={"Description Here"}
-                  />
+                  >
+                    <option value="">Parent Category</option>
+                    {allParentCategory.map((category, index) => {
+                      return (
+                        <option key={index} value={category._id}>
+                          {category.name}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
 
                 {/* Images */}
@@ -264,6 +295,23 @@ const AddParentCategory = () => {
                   />
                 </div>
 
+                {/* Description */}
+                <div className={"form-group mb-3 col-md-6"}>
+                  <label className={"text-dark h6"}>Description</label>
+                  <input
+                    type="text"
+                    onChange={(evt) =>
+                      setFormData({
+                        ...formData,
+                        description: evt.target.value,
+                      })
+                    }
+                    value={formData.description}
+                    className="form-control"
+                    placeholder={"Description Here"}
+                  />
+                </div>
+
                 <div className={"form-group col-md-12"}>
                   <button className="btn btn-info rounded" type={"submit"}>
                     {isAddLaoded ? (
@@ -299,4 +347,4 @@ const AddParentCategory = () => {
   );
 };
 
-export default AddParentCategory;
+export default AddSubCategory;

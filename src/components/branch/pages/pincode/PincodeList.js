@@ -3,7 +3,8 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import date from "date-and-time";
 //  Component Function
 const PincodeList = (props) => {
   const [pagination, setPagination] = useState({
@@ -19,6 +20,7 @@ const PincodeList = (props) => {
   const [allPincode, setAllPincode] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -101,8 +103,11 @@ const PincodeList = (props) => {
 
   // Get Data From Database
   useEffect(() => {
+    setIsAllPincodeLoaded(false);
     fetch(
-      `${Config.SERVER_URL}/pincode?skip=${pagination.skip}&limit=${pagination.limit}`,
+      `${Config.SERVER_URL}/pincode?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&searchQuery=${searchQuery || null}`,
       {
         method: "GET",
         headers: {
@@ -126,17 +131,22 @@ const PincodeList = (props) => {
           setIsAllPincodeLoaded(true);
         }
       );
-  }, [pagination, isDeleted]);
+  }, [pagination, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/pincode?skip=0&limit=0`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
+    fetch(
+      `${Config.SERVER_URL}/pincode?skip=0&limit=0&searchQuery=${
+        searchQuery || null
+      }`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(
         (result) => {
@@ -151,7 +161,7 @@ const PincodeList = (props) => {
           setIsAllPincodeLoaded(true);
         }
       );
-  }, [isDeleted]);
+  }, [isDeleted, searchQuery]);
 
   // Return function
   return (
@@ -160,7 +170,7 @@ const PincodeList = (props) => {
         {/* Bread crumb and right sidebar toggle */}
         <div className="row page-titles mb-0">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Pincode</h3>
+            <h3 className="text-themecolor m-b-0 m-t-0">PINCODES</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="/">Admin</Link>
@@ -178,18 +188,49 @@ const PincodeList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div>
-                  <h4 className="float-left mt-2 mr-2">Search: </h4>
+                <div className="d-flex justify-content-between">
+                  <div className="d-flex">
+                    <h4 className="mt-2 mr-2">Search: </h4>
+                    <div className="border px-2">
+                      <input
+                        type="search"
+                        onChange={(evt) => {
+                          setSearchQuery(evt.target.value);
+                        }}
+                        placeholder="By Pincode/City/State"
+                        className="form-control"
+                      />
+                    </div>
+                  </div>
 
-                  {/* <!-- Button trigger modal --> */}
-                  <Link
-                    className="btn btn-info float-right rounded"
-                    to={{
-                      pathname: "/branch/pincode/add",
-                    }}
-                  >
-                    <span className={"fas fa-plus"}></span> Pincode
-                  </Link>
+                  <div className="">
+                    <Link
+                      className="btn btn-info rounded mr-2"
+                      to={{
+                        pathname: "/branch/pincode/addByCSV",
+                      }}
+                    >
+                      <span className={"fas fa-file"}></span> Add By CSV
+                    </Link>
+
+                    <Link
+                      className="btn btn-info rounded mr-2"
+                      to={{
+                        pathname: "/branch/pincode/editByCSV",
+                      }}
+                    >
+                      <span className={"fas fa-edit"}></span> Update By CSV
+                    </Link>
+
+                    <Link
+                      className="btn btn-info rounded"
+                      to={{
+                        pathname: "/branch/pincode/add",
+                      }}
+                    >
+                      <span className={"fas fa-plus"}></span> Pincode
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -201,6 +242,7 @@ const PincodeList = (props) => {
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
+                        id="table-to-xls"
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
@@ -209,6 +251,7 @@ const PincodeList = (props) => {
                             <th>STATE</th>
                             <th>CITY</th>
                             <th>PINCODE</th>
+                            <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
@@ -220,6 +263,12 @@ const PincodeList = (props) => {
                                 <td>{pincode.state}</td>
                                 <td>{pincode.city}</td>
                                 <td>{pincode.pincode}</td>
+                                <td>
+                                  {date.format(
+                                    new Date(pincode.createdAt),
+                                    "DD-MM-YYYY"
+                                  )}
+                                </td>
                                 <td className="text-center">
                                   {/* Update Button */}
                                   <Link
@@ -257,17 +306,32 @@ const PincodeList = (props) => {
                       </table>
                       {/* Pagination */}
                       <div className="mt-2 d-flex justify-content-between">
-                        <div className="limit form-group shadow-sm px-3 border">
-                          <select
-                            name=""
-                            id=""
-                            className="form-control"
-                            onChange={limitHandler}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="30">30</option>
-                          </select>
+                        <div className="d-flex">
+                          <div className="limit form-group shadow-sm px-3 border">
+                            <select
+                              name=""
+                              id=""
+                              className="form-control"
+                              onChange={limitHandler}
+                            >
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                              <option value="30">30</option>
+                              <option value={pagination.totalRecord}>
+                                All
+                              </option>
+                            </select>
+                          </div>
+                          <div className="">
+                            <ReactHTMLTableToExcel
+                              id="test-table-xls-button"
+                              className="download-table-xls-button shadow-sm px-3 border"
+                              table="table-to-xls"
+                              filename="pincodes"
+                              sheet="data"
+                              buttonText="Download as XLS"
+                            />
+                          </div>
                         </div>
                         <nav aria-label="Page navigation example">
                           <ul className="pagination">

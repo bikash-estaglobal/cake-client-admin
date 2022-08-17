@@ -138,7 +138,7 @@ function TopNavigation() {
             </ul>
 
             {/* Session  */}
-            <ul className={"navbar-nav mr-auto"}>
+            {/* <ul className={"navbar-nav mr-auto"}>
               <li className="nav-item">
                 <Link to={"/branch/session"}>
                   {isLaoded ? (
@@ -166,7 +166,7 @@ function TopNavigation() {
                   )}
                 </Link>
               </li>
-            </ul>
+            </ul> */}
 
             {/* <!-- User profile and search --> */}
             <ul className="navbar-nav my-lg-0">

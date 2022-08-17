@@ -3,7 +3,8 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-const date = require("date-and-time");
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import date from "date-and-time";
 
 //  Component Function
 const AdonProductList = (props) => {
@@ -104,6 +105,7 @@ const AdonProductList = (props) => {
 
   // Get Data From Database
   useEffect(() => {
+    setIsAllProductLoaded(false);
     fetch(
       `${Config.SERVER_URL}/adon-product?skip=${pagination.skip}&limit=${pagination.limit}`,
       {
@@ -193,6 +195,24 @@ const AdonProductList = (props) => {
                   >
                     <span className={"fas fa-plus"}></span> Product
                   </Link>
+
+                  <Link
+                    className="btn btn-info float-right rounded mr-2"
+                    to={{
+                      pathname: "/branch/adonProduct/addByCSV",
+                    }}
+                  >
+                    <span className={"fas fa-file"}></span> Add By CSV
+                  </Link>
+
+                  <Link
+                    className="btn btn-info float-right rounded mr-2"
+                    to={{
+                      pathname: "/branch/adonProduct/editByCSV",
+                    }}
+                  >
+                    <span className={"fas fa-edit"}></span> Update By CSV
+                  </Link>
                 </div>
               </div>
             </div>
@@ -204,6 +224,7 @@ const AdonProductList = (props) => {
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
+                        id="table-to-xls"
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
@@ -212,6 +233,7 @@ const AdonProductList = (props) => {
                             <th>NAME</th>
                             <th>PRICE</th>
                             <th>IMAGE</th>
+                            <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
@@ -234,6 +256,12 @@ const AdonProductList = (props) => {
                                     />
                                   ) : (
                                     "N/A"
+                                  )}
+                                </td>
+                                <td>
+                                  {date.format(
+                                    new Date(product.createdAt),
+                                    "DD-MM-YYYY"
                                   )}
                                 </td>
 
@@ -274,17 +302,32 @@ const AdonProductList = (props) => {
                       </table>
                       {/* Pagination */}
                       <div className="mt-2 d-flex justify-content-between">
-                        <div className="limit form-group shadow-sm px-3 border">
-                          <select
-                            name=""
-                            id=""
-                            className="form-control"
-                            onChange={limitHandler}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="30">30</option>
-                          </select>
+                        <div className="d-flex">
+                          <div className="limit form-group shadow-sm px-3 border">
+                            <select
+                              name=""
+                              id=""
+                              className="form-control"
+                              onChange={limitHandler}
+                            >
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                              <option value="30">30</option>
+                              <option value={pagination.totalRecord}>
+                                All
+                              </option>
+                            </select>
+                          </div>
+                          <div className="">
+                            <ReactHTMLTableToExcel
+                              id="test-table-xls-button"
+                              className="download-table-xls-button shadow-sm px-3 border"
+                              table="table-to-xls"
+                              filename="adon-products"
+                              sheet="data"
+                              buttonText="Download as XLS"
+                            />
+                          </div>
                         </div>
                         <nav aria-label="Page navigation example">
                           <ul className="pagination">

@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const Index = () => {
+  useEffect(() => {
+    window.location = "/branch";
+  }, []);
   return (
     <>
       <html className="no-js" lang="en">

@@ -62,6 +62,32 @@ import NextToSlider from "./pages/banners/NextToSlider";
 import DailyBestSaleBanner from "./pages/banners/DailyBestSaleBanner";
 import CategoryPageBanner from "./pages/banners/CategoryPageBanner";
 import OfferBanner from "./pages/banners/OfferBanner";
+import ParentCategoryList from "./pages/parentCategory/ParentCategoryList";
+import AddParentCategory from "./pages/parentCategory/AddParentCategory";
+import EditParentCategory from "./pages/parentCategory/EditParentCategory";
+import SubCategoryList from "./pages/subCategory/SubCategoryList";
+import AddCouponFromCSV from "./pages/coupons/AddCouponFromCSV";
+import EditCouponFromCSV from "./pages/coupons/EditCouponFromCSV";
+import AddFlaourFromCSV from "./pages/flavours/AddFlavourFromCSV";
+import EditFlavourFromCSV from "./pages/flavours/EditFlavourFomCSV";
+import AddShapeFromCSV from "./pages/shapes/AddShapeFromCSV";
+import EditShapeFromCSV from "./pages/shapes/EditShapeFromCSV";
+import AddColorFromCSV from "./pages/colors/AddColorFromCSV";
+import EditColorFromCSV from "./pages/colors/EditColorFromCSV";
+import EditPincodeFromCSV from "./pages/pincode/EditPincodeFromCSV";
+import AddPincodeFromCSV from "./pages/pincode/AddPincodeFromCSV";
+import AddParentCategoryFromCSV from "./pages/parentCategory/AddParentCategoryFromCSV";
+import EditParentCategoryFromCSV from "./pages/parentCategory/EditParenrtCategortyFromCSV";
+import AddAdonProductFromCSV from "./pages/adonProducts/AddAdonProductFromCSV";
+import EditAdonProductFromCSV from "./pages/adonProducts/EditAdonProductFromCSV";
+import CustomerReports from "./pages/reports/CustomerReports";
+import ProductReports from "./pages/reports/ProductReports";
+import EditCustomer from "./pages/customers/EditCustomer";
+import ViewCustomer from "./pages/customers/ViewCustomer";
+import AddSubCategory from "./pages/subCategory/AddSubCategory";
+import EditSubCategory from "./pages/subCategory/EditSubCategory";
+import AddSubCategoryFromCSV from "./pages/subCategory/AddSubCategoryFromCSV";
+import EditSubCategoryFromCSV from "./pages/subCategory/EditSubCategoryFromCSV";
 
 // Create Context
 export const BranchContext = createContext();
@@ -88,8 +114,54 @@ const Routing = () => {
       <Route exact path="/branch/profile" component={Profile} />
 
       {/* Parent Category */}
+      <Route
+        exact
+        path="/branch/parentCategories"
+        component={ParentCategoryList}
+      />
+      <Route
+        exact
+        path="/branch/parentCategory/add"
+        component={AddParentCategory}
+      />
+      <Route
+        exact
+        path="/branch/parentCategory/addByCSV"
+        component={AddParentCategoryFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/parentCategory/editByCSV"
+        component={EditParentCategoryFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/parentCategory/edit/:id"
+        component={EditParentCategory}
+      />
+
       <Route exact path="/branch/parentCategory" component={ParentCategory} />
+
+      {/* Sub Category */}
+
       <Route exact path="/branch/category" component={Category} />
+      <Route exact path="/branch/categories" component={SubCategoryList} />
+      <Route exact path="/branch/categories/add" component={AddSubCategory} />
+      <Route
+        exact
+        path="/branch/categories/edit/:id"
+        component={EditSubCategory}
+      />
+      <Route
+        exact
+        path="/branch/categories/addByCSV"
+        component={AddSubCategoryFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/categories/editByCSV"
+        component={EditSubCategoryFromCSV}
+      />
 
       {/* Products */}
       <Route exact path="/branch/products" component={ProductList} />
@@ -101,6 +173,16 @@ const Routing = () => {
       <Route exact path="/branch/adonProduct/add" component={AddAdonProduct} />
       <Route
         exact
+        path="/branch/adonProduct/addByCSV"
+        component={AddAdonProductFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/adonProduct/editByCSV"
+        component={EditAdonProductFromCSV}
+      />
+      <Route
+        exact
         path="/branch/adonProduct/edit/:id"
         component={EditAdonProduct}
       />
@@ -108,6 +190,16 @@ const Routing = () => {
       {/* Coupons */}
       <Route exact path="/branch/coupons" component={CouponList} />
       <Route exact path="/branch/coupon/add" component={AddCoupon} />
+      <Route
+        exact
+        path="/branch/coupon/addByCSV"
+        component={AddCouponFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/coupon/editByCSV"
+        component={EditCouponFromCSV}
+      />
       <Route exact path="/branch/coupon/edit/:id" component={EditCoupon} />
 
       {/* Deals */}
@@ -134,20 +226,52 @@ const Routing = () => {
       {/* Flavour */}
       <Route exact path="/branch/flavours" component={FlavourList} />
       <Route exact path="/branch/flavour/add" component={AddFlavour} />
+      <Route
+        exact
+        path="/branch/flavour/addByCSV"
+        component={AddFlaourFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/flavour/editByCSV"
+        component={EditFlavourFromCSV}
+      />
       <Route exact path="/branch/flavour/edit/:id" component={EditFlavour} />
 
       {/* Shape */}
       <Route exact path="/branch/shapes" component={ShapeList} />
       <Route exact path="/branch/shape/add" component={AddShape} />
+      <Route exact path="/branch/shape/addByCSV" component={AddShapeFromCSV} />
+      <Route
+        exact
+        path="/branch/shape/editByCSV"
+        component={EditShapeFromCSV}
+      />
       <Route exact path="/branch/shape/edit/:id" component={EditShape} />
 
       {/* Pincode */}
       <Route exact path="/branch/pincodes" component={PincodeList} />
       <Route exact path="/branch/pincode/add" component={AddPincode} />
+      <Route
+        exact
+        path="/branch/pincode/addByCSV"
+        component={AddPincodeFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/pincode/editByCSV"
+        component={EditPincodeFromCSV}
+      />
       <Route exact path="/branch/pincode/edit/:id" component={EditPincode} />
 
       {/* Colors */}
       <Route exact path="/branch/colors" component={ColorList} />
+      <Route exact path="/branch/color/addByCSV" component={AddColorFromCSV} />
+      <Route
+        exact
+        path="/branch/color/editByCSV"
+        component={EditColorFromCSV}
+      />
       <Route exact path="/branch/color/add" component={AddColor} />
       <Route exact path="/branch/color/edit/:id" component={EditColor} />
 
@@ -156,8 +280,18 @@ const Routing = () => {
       <Route exact path="/branch/order/show/:id" component={ViewOrder} />
       <Route exact path="/branch/orders" component={OrderList} />
 
+      {/* Reports */}
+      <Route
+        exact
+        path="/branch/report/customers"
+        component={CustomerReports}
+      />
+      <Route exact path="/branch/report/products" component={ProductReports} />
+
       {/* Customer */}
       <Route exact path="/branch/customers" component={CustomerList} />
+      <Route exact path="/branch/customer/edit/:id" component={EditCustomer} />
+      <Route exact path="/branch/customer/show/:id" component={ViewCustomer} />
 
       {/* Settings */}
       <Route exact path="/branch/setting" component={Setting} />

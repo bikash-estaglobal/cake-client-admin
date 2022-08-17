@@ -169,16 +169,6 @@ const ParentCategory = (props) => {
       );
   };
 
-  const limitHandler = (e) => {
-    const limit = e.target.value;
-    const totalPage = Math.ceil(pagination.totalRecord / limit);
-    setPagination({
-      ...pagination,
-      limit,
-      totalPage,
-    });
-  };
-
   const imgDeleteHandler = (image) => {
     // Create a reference to the file to delete
     const fileRef = storage.refFromURL(image);
@@ -214,44 +204,6 @@ const ParentCategory = (props) => {
         // Uh-oh, an error occurred!
         M.toast({ html: error, classes: "bg-danger" });
       });
-  };
-
-  const pageHandler = (e, page) => {
-    e.preventDefault();
-    setPagination({
-      ...pagination,
-      skip: page == 1 ? 0 : (page - 1) * pagination.limit,
-      currentPage: page,
-    });
-  };
-
-  const previousPageHandler = (e) => {
-    e.preventDefault();
-    console.log(pagination);
-    setPagination({
-      ...pagination,
-      currentPage: pagination.currentPage == 1 ? 1 : pagination.currentPage - 1,
-      skip:
-        pagination.currentPage == 1
-          ? 0
-          : (pagination.currentPage - 2) * pagination.limit,
-    });
-  };
-
-  const nextPageHandler = (e) => {
-    e.preventDefault();
-    console.log(pagination);
-    setPagination({
-      ...pagination,
-      currentPage:
-        pagination.currentPage == pagination.totalPage
-          ? pagination.totalPage
-          : pagination.currentPage + 1,
-      skip:
-        pagination.currentPage == 1
-          ? pagination.limit
-          : (pagination.currentPage + 1) * pagination.limit,
-    });
   };
 
   // For Image
@@ -297,6 +249,54 @@ const ParentCategory = (props) => {
           });
       }
     );
+  };
+
+  const limitHandler = (e) => {
+    const limit = e.target.value;
+    const totalPage = Math.ceil(pagination.totalRecord / limit);
+    setPagination({
+      ...pagination,
+      limit,
+      totalPage,
+    });
+  };
+
+  const pageHandler = (e, page) => {
+    e.preventDefault();
+    setPagination({
+      ...pagination,
+      skip: page == 1 ? 0 : (page - 1) * pagination.limit,
+      currentPage: page,
+    });
+  };
+
+  const previousPageHandler = (e) => {
+    e.preventDefault();
+    console.log(pagination);
+    setPagination({
+      ...pagination,
+      currentPage: pagination.currentPage == 1 ? 1 : pagination.currentPage - 1,
+      skip:
+        pagination.currentPage == 1
+          ? 0
+          : (pagination.currentPage - 2) * pagination.limit,
+    });
+  };
+
+  const nextPageHandler = (e) => {
+    e.preventDefault();
+    console.log(pagination);
+    setPagination({
+      ...pagination,
+      currentPage:
+        pagination.currentPage == pagination.totalPage
+          ? pagination.totalPage
+          : pagination.currentPage + 1,
+      skip:
+        pagination.currentPage == 1
+          ? pagination.limit
+          : (pagination.currentPage + 1) * pagination.limit,
+    });
   };
 
   // Get Data From Database

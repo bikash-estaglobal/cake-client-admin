@@ -3,7 +3,8 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-const date = require("date-and-time");
+import date from "date-and-time";
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -106,7 +107,7 @@ const NewOrders = (props) => {
   // Get Data From Database
   useEffect(() => {
     fetch(
-      `${Config.SERVER_URL}/order?skip=${pagination.skip}&limit=${pagination.limit}&orderStatus=PROCESSING`,
+      `${Config.SERVER_URL}/order?skip=${pagination.skip}&limit=${pagination.limit}&orderStatus=ORDERPLACED`,
       {
         method: "GET",
         headers: {
@@ -134,7 +135,7 @@ const NewOrders = (props) => {
 
   // Count Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/product?skip=0&limit=0`, {
+    fetch(`${Config.SERVER_URL}/order?skip=0&limit=0&orderStatus=ORDERPLACED`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -236,7 +237,11 @@ const NewOrders = (props) => {
                                   )}
                                 </td>
 
-                                <td>{order.orderStatus}</td>
+                                <td>
+                                  <span className="badge bg-info text-light">
+                                    {order.orderStatus}
+                                  </span>
+                                </td>
 
                                 <td className="text-center">
                                   {/* Update Button */}
@@ -275,17 +280,32 @@ const NewOrders = (props) => {
                       </table>
                       {/* Pagination */}
                       <div className="mt-2 d-flex justify-content-between">
-                        <div className="limit form-group shadow-sm px-3 border">
-                          <select
-                            name=""
-                            id=""
-                            className="form-control"
-                            onChange={limitHandler}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="30">30</option>
-                          </select>
+                        <div className="d-flex">
+                          <div className="limit form-group shadow-sm px-3 border">
+                            <select
+                              name=""
+                              id=""
+                              className="form-control"
+                              onChange={limitHandler}
+                            >
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                              <option value="30">30</option>
+                              <option value={pagination.totalRecord}>
+                                All
+                              </option>
+                            </select>
+                          </div>
+                          <div className="">
+                            <ReactHTMLTableToExcel
+                              id="test-table-xls-button"
+                              className="download-table-xls-button shadow-sm px-3 border"
+                              table="table-to-xls"
+                              filename="new-orders"
+                              sheet="data"
+                              buttonText="Download as XLS"
+                            />
+                          </div>
                         </div>
                         <nav aria-label="Page navigation example">
                           <ul className="pagination">

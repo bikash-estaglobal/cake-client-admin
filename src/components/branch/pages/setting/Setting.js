@@ -14,9 +14,13 @@ const Setting = () => {
     evt.preventDefault();
 
     const updateData = {
-      cashback: setting.cashback,
-      minimumOrderAmount: setting.minimumOrderAmount,
+      cashback: setting.cashback || undefined,
+      maximumCashbackAmount: setting.maximumCashbackAmount || undefined,
+      minimumOrderAmount: setting.minimumOrderAmount || undefined,
+      cashbackStatus: setting.cashbackStatus || false,
     };
+
+    console.log(updateData);
 
     fetch(`${Config.SERVER_URL}/setting`, {
       method: "PUT",
@@ -95,13 +99,13 @@ const Setting = () => {
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Setting Details */}
+              {/* Order Details */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Setting Details</h3>
+                  <h3 className={"my-3 text-info"}>Order Details</h3>
                 </div>
 
-                {/* Setting name */}
+                {/*  Minimum Order Amount */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
                     Minimum Order Amount
@@ -119,25 +123,76 @@ const Setting = () => {
                     placeholder={"Standard Delivery"}
                   />
                 </div>
+              </div>
+
+              {/* Cashback Details */}
+              <div className={"row shadow-sm bg-white py-3 mt-2"}>
+                <div className="col-md-12">
+                  <h3 className={"my-3 text-info"}>Cashback Details</h3>
+                </div>
+
+                <div className="form-group col-md-12">
+                  <div className="form-check m-0 p-0">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={setting.cashbackStatus}
+                      onChange={(evt) => {
+                        setSetting({
+                          ...setting,
+                          cashbackStatus: evt.target.checked,
+                        });
+                      }}
+                      id="useWallet"
+                    />
+                    <label className="form-check-label" for="useWallet">
+                      Cashback Status
+                    </label>
+                  </div>
+                </div>
+
+                {/* Maximum Cashback Amount */}
+                {setting.cashbackStatus && (
+                  <div className={"form-group col-md-6"}>
+                    <label htmlFor="" className="text-dark h6 active">
+                      Maximum Cashback Amount
+                    </label>
+                    <input
+                      type="text"
+                      value={setting.maximumCashbackAmount}
+                      onChange={(evt) =>
+                        setSetting({
+                          ...setting,
+                          maximumCashbackAmount: evt.target.value,
+                        })
+                      }
+                      className="form-control"
+                      placeholder={"Ex: 100"}
+                    />
+                  </div>
+                )}
 
                 {/* Amount */}
-                <div className={"form-group col-md-6"}>
-                  <label htmlFor="" className="text-dark h6 active">
-                    Cashback Percentage
-                  </label>
-                  <input
-                    type="number"
-                    value={setting.cashback}
-                    onChange={(evt) =>
-                      setSetting({
-                        ...setting,
-                        cashback: evt.target.value,
-                      })
-                    }
-                    className="form-control"
-                    placeholder={2}
-                  />
-                </div>
+                {setting.cashbackStatus && (
+                  <div className={"form-group col-md-6"}>
+                    <label htmlFor="" className="text-dark h6 active">
+                      Cashback Percentage
+                    </label>
+                    <input
+                      type="number"
+                      value={setting.cashback}
+                      onChange={(evt) =>
+                        setSetting({
+                          ...setting,
+                          cashback: evt.target.value,
+                        })
+                      }
+                      className="form-control"
+                      placeholder={2}
+                    />
+                  </div>
+                )}
+
                 <div className={"form-group col-md-12 mt-2"}>
                   <button
                     className="btn btn-info rounded px-3 py-2"

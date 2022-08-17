@@ -223,7 +223,6 @@ function AddAdonProduct() {
       return;
     }
 
-    console.log(selectSCat);
     setSelectSCat([...selectSCat, cat]);
   };
 

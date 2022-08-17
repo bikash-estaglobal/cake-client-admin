@@ -3,7 +3,7 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-const date = require("date-and-time");
+import date from "date-and-time";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -22,6 +22,7 @@ const CustomerList = (props) => {
 
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -106,8 +107,11 @@ const CustomerList = (props) => {
 
   // Get Data From Database
   useEffect(() => {
+    setIsAllCustomersLoaded(false);
     fetch(
-      `${Config.SERVER_URL}/customer?skip=${pagination.skip}&limit=${pagination.limit}`,
+      `${Config.SERVER_URL}/customer?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&searchQuery=${searchQuery || null}`,
       {
         method: "GET",
         headers: {
@@ -131,17 +135,22 @@ const CustomerList = (props) => {
           setIsAllCustomersLoaded(true);
         }
       );
-  }, [pagination, isDeleted]);
+  }, [pagination, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/customer?skip=0&limit=0`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
+    fetch(
+      `${Config.SERVER_URL}/customer?skip=0&limit=0&searchQuery=${
+        searchQuery || null
+      }`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(
         (result) => {
@@ -156,7 +165,7 @@ const CustomerList = (props) => {
           setIsAllCustomersLoaded(true);
         }
       );
-  }, [isDeleted]);
+  }, [isDeleted, searchQuery]);
 
   // Return function
   return (
@@ -165,12 +174,12 @@ const CustomerList = (props) => {
         {/* Bread crumb and right sidebar toggle */}
         <div className="row page-titles mb-0">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Customer</h3>
+            <h3 className="text-themecolor m-b-0 m-t-0">USER LISTS</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="/">Admin</Link>
               </li>
-              <li className="breadcrumb-item active">Customer List</li>
+              <li className="breadcrumb-item active">User List</li>
             </ol>
           </div>
         </div>
@@ -183,18 +192,22 @@ const CustomerList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div>
-                  <h4 className="float-left mt-2 mr-2">Search: </h4>
+                <div className="d-flex justify-content-between">
+                  <div className="d-flex">
+                    <h4 className="mt-2 mr-2">Search: </h4>
+                    <div className="border px-2">
+                      <input
+                        type="search"
+                        onChange={(evt) => {
+                          setSearchQuery(evt.target.value);
+                        }}
+                        placeholder="By Name/Email/Mobile"
+                        className="form-control"
+                      />
+                    </div>
+                  </div>
 
-                  {/* <!-- Button trigger modal --> */}
-                  <Link
-                    className="btn btn-info float-right rounded"
-                    to={{
-                      pathname: "/branch/shape/add",
-                    }}
-                  >
-                    <span className={"fas fa-plus"}></span> Shape
-                  </Link>
+                  <div className=""></div>
                 </div>
               </div>
             </div>
@@ -212,8 +225,11 @@ const CustomerList = (props) => {
                           <tr>
                             <th>SN</th>
                             <th>NAME</th>
+                            <th>EMAIL</th>
+                            <th>MOBILE</th>
                             <th>VERIFIED</th>
-                            <th>DATE</th>
+                            <th>STATUS</th>
+                            <th>CREATED DATE</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
@@ -223,6 +239,8 @@ const CustomerList = (props) => {
                               <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{customer.name}</td>
+                                <td>{customer.email}</td>
+                                <td>{customer.mobile}</td>
                                 <td>
                                   {customer.isVerified ? (
                                     <span className="badge badge-success">
@@ -231,6 +249,17 @@ const CustomerList = (props) => {
                                   ) : (
                                     <span className="badge badge-danger">
                                       Not Verified
+                                    </span>
+                                  )}
+                                </td>
+                                <td>
+                                  {customer.status ? (
+                                    <span className="badge badge-success">
+                                      Active
+                                    </span>
+                                  ) : (
+                                    <span className="badge badge-danger">
+                                      Disabled
                                     </span>
                                   )}
                                 </td>
@@ -254,8 +283,22 @@ const CustomerList = (props) => {
                                     ></span>
                                   </Link>
 
+                                  {/* View Button */}
+                                  <Link
+                                    className="ml-2 btn btn-warning footable-edit rounded"
+                                    to={{
+                                      pathname: `/branch/customer/show/${customer.id}`,
+                                    }}
+                                    title="Show"
+                                  >
+                                    <span
+                                      className="fas fa-eye"
+                                      aria-hidden="true"
+                                    ></span>
+                                  </Link>
+
                                   {/* Delete Button */}
-                                  <button
+                                  {/* <button
                                     type="button"
                                     className="ml-2 btn btn-danger footable-delete rounded"
                                     data-toggle="modal"
@@ -268,7 +311,7 @@ const CustomerList = (props) => {
                                       className="fas fa-trash-alt"
                                       aria-hidden="true"
                                     ></span>
-                                  </button>
+                                  </button> */}
                                 </td>
                               </tr>
                             );

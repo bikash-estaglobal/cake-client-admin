@@ -10527,3 +10527,21 @@ a {
 table {
   font-family: "Poppins", sans-serif;
 }
+
+.download-table-xls-button {
+  border: 0;
+  color: #99abb4;
+  cursor: pointer;
+  background-color: transparent !important;
+  padding: 8px 4px;
+  margin-left: 5px;
+  transition: all 0.5s;
+}
+.download-table-xls-button:hover {
+  background-color: #007bb6 !important;
+  color: white;
+}
+
+.overflow-none {
+  overflow: visible !important;
+}

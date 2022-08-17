@@ -3,7 +3,8 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-const date = require("date-and-time");
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import date from "date-and-time";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -22,6 +23,7 @@ const ShippingMethodList = (props) => {
   const [allShippingMethod, setAllShippingMethod] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -106,8 +108,11 @@ const ShippingMethodList = (props) => {
 
   // Get Data From Database
   useEffect(() => {
+    setIsAllShippingMethodLoaded(false);
     fetch(
-      `${Config.SERVER_URL}/shipping-method?skip=${pagination.skip}&limit=${pagination.limit}`,
+      `${Config.SERVER_URL}/shipping-method?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&searchQuery=${searchQuery || null}`,
       {
         method: "GET",
         headers: {
@@ -131,17 +136,22 @@ const ShippingMethodList = (props) => {
           setIsAllShippingMethodLoaded(true);
         }
       );
-  }, [pagination, isDeleted]);
+  }, [pagination, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/shipping-method?skip=0&limit=0`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
+    fetch(
+      `${Config.SERVER_URL}/shipping-method?skip=0&limit=0&searchQuery=${
+        searchQuery || null
+      }`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(
         (result) => {
@@ -156,7 +166,7 @@ const ShippingMethodList = (props) => {
           setIsAllShippingMethodLoaded(true);
         }
       );
-  }, [isDeleted]);
+  }, [isDeleted, searchQuery]);
 
   // Return function
   return (
@@ -165,7 +175,7 @@ const ShippingMethodList = (props) => {
         {/* Bread crumb and right sidebar toggle */}
         <div className="row page-titles mb-0">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Shipping Method</h3>
+            <h3 className="text-themecolor m-b-0 m-t-0">SHIPPING METHODS</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="/">Admin</Link>
@@ -183,18 +193,31 @@ const ShippingMethodList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div>
-                  <h4 className="float-left mt-2 mr-2">Search: </h4>
+                <div className="d-flex justify-content-between">
+                  <div className="d-flex">
+                    <h4 className="mt-2 mr-2">Search: </h4>
+                    <div className="border px-2">
+                      <input
+                        type="search"
+                        onChange={(evt) => {
+                          setSearchQuery(evt.target.value);
+                        }}
+                        placeholder="By Name"
+                        className="form-control"
+                      />
+                    </div>
+                  </div>
 
-                  {/* <!-- Button trigger modal --> */}
-                  <Link
-                    className="btn btn-info float-right rounded"
-                    to={{
-                      pathname: "/branch/shippingMethod/add",
-                    }}
-                  >
-                    <span className={"fas fa-plus"}></span> Shipping Method
-                  </Link>
+                  <div className="">
+                    <Link
+                      className="btn btn-info rounded"
+                      to={{
+                        pathname: "/branch/shippingMethod/add",
+                      }}
+                    >
+                      <span className={"fas fa-plus"}></span> Shipping Method
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -206,6 +229,7 @@ const ShippingMethodList = (props) => {
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
+                        id={"table-to-xls"}
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
@@ -220,7 +244,7 @@ const ShippingMethodList = (props) => {
                           {allShippingMethod.map((method, index) => {
                             return (
                               <tr key={index}>
-                                <td>{index++}</td>
+                                <td>{++index}</td>
                                 <td>{method.name}</td>
                                 <td>{method.amount}</td>
 
@@ -261,17 +285,32 @@ const ShippingMethodList = (props) => {
                       </table>
                       {/* Pagination */}
                       <div className="mt-2 d-flex justify-content-between">
-                        <div className="limit form-group shadow-sm px-3 border">
-                          <select
-                            name=""
-                            id=""
-                            className="form-control"
-                            onChange={limitHandler}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="30">30</option>
-                          </select>
+                        <div className="d-flex">
+                          <div className="limit form-group shadow-sm px-3 border">
+                            <select
+                              name=""
+                              id=""
+                              className="form-control"
+                              onChange={limitHandler}
+                            >
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                              <option value="30">30</option>
+                              <option value={pagination.totalRecord}>
+                                All
+                              </option>
+                            </select>
+                          </div>
+                          <div className="">
+                            <ReactHTMLTableToExcel
+                              id="test-table-xls-button"
+                              className="download-table-xls-button shadow-sm px-3 border"
+                              table="table-to-xls"
+                              filename="shipping-methods"
+                              sheet="data"
+                              buttonText="Download as XLS"
+                            />
+                          </div>
                         </div>
                         <nav aria-label="Page navigation example">
                           <ul className="pagination">

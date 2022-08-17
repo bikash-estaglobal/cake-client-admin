@@ -3,12 +3,19 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
+import { storage } from "../../../../firebase/FirebaseConfig";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
-// import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
-const CouponList = (props) => {
+const ParentCategoryList = (props) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    image: "null",
+    description: "",
+  });
+
   const [pagination, setPagination] = useState({
     skip: 0,
     limit: 10,
@@ -18,9 +25,11 @@ const CouponList = (props) => {
   });
 
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
-  const [isAllCouponLoaded, setIsAllCouponLoaded] = useState(false);
-  const [allCoupon, setAllCoupon] = useState([]);
+  const [isAdded, setIsAdded] = useState(false);
+  const [isAllCategoryLoaded, setIsAllCategoryLoaded] = useState(false);
+  const [allCategory, setAllCategory] = useState([]);
   const [data, setData] = useState({});
+  const [isUpdated, setIsUpdated] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,8 +38,9 @@ const CouponList = (props) => {
   const deleteSubmitHandler = () => {
     setIsDeleted(false);
     setIsDeleteLaoded(false);
+    console.log(deleteId);
 
-    fetch(`${Config.SERVER_URL}/coupon/${deleteId}`, {
+    fetch(`${Config.SERVER_URL}/parent-category/${deleteId}`, {
       method: "DELETE",
       // body: JSON.stringify({deleteId}),
       headers: {
@@ -57,6 +67,68 @@ const CouponList = (props) => {
         }
       );
   };
+
+  // Get Data From Database
+  useEffect(() => {
+    setIsAllCategoryLoaded(false);
+    fetch(
+      `${Config.SERVER_URL}/parent-category?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&searchQuery=${searchQuery || null}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          setIsAllCategoryLoaded(true);
+          if (result.status === 200) {
+            setAllCategory(result.body || []);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+          setIsAllCategoryLoaded(true);
+        }
+      );
+  }, [isAdded, isUpdated, isDeleted, pagination, searchQuery]);
+
+  // Count Records
+  useEffect(() => {
+    fetch(
+      `${Config.SERVER_URL}/parent-category?skip=0&limit=1000000&searchQuery=${
+        searchQuery || null
+      }`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          console.log("Count", result);
+          setPagination({
+            ...pagination,
+            totalRecord: result.body.length,
+            totalPage: Math.ceil(result.body.length / pagination.limit),
+          });
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, [isAdded, isUpdated, isDeleted, searchQuery]);
 
   const limitHandler = (e) => {
     const limit = e.target.value;
@@ -106,68 +178,6 @@ const CouponList = (props) => {
     });
   };
 
-  // Get Data From Database
-  useEffect(() => {
-    setIsAllCouponLoaded(false);
-    fetch(
-      `${Config.SERVER_URL}/coupon?skip=${pagination.skip}&limit=${
-        pagination.limit
-      }&searchQuery=${searchQuery || null}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          if (result.status === 200) {
-            setAllCoupon(result.body || []);
-          } else {
-            M.toast({ html: result.message, classes: "bg-danger" });
-          }
-          setIsAllCouponLoaded(true);
-        },
-        (error) => {
-          M.toast({ html: error, classes: "bg-danger" });
-          setIsAllCouponLoaded(true);
-        }
-      );
-  }, [pagination, isDeleted, searchQuery]);
-
-  // Count Records
-  useEffect(() => {
-    fetch(
-      `${Config.SERVER_URL}/coupon?skip=0&limit=0&searchQuery=${
-        searchQuery || null
-      }`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setPagination({
-            ...pagination,
-            totalRecord: result.body.length,
-            totalPage: Math.ceil(result.body.length / pagination.limit),
-          });
-        },
-        (error) => {
-          M.toast({ html: error, classes: "bg-danger" });
-          setIsAllCouponLoaded(true);
-        }
-      );
-  }, [isDeleted, searchQuery]);
-
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
@@ -175,12 +185,12 @@ const CouponList = (props) => {
         {/* Bread crumb and right sidebar toggle */}
         <div className="row page-titles mb-0">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">COUPON LISTS</h3>
+            <h3 className="text-themecolor m-b-0 m-t-0">PARENT CATEGORY</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="/">Admin</Link>
               </li>
-              <li className="breadcrumb-item active">Coupon List</li>
+              <li className="breadcrumb-item active">Parent Category</li>
             </ol>
           </div>
         </div>
@@ -202,16 +212,17 @@ const CouponList = (props) => {
                         onChange={(evt) => {
                           setSearchQuery(evt.target.value);
                         }}
-                        placeholder="By Code/User Type"
+                        placeholder="By Name"
                         className="form-control"
                       />
                     </div>
                   </div>
+
                   <div className="">
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{
-                        pathname: "/branch/coupon/addByCSV",
+                        pathname: "/branch/parentCategory/addByCSV",
                       }}
                     >
                       <span className={"fas fa-file"}></span> Add By CSV
@@ -220,19 +231,17 @@ const CouponList = (props) => {
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{
-                        pathname: "/branch/coupon/editByCSV",
+                        pathname: "/branch/parentCategory/editByCSV",
                       }}
                     >
                       <span className={"fas fa-edit"}></span> Update By CSV
                     </Link>
 
                     <Link
-                      className="btn btn-info rounded mr-2"
-                      to={{
-                        pathname: "/branch/coupon/add",
-                      }}
+                      to={"/branch/parentCategory/add"}
+                      className={"btn btn-info "}
                     >
-                      <span className={"fas fa-plus"}></span> Coupon
+                      <span className={"fas fa-plus"}></span> category
                     </Link>
                   </div>
                 </div>
@@ -240,9 +249,9 @@ const CouponList = (props) => {
             </div>
 
             {/* Data */}
-            {isAllCouponLoaded ? (
+            {isAllCategoryLoaded ? (
               <div className="card border-0 rounded m-0 py-1">
-                {allCoupon.length ? (
+                {allCategory.length ? (
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
@@ -252,41 +261,49 @@ const CouponList = (props) => {
                         <thead>
                           <tr>
                             <th>SN</th>
-                            <th>CODE</th>
-                            <th>VALIDITY</th>
-                            <th>USES TIMES</th>
-                            <th>USER TYPE</th>
+                            <th>NAME</th>
+                            <th>IMAGE</th>
                             <th>STATUS</th>
+                            <th>CREATED AT </th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {allCoupon.map((coupon, index) => {
+                          {allCategory.map((category, index) => {
                             return (
                               <tr key={index}>
                                 <td>{++index}</td>
-                                <td>{coupon.code}</td>
+                                <td>{category.name}</td>
+                                <td>
+                                  {category.image != "null" ? (
+                                    <img
+                                      src={category.image}
+                                      className="img img-fluid"
+                                      alt="Category Image"
+                                      style={{
+                                        height: "80px",
+                                        width: "80px",
+                                        borderRadius: "40px",
+                                      }}
+                                    />
+                                  ) : (
+                                    "N/A"
+                                  )}
+                                </td>
+                                <td>
+                                  {category.status ? "active" : "disabled"}
+                                </td>
                                 <td>
                                   {date.format(
-                                    new Date(coupon.startDate),
-                                    "DD-MM-YYYY"
-                                  )}
-                                  {" to "}
-                                  {date.format(
-                                    new Date(coupon.validity),
+                                    new Date(category.createdAt),
                                     "DD-MM-YYYY"
                                   )}
                                 </td>
-                                <td>{coupon.usesTimes}</td>
-                                <td>{coupon.applyFor}</td>
-                                <td>{coupon.status ? "active" : "disabled"}</td>
                                 <td className="text-center">
-                                  {/* Update Button */}
+                                  {/* Edit Button */}
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"
-                                    to={{
-                                      pathname: `/branch/coupon/edit/${coupon.id}`,
-                                    }}
+                                    to={`/branch/parentCategory/edit/${category._id}`}
                                   >
                                     <span
                                       className="fas fa-pencil-alt"
@@ -301,7 +318,7 @@ const CouponList = (props) => {
                                     data-toggle="modal"
                                     data-target="#deleteModal"
                                     onClick={(e) => {
-                                      setDeleteId(coupon._id);
+                                      setDeleteId(category._id);
                                     }}
                                   >
                                     <span
@@ -338,7 +355,7 @@ const CouponList = (props) => {
                               id="test-table-xls-button"
                               className="download-table-xls-button shadow-sm px-3 border"
                               table="table-to-xls"
-                              filename="coupons"
+                              filename="parent-categories"
                               sheet="data"
                               buttonText="Download as XLS"
                             />
@@ -413,7 +430,10 @@ const CouponList = (props) => {
               </div>
             )}
           </div>
+        </div>
 
+        {/* -- Modal Designing -- */}
+        <div>
           {/* -- Delete Modal -- */}
           <div
             className="modal fade rounded"
@@ -474,4 +494,4 @@ const CouponList = (props) => {
   );
 };
 
-export default CouponList;
+export default ParentCategoryList;

@@ -14,6 +14,9 @@ function AddProduct() {
   const [mrp, setMRP] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [isAddLoaded, setIsAddLoaded] = useState(true);
+  const [imageUploaded, setImageUploaded] = useState(true);
+  const [defaultImages, setDefaultImages] = useState("");
+  const [defaultImgProgress, setDefaultImgProgress] = useState("");
 
   const [product, setProduct] = useState({
     name: "",
@@ -54,51 +57,137 @@ function AddProduct() {
     });
   };
 
-  // Iamege Change
-  const imageChangeHandler = (event) => {
-    if (event.target.files && event.target.files.length) {
-      [...event.target.files].map((value, index) => {
-        handleUpload(value, index);
-        // let reader = new FileReader();
-        // reader.onload = (e) => {
-        //   setlogoDefault(e.target.result);
-        // };
-        // reader.readAsDataURL(value);
-      });
+  // Imege Change
+  // const imageChangeHandler = (event) => {
+  //   if (event.target.files && event.target.files.length) {
+  //     [...event.target.files].map((value, index) => {
+  //       handleUpload(value, index);
+  //     });
+  //   }
+  // };
+
+  // Image Change
+  const imageChangeHandler = (event, type) => {
+    if (type == "default_image") {
+      handleUpload(event.target.files[0], "", type);
+    } else {
+      if (event.target.files && event.target.files.length) {
+        [...event.target.files].map((value, index) => {
+          handleUpload(value, index);
+        });
+      }
     }
   };
 
+  // File Delete Handler
+  const fileDeleteHandler = (image, index, type) => {
+    // Create a reference to the file to delete
+    const fileRef = storage.refFromURL(image);
+    // Delete the file
+    fileRef
+      .delete()
+      .then(() => {
+        // File deleted successfully
+        if (type == "default_image") {
+          setDefaultImages("");
+          setDefaultImgProgress("");
+        } else {
+          let pImages = [...previewImages];
+          pImages.splice(index, 1);
+
+          let pInfos = [...progressInfos];
+          pInfos.splice(index, 1);
+          setProgressInfos(pInfos);
+          setPreviewImages(pImages);
+        }
+      })
+      .catch((error) => {
+        // Uh-oh, an error occurred!
+        M.toast({ html: error, classes: "bg-danger" });
+      });
+  };
+
   // Upload Image
-  const handleUpload = (image, i) => {
-    const uploadTask = storage.ref(`cakes/${image.name}`).put(image);
+  // const handleUpload = (image, i) => {
+  //   const uploadTask = storage.ref(`cakes/${image.name}`).put(image);
+  //   uploadTask.on(
+  //     "state_changed",
+  //     (snapshot) => {
+  //       const progress = Math.round(
+  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+  //       );
+
+  //       setImageUploaded(false);
+  //     },
+  //     (error) => {
+  //       console.log(error);
+  //     },
+  //     () => {
+  //       storage
+  //         .ref("cakes")
+  //         .child(image.name)
+  //         .getDownloadURL()
+  //         .then((url) => {
+  //           setPreviewImages((old) => [...old, { url }]);
+  //           setImageUploaded(true);
+  //           setProduct((old) => {
+  //             return {
+  //               ...old,
+  //               images: [...old.images, { url }],
+  //             };
+  //           });
+  //         });
+  //     }
+  //   );
+  // };
+
+  // Upload Image
+  const handleUpload = (image, i, type) => {
+    const uploadTask = storage.ref(`products/${image.name}`).put(image);
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress = Math.round(
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         );
-        // console.log(i, progress);
-        setProgressInfos((old) => {
-          return [...old, (progressInfos[i] = progress)];
-        });
+
+        if (type == "default_image") {
+          setDefaultImgProgress(progress);
+        } else {
+          let arrs = [...progressInfos];
+          arrs[i] = progress;
+          setProgressInfos((old) => {
+            return [...arrs];
+          });
+        }
       },
       (error) => {
         console.log(error);
       },
       () => {
         storage
-          .ref("cakes")
+          .ref("products")
           .child(image.name)
           .getDownloadURL()
           .then((url) => {
-            setPreviewImages((old) => [...old, { url }]);
-            setProduct((old) => {
-              return {
-                ...old,
-                images: [...old.images, { url }],
-              };
-            });
-            // setCategory({ ...category, category_image: url })
+            console.log(url);
+            if (type == "default_image") {
+              setDefaultImages(url);
+              setProduct((old) => {
+                return {
+                  ...old,
+                  defaultImage: url,
+                };
+              });
+            } else {
+              setPreviewImages((old) => [...old, url]);
+              setProduct((old) => {
+                return {
+                  ...old,
+                  images: [...old.images, { url }],
+                };
+              });
+            }
           });
       }
     );
@@ -169,7 +258,11 @@ function AddProduct() {
       .then(
         (result) => {
           if (result.status === 200) {
-            setParentCategory(result.body);
+            let f = result.body.map((v) => {
+              return { label: v.name, value: v._id };
+            });
+
+            setParentCategory(f);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -214,7 +307,6 @@ function AddProduct() {
     let method = "GET";
     if (selectPCat.length) {
       const filter = selectPCat.map((value) => value.catId);
-      console.log(filter);
       url = `${url}/byParentCategory?limit=200`;
       body = { catId: filter };
       method = "POST";
@@ -236,7 +328,10 @@ function AddProduct() {
         (result) => {
           if (result.status === 200) {
             if (!result.body.length) setSelectSCat([]);
-            setCategory(result.body);
+            let f = result.body.map((v) => {
+              return { label: v.name, value: v._id };
+            });
+            setCategory(f);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -339,8 +434,10 @@ function AddProduct() {
   };
 
   const addParentCategoryHandler = (evt) => {
-    evt.preventDefault();
-    const cat = JSON.parse(evt.target.value);
+    const cat = {
+      catId: evt.value,
+      name: evt.label,
+    };
 
     const isExist = selectPCat.find((value) => {
       if (value.catId == cat.catId) {
@@ -353,7 +450,6 @@ function AddProduct() {
       return;
     }
 
-    console.log(selectPCat);
     setSelectPCat([...selectPCat, cat]);
   };
 
@@ -367,8 +463,10 @@ function AddProduct() {
   };
 
   const addSubCategoryHandler = (evt) => {
-    evt.preventDefault();
-    const cat = JSON.parse(evt.target.value);
+    const cat = {
+      name: evt.label,
+      catId: evt.value,
+    };
 
     const isExist = selectSCat.find((value) => {
       if (value.catId == cat.catId) {
@@ -400,7 +498,7 @@ function AddProduct() {
         {/* Bread crumb and right sidebar toggle */}
         <div className="row page-titles mb-0">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Products</h3>
+            <h3 className="text-themecolor m-b-0 m-t-0">ADD PRODUCT</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="/">Admin</Link>
@@ -413,15 +511,15 @@ function AddProduct() {
 
         {/* Listing Form */}
         <div className="row mt-2">
-          <div className={"col-md-10 mx-auto"}>
+          <div className={"col-md-12 mx-auto"}>
             <form
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Product Details */}
+              {/* PRODUCT DETAILS */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Details</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT DETAILS</h3>
                 </div>
 
                 {/* Product Name */}
@@ -455,36 +553,20 @@ function AddProduct() {
                 </div>
 
                 {/* Parent Category */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     PARENT CATEGORY HERE !
                   </label>
-                  <div className="border p-2">
-                    <select
-                      className={"form-control custom-select"}
-                      size={5}
-                      name={"category"}
+                  <div className="">
+                    <Select
+                      options={parentCategory}
                       onChange={addParentCategoryHandler}
-                    >
-                      {parentCategory.map((value, index) => {
-                        return (
-                          <option
-                            key={index}
-                            value={JSON.stringify({
-                              catId: value._id,
-                              name: value.name,
-                            })}
-                          >
-                            {value.name}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    />
                   </div>
                 </div>
 
                 {/* Selected Parent Category */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SELECTED PARENT CATEGORY!
                   </label>
@@ -506,32 +588,16 @@ function AddProduct() {
                 </div>
 
                 {/* Sub Category */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SUB CATEGORY HERE !
                   </label>
 
-                  <div className="border p-2">
-                    <select
-                      className={"form-control custom-select"}
-                      size={5}
-                      name={"category"}
+                  <div className="">
+                    <Select
+                      options={category}
                       onChange={addSubCategoryHandler}
-                    >
-                      {category.map((value, index) => {
-                        return (
-                          <option
-                            key={index}
-                            value={JSON.stringify({
-                              catId: value._id,
-                              name: value.name,
-                            })}
-                          >
-                            {value.name}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -558,35 +624,31 @@ function AddProduct() {
                 </div>
 
                 {/* Flavour */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     FLAVOUR HERE !
                   </label>
-                  <div className="border p-2" style={{ height: "150px" }}>
-                    <Select
-                      options={flavour}
-                      onChange={(evt) => {
-                        setSelectFlavour(evt.value);
-                      }}
-                    />
-                  </div>
+
+                  <Select
+                    options={flavour}
+                    onChange={(evt) => {
+                      setSelectFlavour(evt.value);
+                    }}
+                  />
                 </div>
 
                 {/* Color */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     COLOR HERE !
                   </label>
-                  <div className="border p-2">
-                    <div className="border p-2" style={{ height: "150px" }}>
-                      <Select
-                        options={color}
-                        onChange={(evt) => {
-                          setSelectColor(evt.value);
-                        }}
-                      />
-                    </div>
-                  </div>
+
+                  <Select
+                    options={color}
+                    onChange={(evt) => {
+                      setSelectColor(evt.value);
+                    }}
+                  />
                 </div>
 
                 {/* Is Egg Cake*/}
@@ -684,22 +746,18 @@ function AddProduct() {
                 </div>
 
                 {/* Cake Shape */}
-                <div
-                  className={"form-group col-md-6"}
-                  style={{ height: "200px" }}
-                >
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     CAKE SHAPE !
                   </label>
-                  <div className="border p-2">
-                    <div className="border p-2">
-                      <Select
-                        options={shapes}
-                        onChange={(evt) => {
-                          setProduct({ ...product, shape: evt.value });
-                        }}
-                      />
-                    </div>
+
+                  <div className="">
+                    <Select
+                      options={shapes}
+                      onChange={(evt) => {
+                        setProduct({ ...product, shape: evt.value });
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -707,7 +765,7 @@ function AddProduct() {
               {/* SKUs */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Skus</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT PRICE DETAILS</h3>
                 </div>
                 {/* Weight */}
                 <div className={"form-group col-md-4"}>
@@ -787,10 +845,10 @@ function AddProduct() {
                 </div>
               </div>
 
-              {/* Product Description */}
+              {/* PRODUCT DESCRIPTION */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Description</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT DESCRIPTION</h3>
                 </div>
                 <div className={"form-group col-md-12"}>
                   <CKEditor
@@ -805,13 +863,74 @@ function AddProduct() {
                 </div>
               </div>
 
-              {/* Product Images */}
+              {/* PRODUCT IMAGES */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Images</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT IMAGES</h3>
                 </div>
 
                 <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    PRODUCT DEFAULT IMAGE
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(evt) => imageChangeHandler(evt, "default_image")}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  {defaultImages ? (
+                    <div className={"form-group"}>
+                      <img
+                        style={{
+                          maxHeight: "200px",
+                          maxWidth: "200px",
+                          border: "1px solid #5a5a5a",
+                        }}
+                        src={defaultImages}
+                      />
+                      <button
+                        style={{
+                          position: "absolute",
+                          top: "40%",
+                          right: "45%",
+                        }}
+                        type="button"
+                        className="btn bg-light text-danger"
+                        title={"Delete Image"}
+                        onClick={(evt) =>
+                          fileDeleteHandler(defaultImages, "", "default_image")
+                        }
+                      >
+                        X
+                      </button>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
+                  {defaultImgProgress ? (
+                    <div className="progress">
+                      <div
+                        className="progress-bar"
+                        role="progressbar"
+                        style={{ width: `${defaultImgProgress}%` }}
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        {defaultImgProgress}%
+                      </div>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                {/* Products Multiple Images */}
+                <div className={"form-group col-md-12"}>
                   <label htmlFor="" className="text-dark h6 active">
                     PRODUCT IMAGES
                   </label>
@@ -823,35 +942,60 @@ function AddProduct() {
                   />
                 </div>
 
-                <div className={"form-group col-md-2"}>
-                  {previewImages.map((img, index) => {
-                    return (
-                      <img
-                        key={index}
-                        style={{
-                          maxHeight: "100px",
-                          maxWidth: "100px",
-                          borderRadius: "100%",
-                          border: "1px solid #5a5a5a",
-                        }}
-                        src={img.url}
-                      />
-                    );
-                  })}
-
-                  {progressInfos.forEach((info, index) => {
-                    return (
-                      <div className="progress mt-2">
-                        <div
-                          className="progress-bar bg-success"
-                          style={{ width: `${info}%`, height: "15px" }}
-                          role="progressbar"
-                        >
-                          {info}%
+                {/*Multiple Image Preview */}
+                <div className="col-md-12 mb-1">
+                  <div className="row">
+                    {previewImages.map((img, index) => {
+                      return (
+                        <div className={"form-group col-md-3"} key={index}>
+                          <img
+                            style={{
+                              maxHeight: "100%",
+                              maxWidth: "100%",
+                              border: "1px solid #5a5a5a",
+                            }}
+                            src={img}
+                          />
+                          <button
+                            style={{
+                              position: "absolute",
+                              top: "40%",
+                              right: "45%",
+                            }}
+                            type="button"
+                            className="btn bg-light text-danger"
+                            title={"Delete Image"}
+                            onClick={(evt) => fileDeleteHandler(img, index)}
+                          >
+                            X
+                          </button>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Multiple image prpgress */}
+                <div className="col-md-12 mb-2">
+                  <div className="row">
+                    {progressInfos.map((info, index) => {
+                      return (
+                        <div className="col-md-3" key={index}>
+                          <div className="progress">
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{ width: `${info}%` }}
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            >
+                              {info}%
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Submit Button */}

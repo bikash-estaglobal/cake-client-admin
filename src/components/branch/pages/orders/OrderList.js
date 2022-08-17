@@ -3,10 +3,11 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-const date = require("date-and-time");
+import date from "date-and-time";
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
-//  Component Function
+// Component Function
 const OrderList = (props) => {
   const [pagination, setPagination] = useState({
     skip: 0,
@@ -28,7 +29,7 @@ const OrderList = (props) => {
     setIsDeleted(false);
     setIsDeleteLaoded(false);
 
-    fetch(`${Config.SERVER_URL}/product/${deleteId}`, {
+    fetch(`${Config.SERVER_URL}/order/${deleteId}`, {
       method: "DELETE",
       // body: JSON.stringify({deleteId}),
       headers: {
@@ -98,14 +99,15 @@ const OrderList = (props) => {
           ? pagination.totalPage
           : pagination.currentPage + 1,
       skip:
-        pagination.currentPage == pagination.totalPage
-          ? 0
-          : pagination.currentPage * pagination.limit,
+        pagination.currentPage == 1
+          ? pagination.limit
+          : (pagination.currentPage + 1) * pagination.limit,
     });
   };
 
   // Get Data From Database
   useEffect(() => {
+    setIsAllOrdersLoaded(false);
     let url = `${Config.SERVER_URL}/order?skip=${pagination.skip}&limit=${pagination.limit}`;
     if (orderStatus !== "ALL") {
       url = url + `&orderStatus=${orderStatus}`;
@@ -136,7 +138,11 @@ const OrderList = (props) => {
 
   // Count Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/product?skip=0&limit=0`, {
+    let url = `${Config.SERVER_URL}/order?skip=0&limit=0`;
+    if (orderStatus !== "ALL") {
+      url = url + `&orderStatus=${orderStatus}`;
+    }
+    fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -199,10 +205,12 @@ const OrderList = (props) => {
                       value={orderStatus}
                     >
                       <option value="ALL">ALL</option>
-                      <option value="PROCESSING">PROCESSING</option>
-                      <option value="ACCEPTED">ACCEPTED</option>
+                      <option value="ORDERPLACED">ORDER PLACED</option>
+                      <option value="CONFIRMED">CONFIRMED</option>
+                      <option value="DISPATCHED">DISPATCHED</option>
                       <option value="DELIVERED">DELIVERED</option>
                       <option value="CANCELLED">CANCELLED</option>
+                      <option value="RETURNED">RETURNED</option>
                     </select>
                   </div>
                 </div>
@@ -216,6 +224,7 @@ const OrderList = (props) => {
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
+                        id={"table-to-xls"}
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
@@ -248,12 +257,16 @@ const OrderList = (props) => {
                                 </td>
 
                                 <td>
-                                  {order.orderStatus === "PROCESSING" ? (
+                                  {order.orderStatus === "ORDERPLACED" ? (
                                     <span className="badge badge-info">
                                       {order.orderStatus}
                                     </span>
-                                  ) : order.orderStatus === "ACCEPTED" ? (
+                                  ) : order.orderStatus === "CONFIRMED" ? (
                                     <span className="badge badge-warning">
+                                      {order.orderStatus}
+                                    </span>
+                                  ) : order.orderStatus === "DISPATCHED" ? (
+                                    <span className="badge badge-primary">
                                       {order.orderStatus}
                                     </span>
                                   ) : order.orderStatus === "DELIVERED" ? (
@@ -261,6 +274,10 @@ const OrderList = (props) => {
                                       {order.orderStatus}
                                     </span>
                                   ) : order.orderStatus === "CANCELLED" ? (
+                                    <span className="badge badge-danger">
+                                      {order.orderStatus}
+                                    </span>
+                                  ) : order.orderStatus === "RETURNED" ? (
                                     <span className="badge badge-danger">
                                       {order.orderStatus}
                                     </span>
@@ -306,17 +323,32 @@ const OrderList = (props) => {
                       </table>
                       {/* Pagination */}
                       <div className="mt-2 d-flex justify-content-between">
-                        <div className="limit form-group shadow-sm px-3 border">
-                          <select
-                            name=""
-                            id=""
-                            className="form-control"
-                            onChange={limitHandler}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="30">30</option>
-                          </select>
+                        <div className="d-flex">
+                          <div className="limit form-group shadow-sm px-3 border">
+                            <select
+                              name=""
+                              id=""
+                              className="form-control"
+                              onChange={limitHandler}
+                            >
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                              <option value="30">30</option>
+                              <option value={pagination.totalRecord}>
+                                All
+                              </option>
+                            </select>
+                          </div>
+                          <div className="">
+                            <ReactHTMLTableToExcel
+                              id="test-table-xls-button"
+                              className="download-table-xls-button shadow-sm px-3 border"
+                              table="table-to-xls"
+                              filename="orders"
+                              sheet="data"
+                              buttonText="Download as XLS"
+                            />
+                          </div>
                         </div>
                         <nav aria-label="Page navigation example">
                           <ul className="pagination">
