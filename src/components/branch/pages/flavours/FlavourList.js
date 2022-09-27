@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import date from "date-and-time";
-// import { storage } from "../../../firebase/FirebaseConfig";
+import Breadcrumb from "../../components/Breadcrumb";
 
 //  Component Function
 const FlavourList = (props) => {
@@ -20,7 +20,6 @@ const FlavourList = (props) => {
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
   const [isAllFlavourLoaded, setIsAllFlavourLoaded] = useState(false);
   const [allFlavour, setAllFlavour] = useState([]);
-  const [data, setData] = useState({});
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,7 +135,7 @@ const FlavourList = (props) => {
           setIsAllFlavourLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
@@ -173,17 +172,8 @@ const FlavourList = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">FLAVOURS</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Flavour List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title="FLAVOURS" pageTitle={"Flavour List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -254,6 +244,7 @@ const FlavourList = (props) => {
                           <tr>
                             <th>SN</th>
                             <th>NAME</th>
+                            <th>STATUS</th>
                             <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
@@ -264,6 +255,9 @@ const FlavourList = (props) => {
                               <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{flavour.name}</td>
+                                <td>
+                                  {flavour.status ? "Active" : "Disabled"}
+                                </td>
                                 <td>
                                   {date.format(
                                     new Date(flavour.createdAt),
@@ -312,6 +306,7 @@ const FlavourList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

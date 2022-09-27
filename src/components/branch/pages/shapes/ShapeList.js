@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -20,7 +21,6 @@ const ShapeList = (props) => {
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
   const [isAllShapeLoaded, setIsAllShapeLoaded] = useState(false);
   const [allShape, setAllShape] = useState([]);
-  const [data, setData] = useState({});
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,7 +136,7 @@ const ShapeList = (props) => {
           setIsAllShapeLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
@@ -173,17 +173,9 @@ const ShapeList = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">SHAPES</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Shape List</li>
-            </ol>
-          </div>
-        </div>
+
+        <Breadcrumb title={"SHAPES"} pageTitle={"Shape List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -253,6 +245,7 @@ const ShapeList = (props) => {
                           <tr>
                             <th>SN</th>
                             <th>NAME</th>
+                            <th>STATUS</th>
                             <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
@@ -263,6 +256,7 @@ const ShapeList = (props) => {
                               <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{shape.name}</td>
+                                <td>{shape.status ? "Active" : "Disabled"}</td>
                                 <td>
                                   {date.format(
                                     new Date(shape.createdAt),
@@ -311,6 +305,7 @@ const ShapeList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

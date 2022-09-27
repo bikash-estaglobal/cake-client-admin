@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -136,7 +137,7 @@ const ShippingMethodList = (props) => {
           setIsAllShippingMethodLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
@@ -173,17 +174,8 @@ const ShippingMethodList = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">SHIPPING METHODS</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Method List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"SHIPPING METHODS"} pageTitle={"Method List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -237,6 +229,8 @@ const ShippingMethodList = (props) => {
                             <th>SN</th>
                             <th>NAME</th>
                             <th>AMOUNT</th>
+                            <th>STATUS</th>
+                            <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
@@ -247,6 +241,13 @@ const ShippingMethodList = (props) => {
                                 <td>{++index}</td>
                                 <td>{method.name}</td>
                                 <td>{method.amount}</td>
+                                <td>{method.status ? "Active" : "Disabled"}</td>
+                                <td>
+                                  {date.format(
+                                    new Date(method.createdAt),
+                                    "DD-MM-YYYY"
+                                  )}
+                                </td>
 
                                 <td className="text-center">
                                   {/* Update Button */}
@@ -289,6 +290,7 @@ const ShippingMethodList = (props) => {
                           <div className="limit form-group shadow-sm px-3 border">
                             <select
                               name=""
+                              value={pagination.limit}
                               id=""
                               className="form-control"
                               onChange={limitHandler}

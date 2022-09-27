@@ -1,150 +1,42 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import $ from "jquery";
-import axios from "axios";
+
 import { BranchContext } from "../Branch";
-import Config from '../../../components/config/Config'
-import M from 'materialize-css';
-import { storage } from "../../../firebase/FirebaseConfig";
-import uniqid from 'uniqid';
+import Config from "../../config/Config";
+import M from "materialize-css";
+import Breadcrumb from "../components/Breadcrumb";
 
 function Profile() {
   const { state, dispatch } = useContext(BranchContext);
   // State Variable
   const [profile, setProfile] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
-  const [profileImgDef, setProfileImgDef] = useState("");
-  const [progress, setProgress] = useState(0);
 
   const [data, setData] = useState({});
-  const [isUpdated, setisUpdated] = useState(false);
+  const [isUpdated, setisUpdated] = useState(true);
 
-  // For Image
-  const imgChangeHandler = e => {
-    if (e.target.files[0]) {
-      handleUpload(renameFile(e.target.files[0]));
-      let reader = new FileReader();
-      reader.onload = (evt) => {
-        setProfileImgDef(evt.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
-
-  function renameFile(originalFile) {
-    const newName = uniqid() + originalFile.name;
-    return new File([originalFile], newName, {
-      type: originalFile.type,
-      lastModified: originalFile.lastModified,
-    });
-  }
-
-  // Upload Image
-  const handleUpload = (image) => {
-    const uploadTask = storage.ref(`images/${image.name}`).put(image);
-    uploadTask.on(
-      "state_changed",
-      snapshot => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        setProgress(progress);
-      },
-      error => {
-        console.log(error);
-      },
-      () => {
-        storage
-          .ref("images")
-          .child(image.name)
-          .getDownloadURL()
-          .then(url => {
-            // Update Database
-            fetch(Config.SERVER_URL + "/branch/updateProfile", {
-              method: "PUT",
-              body: JSON.stringify({ ...data, photo: url }),
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-              },
-            })
-              .then((res) => res.json())
-              .then(
-                (result) => {
-                  if (result.success) {
-                    setProfile({ ...profile, photo: result.data.photo });
-                    M.toast({ html: result.message, classes: "bg-success" });
-                    localStorage.setItem("branch", JSON.stringify(result.data))
-                    dispatch({ type: "BRANCH", payload: result.data })
-                    setisUpdated(true);
-
-                  } else {
-                    if (result.message)
-                      M.toast({ html: result.message, classes: "bg-danger" });
-                  }
-                },
-                (error) => {
-                  M.toast({ html: error, classes: "bg-danger" });
-                }
-              );
-          });
-      }
-    );
-  };
-
-  const deleteImageHandler = (image) => {
-    const storageRef = storage.refFromURL(image);
-    storageRef.delete().then(() => {
-      M.toast({ html: "Image Deleted Successfully", classes: "bg-success" });
-    }).catch((error) => {
-      M.toast({ html: "Image not Deleted", classes: "bg-danger" });
-    });
-
-    // Update State
-    setProfile({ ...profile, photo: "" });
-    // // Update Database
-    fetch(Config.SERVER_URL + "/branch/updateProfile", {
-      method: "PUT",
-      body: JSON.stringify({ ...data, photo: "" }),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          if (result.success) {
-            M.toast({ html: result.message, classes: "bg-success" });
-            localStorage.setItem("branch", JSON.stringify(result.data))
-            dispatch({ type: "BRANCH", payload: result.data })
-            setisUpdated(true);
-          } else {
-            if (result.message)
-              M.toast({ html: result.message, classes: "bg-danger" });
-          }
-        },
-        (error) => {
-          M.toast({ html: error, classes: "bg-danger" });
-        }
-      );
-  }
-
-  // Update change handler
+  // updateChangeHandler
   const updateChangeHandler = (evt) => {
     const name = evt.target.name;
     const value = evt.target.value;
     setData({ ...data, [name]: value });
   };
 
-  // Update Submit Handler
+  // updateChangeHandler
   const updateSubmitHandler = (evt) => {
     setisUpdated(false);
     evt.preventDefault();
 
-    fetch(Config.SERVER_URL + "/branch/updateProfile", {
+    const updateData = {
+      name: data.name || undefined,
+      email: data.email || undefined,
+      password: data.password || undefined,
+      oldPassword: data.oldPassword || undefined,
+    };
+
+    fetch(Config.SERVER_URL + "/admin/updateProfile", {
       method: "PUT",
-      body: JSON.stringify({ ...data, _id: profile._id }),
+      body: JSON.stringify(updateData),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -153,34 +45,30 @@ function Profile() {
       .then((res) => res.json())
       .then(
         (result) => {
-          if (result.success) {
+          if (result.status == 200) {
             M.toast({ html: result.message, classes: "bg-success" });
-            localStorage.setItem("branch", JSON.stringify(result.data))
-            dispatch({ type: "BRANCH", payload: result.data })
-            setisUpdated(true);
+            dispatch({ type: "BRANCH", payload: result.body });
           } else {
-            if (result.name)
-              M.toast({ html: result.name, classes: "bg-danger" });
-            if (result.email)
-              M.toast({ html: result.email, classes: "bg-danger" });
-            if (result.mobile)
-              M.toast({ html: result.mobile, classes: "bg-danger" });
-            if (result.address)
-              M.toast({ html: result.address, classes: "bg-danger" });
+            const keys = Object.keys(result.error);
+            keys.forEach((key) => {
+              M.toast({ html: result.error[key], classes: "bg-danger" });
+            });
 
             if (result.message)
               M.toast({ html: result.message, classes: "bg-danger" });
           }
+          setisUpdated(true);
         },
         (error) => {
           console.log(error);
+          setisUpdated(true);
         }
       );
   };
 
   // Fetching the data
   useEffect(() => {
-    fetch(Config.SERVER_URL + "/branch/myProfile", {
+    fetch(Config.SERVER_URL + "/admin/getProfile", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -190,10 +78,10 @@ function Profile() {
       .then((res) => res.json())
       .then(
         (result) => {
-          if (result.success) {
+          if (result.status == 200) {
             setIsLoaded(true);
-            setProfile(result.data || {});
-            setData(result.data);
+            setProfile(result.body || {});
+            setData(result.body);
           } else {
             M.toast({ html: result.message, classes: "bg-success" });
             setIsLoaded(true);
@@ -207,20 +95,14 @@ function Profile() {
   }, [isUpdated]);
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper px-0 pt-0">
       <div className="container-fluid">
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Profile</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              <li className="breadcrumb-item active">Profile</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb
+          title={"Profile"}
+          pageTitle={"Show Profile"}
+          pageLink={"/branch/profile"}
+        />
         {/* End Bread crumb and right sidebar toggle */}
 
         {/* Start Page Content */}
@@ -229,106 +111,29 @@ function Profile() {
           {/* Profile */}
           <div className="col-lg-4 col-xlg-3 col-md-5">
             <div className="card">
-
               <div className="card-body">
                 <center className="m-t-30">
-                  <div style={{ height: "0px", overflow: "hidden" }}>
-                    <input
-                      type="file"
-                      id="fileInput"
-                      name="fileInput"
-                      onChange={imgChangeHandler}
-                    />
-                  </div>
-
-                  {/* If photo have or not */}
-                  {profile.photo ? (<span
-                    className={"mdi mdi-close-circle h1 text-danger edit-profile-btn"}
-                    onClick={() => deleteImageHandler(profile.photo)}
-                  ></span>)
-                    : (<span
-                      className={"mdi mdi-pencil h1 text-info edit-profile-btn"}
-                      onClick={() => $("#fileInput").click()}
-                    ></span>)}
-
                   <img
-                    src={profile.photo || profileImgDef}
+                    src={
+                      "https://www.pngitem.com/pimgs/m/421-4212341_default-avatar-svg-hd-png-download.png"
+                    }
                     className="user-profile-img shadow-sm"
                     width="150"
                   />
 
-                  {/* Progress Bar */}
-                  <span>
-                    {
-                      progress ? <div className="progress mt-2">
-                        <div className="progress-bar bg-success" style={{ width: `${progress}%`, height: "15px" }} role="progressbar"> {progress}% </div>
-                      </div> : ""
-                    }
-                  </span>
-
-
                   <h4 className="card-title m-t-10">{profile.name}</h4>
-                  <h6 className="card-subtitle"> Bio: {profile.bio || 'Not Available'} </h6>
-                  <div className="row text-center justify-content-md-center">
 
-                  </div>
+                  <div className="row text-center justify-content-md-center"></div>
                 </center>
               </div>
               <div>
-
-
                 <hr />
               </div>
               <div className="card-body">
-                <small className="text-muted">Email address </small>
-                <h6>
-                  {profile.email || "Not Available"}
-                </h6>
-                <small className="text-muted p-t-30 db">Phone</small>
-                <h6>{profile.mobile || "Not Available"}</h6>
-                <small className="text-muted p-t-30 db">Address</small>
-                <h6> {profile.address || "Not Available"} </h6>
-
-                <small className="text-muted p-t-30 db">Social Profile</small>
-                <br />
-                {profile.twitter && (
-                  <a
-                    target={"_blank"}
-                    href={profile.twitter}
-                    className="btn btn-circle btn-secondary"
-                  >
-                    <i className="mdi mdi-twitter"></i>
-                  </a>
-                )}
-
-                {profile.facebook && (
-                  <a
-                    target={"_blank"}
-                    href={profile.facebook}
-                    className="btn btn-circle btn-secondary"
-                  >
-                    <i className="mdi mdi-facebook"></i>
-                  </a>
-                )}
-                {profile.instagram && (
-                  <a
-                    target={"_blank"}
-                    href={profile.instagram}
-                    className="btn btn-circle btn-secondary"
-                  >
-                    <i className="mdi mdi-instagram"></i>
-                  </a>
-                )}
-
-                {profile.youtube && (
-                  <a
-                    target={"_blank"}
-                    href={profile.youtube}
-                    className="btn btn-circle btn-secondary"
-                  >
-                    <i className="mdi mdi-youtube-play"></i>
-                  </a>
-                )}
+                <small className="text-muted">Name </small>
+                <h6>{profile.name || "Not Available"}</h6>
+                <small className="text-muted p-t-30 db">Email</small>
+                <h6>{profile.email || "Not Available"}</h6>
               </div>
             </div>
           </div>
@@ -339,8 +144,7 @@ function Profile() {
             <div className="card">
               {/* Nav tabs */}
               <ul className="nav nav-tabs profile-tab" role="tablist">
-
-                <li className="nav-item">
+                {/* <li className="nav-item">
                   <button
                     className="nav-link active outline-0 rounded-0"
                     data-toggle="tab"
@@ -349,10 +153,10 @@ function Profile() {
                   >
                     Profile
                   </button>
-                </li>
+                </li> */}
                 <li className="nav-item">
                   <button
-                    className="nav-link outline-0 rounded-0"
+                    className="nav-link active outline-0 rounded-0"
                     data-toggle="tab"
                     href="#settings"
                     role="tab"
@@ -365,9 +169,8 @@ function Profile() {
               <div className="tab-content">
                 {/* First Tab */}
 
-
                 {/* profile second tab */}
-                <div className="tab-pane active" id="profile" role="tabpanel">
+                {/* <div className="tab-pane active" id="profile" role="tabpanel">
                   <div className="card-body">
                     <div className="row">
                       <div className="col-md-3 col-xs-6 b-r">
@@ -454,10 +257,10 @@ function Profile() {
                     )}
                     <hr />
                   </div>
-                </div>
+                </div> */}
 
                 {/* Setting (Third) Tab */}
-                <div className="tab-pane" id="settings" role="tabpanel">
+                <div className="tab-pane active" id="settings" role="tabpanel">
                   <div className="card-body">
                     <form
                       className="form-horizontal form-material"
@@ -486,91 +289,51 @@ function Profile() {
                         />
                       </div>
 
-                      <div className="form-group px-3">
-                        <label className="">Mobile</label>
+                      <div className={"form-group px-3"}>
+                        <label className="">Old Password</label>
                         <input
-                          type="number"
-                          name={"mobile"}
-                          value={data.mobile || ""}
+                          type="password"
+                          name={"oldPassword"}
+                          value={data.oldPassword || ""}
                           onChange={updateChangeHandler}
-                          placeholder="9955556325"
+                          placeholder="Old Password"
                           className="form-control form-control-line"
                         />
                       </div>
-                      <div className="form-group px-3">
-                        <label className="">Address</label>
+
+                      <div className={"form-group px-3"}>
+                        <label className="">New Password</label>
                         <input
-                          type="text"
-                          name={"address"}
-                          value={data.address || ""}
+                          type="password"
+                          name={"password"}
+                          value={data.password || ""}
                           onChange={updateChangeHandler}
-                          placeholder="Address Here!"
+                          placeholder="New Password"
                           className="form-control form-control-line"
                         />
-                      </div>
-                      <div className="form-group px-3">
-                        <label className="">Facebook</label>
-                        <input
-                          type="url"
-                          name={"facebook"}
-                          value={data.facebook || ""}
-                          onChange={updateChangeHandler}
-                          placeholder="Ex: https://facebook.com/user-name"
-                          className="form-control form-control-line"
-                        />
-                      </div>
-                      <div className="form-group px-3">
-                        <label className="">Twitter</label>
-                        <input
-                          type="url"
-                          name={"twitter"}
-                          value={data.twitter || ""}
-                          onChange={updateChangeHandler}
-                          placeholder="Ex: https://twitter.com/user-name"
-                          className="form-control form-control-line"
-                        />
-                      </div>
-                      <div className="form-group px-3">
-                        <label className="">Instagram</label>
-                        <input
-                          type="url"
-                          name={"instagram"}
-                          value={data.instagram || ""}
-                          onChange={updateChangeHandler}
-                          placeholder="Ex: https://instagram.com/user-name"
-                          className="form-control form-control-line"
-                        />
-                      </div>
-                      <div className="form-group px-3">
-                        <label className="">Youtube</label>
-                        <input
-                          type="url"
-                          name={"youtube"}
-                          value={data.youtube || ""}
-                          onChange={updateChangeHandler}
-                          placeholder="Ex: https://youtube.com/user-name"
-                          className="form-control form-control-line"
-                        />
-                      </div>
-                      <div className="form-group px-3">
-                        <label className="">Bio</label>
-                        <textarea
-                          rows="5"
-                          name={"bio"}
-                          value={data.bio || ""}
-                          onChange={updateChangeHandler}
-                          className="form-control form-control-line"
-                        ></textarea>
                       </div>
 
                       <div className="form-group">
                         <div className="col-sm-12">
                           <button className="btn btn-success">
-                            Update Profile
+                            {isUpdated ? (
+                              <div>
+                                <i className="fas fa-sign-in"></i> Update
+                                Profile
+                              </div>
+                            ) : (
+                              <div>
+                                <span
+                                  className="spinner-border spinner-border-sm mr-1"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                                Loading..
+                              </div>
+                            )}
                           </button>
                         </div>
                       </div>
-
                     </form>
                   </div>
                 </div>

@@ -5,6 +5,8 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddCoponFromCSV = () => {
   const history = useHistory();
@@ -91,8 +93,8 @@ const AddCoponFromCSV = () => {
     makeElement("td", "Dummy Description", dummyRow);
     makeElement("td", 500, dummyRow);
     makeElement("td", 1, dummyRow);
-    makeElement("td", "28-06-2022", dummyRow);
-    makeElement("td", "05-07-2022", dummyRow);
+    makeElement("td", date.format(new Date(), "YYYY-MM-DD"), dummyRow);
+    makeElement("td", date.format(new Date(), "YYYY-MM-DD"), dummyRow);
 
     thead.appendChild(row);
     thead.appendChild(dummyRow);
@@ -143,17 +145,7 @@ const AddCoponFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Coupon</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Coupon</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"COUPONS"} pageTitle={"Add Coupon"} />
 
         {/* Add Category Form */}
         <div className="row">

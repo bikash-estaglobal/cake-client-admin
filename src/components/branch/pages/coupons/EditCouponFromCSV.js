@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditCouponFromCSV = () => {
   const history = useHistory();
@@ -67,16 +68,16 @@ const EditCouponFromCSV = () => {
     status,
   }) => {
     const updateData = {
-      code: code || undefined,
-      applyFor: applyFor || undefined,
-      discountType: discountType || undefined,
-      discount: discount || undefined,
-      description: description || undefined,
-      minimumAmount: minimumAmount || undefined,
-      usesTimes: usesTimes || undefined,
-      startDate: startDate || undefined,
-      validity: validity || undefined,
-      status: status.toLowerCase() || undefined,
+      code: code,
+      applyFor: applyFor,
+      discountType: discountType,
+      discount: discount,
+      description: description,
+      minimumAmount: minimumAmount,
+      usesTimes: usesTimes,
+      startDate: startDate,
+      validity: validity,
+      status: status.toLowerCase(),
     };
     fetch(`${Config.SERVER_URL}/coupon/${id}`, {
       method: "PUT",
@@ -169,7 +170,7 @@ const EditCouponFromCSV = () => {
               makeElement("td", item.usesTimes, dataRow);
               makeElement("td", item.startDate, dataRow);
               makeElement("td", item.validity, dataRow);
-              makeElement("td", item.status, dataRow);
+              makeElement("td", item.status.toString(), dataRow);
 
               thead.appendChild(dataRow);
             });
@@ -192,17 +193,7 @@ const EditCouponFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Coupon</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Update Coupon</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"COUPONS"} pageTitle={"Update Coupon"} />
 
         {/* Add Color Form */}
         <div className="row">

@@ -4,10 +4,10 @@ import M from "materialize-css";
 import Config from "../../../config/Config";
 import Breadcrumb from "../../components/Breadcrumb";
 
-const AddFlavour = () => {
+const AddType = () => {
   const history = useHistory();
   const [isAddLoaded, setIsAddLoaded] = useState(true);
-  const [flavour, setFlavour] = useState({
+  const [type, setType] = useState({
     name: "",
   });
 
@@ -16,9 +16,9 @@ const AddFlavour = () => {
     setIsAddLoaded(false);
     evt.preventDefault();
 
-    fetch(Config.SERVER_URL + "/flavour", {
+    fetch(Config.SERVER_URL + "/type", {
       method: "POST",
-      body: JSON.stringify(flavour),
+      body: JSON.stringify(type),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -27,7 +27,6 @@ const AddFlavour = () => {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result);
           if (result.status === 200) {
             M.toast({ html: result.message, classes: "bg-success" });
             history.goBack();
@@ -48,38 +47,38 @@ const AddFlavour = () => {
   };
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper px-0 pt-0">
       <div className="container-fluid">
-        {/* <!-- ===================== --> */}
+        {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
-        <Breadcrumb title="FLAVOURS" pageTitle={"Add Flavour"} />
+        <Breadcrumb title={"CAKE TYPES"} pageTitle={"Add Type"} />
 
-        {/* Add Flavour Form */}
+        {/* Add shape Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Flavour Details */}
+              {/* shape Details */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Flavour Details</h3>
+                  <h3 className={"my-3 text-info"}>Type Details</h3>
                 </div>
 
-                {/* Flavour Name */}
+                {/* Type Name */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    FLAVOUR NAME HERE !
+                    CAKE TYPE !
                   </label>
                   <input
                     type="text"
-                    value={flavour.name}
+                    value={type.name}
                     onChange={(evt) =>
-                      setFlavour({ ...flavour, name: evt.target.value })
+                      setType({ ...type, name: evt.target.value })
                     }
                     className="form-control"
-                    placeholder={"Chocolate Cake"}
+                    placeholder={"Rose cake"}
                   />
                 </div>
                 <div className={"form-group col-md-6"}>
@@ -89,7 +88,7 @@ const AddFlavour = () => {
                   >
                     {isAddLoaded ? (
                       <div>
-                        <i className="fas fa-plus"></i> Add Flavour
+                        <i className="fas fa-plus"></i> Add Type
                       </div>
                     ) : (
                       <div>
@@ -112,4 +111,4 @@ const AddFlavour = () => {
   );
 };
 
-export default AddFlavour;
+export default AddType;

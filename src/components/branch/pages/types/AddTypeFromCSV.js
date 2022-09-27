@@ -5,16 +5,18 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
-const EditShapeFromCSV = () => {
+const AddTypeFromCSV = () => {
   const history = useHistory();
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
-  const [isAllRecordLoaded, setIsAllRecordLoaded] = useState(true);
 
   const fileChangeHandler = (event) => {
-    const files = event.target.files;
+    const files = event.target.files[0];
     if (files) {
+      setUploadLoading(true);
+
       Papa.parse(event.target.files[0], {
         complete: async (results) => {
           let keys = results.data[0];
@@ -36,31 +38,51 @@ const EditShapeFromCSV = () => {
 
           // Get data from array and call the api
           objects.map((item, i) => {
-            if (item.id != "") {
+            if (item.name) {
               submitHandler(item);
+            }
+            if (i == objects.length - 1) {
+              setUploadLoading(false);
             }
           });
         },
       });
-
-      // Papa.parse(files[0], {
-      //   complete: function (results) {
-      //     console.log("Finished:", results.data);
-      //     insertDataHandler({ name: results.data });
-      //   },
-      // });
     }
   };
 
-  // Update Submit Handler
-  const submitHandler = ({ id, name, status }) => {
-    const updateData = {
-      name: name,
-      status: status.toLowerCase(),
-    };
-    fetch(`${Config.SERVER_URL}/shape/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(updateData),
+  const makeElement = (elemName, innerText = null, row = null) => {
+    const elem = document.createElement(elemName);
+    if (innerText) {
+      elem.innerHTML = innerText;
+    }
+    if (row) {
+      row.appendChild(elem);
+    }
+    return elem;
+  };
+
+  const downloadCSVHandler = () => {
+    let table = makeElement("table");
+    let thead = makeElement("thead");
+    table.appendChild(thead);
+
+    let row = makeElement("tr");
+    makeElement("th", "name", row);
+
+    let dummyRow = makeElement("tr");
+    makeElement("td", "Dummy Data", dummyRow);
+
+    thead.appendChild(row);
+    thead.appendChild(dummyRow);
+
+    tableToCSV("types.csv", table);
+  };
+
+  // Submit Handler
+  const submitHandler = (data) => {
+    fetch(Config.SERVER_URL + "/type", {
+      method: "POST",
+      body: JSON.stringify(data),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -93,83 +115,13 @@ const EditShapeFromCSV = () => {
       );
   };
 
-  const makeElement = (elemName, innerText = null, row = null) => {
-    const elem = document.createElement(elemName);
-    if (innerText) {
-      elem.innerHTML = innerText;
-    }
-    if (row) {
-      row.appendChild(elem);
-    }
-    return elem;
-  };
-
-  const downloadCSVHandler = () => {
-    let table = makeElement("table");
-    table.setAttribute("id", "download-csv");
-    let thead = makeElement("thead");
-    table.appendChild(thead);
-
-    let row = makeElement("tr");
-    makeElement("th", "id", row);
-    makeElement("th", "name", row);
-    makeElement("th", "status", row);
-    thead.appendChild(row);
-    // Load Data from the Database
-    setIsAllRecordLoaded(false);
-    fetch(`${Config.SERVER_URL}/shape?skip=0&limit=0`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setIsAllRecordLoaded(true);
-          if (result.status === 200) {
-            result.body.map((item, index) => {
-              let dataRow = document.createElement("tr");
-              makeElement("td", item.id.toString(), dataRow);
-              makeElement("td", item.name, dataRow);
-
-              makeElement("td", item.status, dataRow);
-
-              thead.appendChild(dataRow);
-            });
-            tableToCSV("shapes.csv", table);
-            // setAllRecords(result.body || []);
-          } else {
-            M.toast({ html: result.message, classes: "bg-danger" });
-          }
-        },
-        (error) => {
-          M.toast({ html: error, classes: "bg-danger" });
-          setIsAllRecordLoaded(true);
-        }
-      );
-  };
-
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper px-0 pt-0">
       <div className="container-fluid">
-        {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
-        {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Shapes</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Update Shape</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"CAKE TYPE"} pageTitle="Add Type" />
 
-        {/* Add Color Form */}
+        {/* Add Category Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
@@ -186,31 +138,17 @@ const EditShapeFromCSV = () => {
                       className="btn btn-info"
                       type="button"
                     >
-                      {isAllRecordLoaded ? (
-                        <span>
-                          <i className="fa fa-download"></i> Download CSV Format
-                        </span>
-                      ) : (
-                        <div>
-                          <span
-                            className="spinner-border spinner-border-sm mr-1"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          Loading..
-                        </div>
-                      )}
+                      <i className="fa fa-download"></i> Download CSV Format
                     </button>
                   </div>
                 </div>
 
-                {/* Color Name */}
                 <div className={"form-group col-md-6"}>
                   <input
                     type="file"
                     onChange={fileChangeHandler}
                     className="form-control"
-                    placeholder={"Range Name"}
+                    placeholder={"Chocolaty"}
                   />
                 </div>
                 <div className={"form-group col-md-6"}>
@@ -253,4 +191,4 @@ const EditShapeFromCSV = () => {
   );
 };
 
-export default EditShapeFromCSV;
+export default AddTypeFromCSV;

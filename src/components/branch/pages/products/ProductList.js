@@ -136,7 +136,7 @@ const ProductList = (props) => {
           setIsAllProductLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
@@ -254,17 +254,19 @@ const ProductList = (props) => {
                                 <td>{product.shape.name}</td>
                                 <td>
                                   <i className="fa fa-inr"></i>
-                                  {product.skus[0].sellingPrice}
+                                  {product.priceVariants[0].sellingPrice}
 
-                                  {product.skus[0].sellingPrice !=
-                                  product.skus[product.skus.length - 1]
-                                    .sellingPrice ? (
+                                  {product.priceVariants[0].sellingPrice !=
+                                  product.priceVariants[
+                                    product.priceVariants.length - 1
+                                  ].sellingPrice ? (
                                     <span>
                                       {" - "}
                                       <i className="fa fa-inr"></i>
                                       {`${
-                                        product.skus[product.skus.length - 1]
-                                          .sellingPrice
+                                        product.priceVariants[
+                                          product.priceVariants.length - 1
+                                        ].sellingPrice
                                       }`}
                                     </span>
                                   ) : (
@@ -272,18 +274,14 @@ const ProductList = (props) => {
                                   )}
                                 </td>
                                 <td>
-                                  {product.images.length ? (
-                                    <img
-                                      src={product.images[0].url}
-                                      style={{
-                                        height: "70px",
-                                        width: "70px",
-                                        borderRadius: "35px",
-                                      }}
-                                    />
-                                  ) : (
-                                    "N/A"
-                                  )}
+                                  <img
+                                    src={product.defaultImage}
+                                    style={{
+                                      height: "70px",
+                                      width: "70px",
+                                      borderRadius: "35px",
+                                    }}
+                                  />
                                 </td>
                                 <td>
                                   {date.format(

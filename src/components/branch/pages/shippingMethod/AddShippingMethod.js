@@ -3,7 +3,8 @@ import { useHistory, useParams } from "react-router-dom";
 import M from "materialize-css";
 import Config from "../../../config/Config";
 import { Link } from "react-router-dom";
-const date = require("date-and-time");
+import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddShippingMethod = () => {
   const history = useHistory();
@@ -97,17 +98,8 @@ const AddShippingMethod = () => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Shipping Method</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Add Method</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"SHIPPING METHOD"} pageTitle={"Add Method"} />
+
         {/* End Bread crumb and right sidebar toggle */}
 
         {/* Add shipping method Form */}

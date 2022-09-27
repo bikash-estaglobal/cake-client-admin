@@ -3,159 +3,158 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import M from "materialize-css";
-import axios from "axios";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
+import Select from "react-select";
 
 function EditProduct() {
   const history = useHistory();
   const { id } = useParams();
   // State Variable
-  const [title, setTitle] = useState("");
   const [weight, setWeight] = useState("");
   const [mrp, setMRP] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [isAddLoaded, setIsAddLoaded] = useState(true);
+  const [defaultImages, setDefaultImages] = useState("");
+  const [defaultImgProgress, setDefaultImgProgress] = useState("");
 
   const [product, setProduct] = useState({
     name: "",
     slug: "",
     parentCategories: [],
     categories: [],
-    skus: [],
+    skus: "",
+    priceVariants: [],
     flavour: "",
-    type: "",
+    // color: "",
     shape: "",
-    size: "",
     images: [],
     isEggCake: false,
     isPhotoCake: false,
     description: "",
   });
-  const [logoDefault, setlogoDefault] = useState("https://bit.ly/3kPLfxF");
-  const [logoImage, setLogoImage] = useState("");
-  const [logoImageURL, setLogoImageURL] = useState("");
+
+  const [previewImages, setPreviewImages] = useState([]);
+  const [progressInfos, setProgressInfos] = useState([]);
+
   const [category, setCategory] = useState([]);
   const [parentCategory, setParentCategory] = useState([]);
   const [flavour, setFlavour] = useState([]);
+  const [shapes, setShapes] = useState([]);
   const [color, setColor] = useState([]);
   const [progress, setProgress] = useState("");
 
-  const titleChangeHandler = (evt) => {
-    const value = evt.target.value;
-    setProduct({
-      ...product,
-      slug: value.toLowerCase().replace(/ /gi, "-"),
-      name: value,
-    });
-  };
+  const [selectPCat, setSelectPCat] = useState([]);
+  const [selectSCat, setSelectSCat] = useState([]);
+  const [selectShape, setSelectShape] = useState([]);
+  const [selectFlavour, setSelectFlavour] = useState("");
+  const [selectColor, setSelectColor] = useState("");
+  const [productDescriptions, setProductDescriptions] = useState("");
 
-  // Iamege Change
-  const imageChangeHandler = (event) => {
-    if (event.target.files && event.target.files[0]) {
-      let reader = new FileReader();
-      handleUpload(event.target.files[0]);
-      reader.onload = (e) => {
-        setLogoImage(e.target.result);
-        setlogoDefault(e.target.result);
-      };
-      reader.readAsDataURL(event.target.files[0]);
+  // Image Change
+  const imageChangeHandler = (event, type) => {
+    if (type == "default_image") {
+      handleUpload(event.target.files[0], "", type);
+    } else {
+      if (event.target.files && event.target.files.length) {
+        [...event.target.files].map((value, index) => {
+          handleUpload(value, index);
+        });
+      }
     }
   };
 
+  // File Delete Handler
+  const fileDeleteHandler = (image, index, type) => {
+    if (type == "default_image") {
+      setDefaultImages("");
+      setProduct({ ...product, defaultImages: "" });
+      setDefaultImgProgress("");
+    } else {
+      let pImages = [...previewImages];
+      pImages.splice(index, 1);
+
+      let pInfos = [...progressInfos];
+      pInfos.splice(index, 1);
+      setProgressInfos(pInfos);
+      setPreviewImages(pImages);
+    }
+    // // Create a reference to the file to delete
+    // const fileRef = storage.refFromURL(image);
+    // // Delete the file
+    // fileRef
+    //   .delete()
+    //   .then(() => {
+    //     // File deleted successfully
+    //     if (type == "default_image") {
+    //       setDefaultImages("");
+    //       setDefaultImgProgress("");
+    //     } else {
+    //       let pImages = [...previewImages];
+    //       pImages.splice(index, 1);
+
+    //       let pInfos = [...progressInfos];
+    //       pInfos.splice(index, 1);
+    //       setProgressInfos(pInfos);
+    //       setPreviewImages(pImages);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     // Uh-oh, an error occurred!
+    //     M.toast({ html: error, classes: "bg-danger" });
+    //   });
+  };
+
   // Upload Image
-  const handleUpload = (image) => {
-    const uploadTask = storage.ref(`images/${image.name}`).put(image);
+  const handleUpload = (image, i, type) => {
+    const uploadTask = storage.ref(`products/${image.name}`).put(image);
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress = Math.round(
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         );
-        setProgress(progress);
+
+        if (type == "default_image") {
+          setDefaultImgProgress(progress);
+        } else {
+          let arrs = [...progressInfos];
+          arrs[i] = progress;
+          setProgressInfos((old) => {
+            return [...arrs];
+          });
+        }
       },
       (error) => {
         console.log(error);
       },
       () => {
         storage
-          .ref("images")
+          .ref("products")
           .child(image.name)
           .getDownloadURL()
           .then((url) => {
-            setProduct({
-              ...product,
-              images: [...product.images, { url }],
-            });
-            // setCategory({ ...category, category_image: url })
+            console.log(url);
+            if (type == "default_image") {
+              setDefaultImages(url);
+              setProduct((old) => {
+                return {
+                  ...old,
+                  defaultImage: url,
+                };
+              });
+            } else {
+              setPreviewImages((old) => [...old, url]);
+              setProduct((old) => {
+                return {
+                  ...old,
+                  images: [...old.images, { url }],
+                };
+              });
+            }
           });
       }
     );
-  };
-
-  // Add Business
-  const addBusiness = (url) => {
-    fetch("/user/addBusiness", {
-      method: "POST",
-      body: JSON.stringify(product),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_user_token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          if (result.success) {
-            M.toast({ html: result.message, classes: "bg-success" });
-            history.push("/user/pendingListing");
-          } else {
-            if (result.title)
-              M.toast({ html: result.title, classes: "bg-danger" });
-            if (result.slug)
-              M.toast({ html: result.slug, classes: "bg-danger" });
-            if (result.category)
-              M.toast({ html: result.category, classes: "bg-danger" });
-            if (result.mobile)
-              M.toast({ html: result.mobile, classes: "bg-danger" });
-            if (result.website)
-              M.toast({ html: result.website, classes: "bg-danger" });
-            if (result.facebook)
-              M.toast({ html: result.facebook, classes: "bg-danger" });
-            if (result.twitter)
-              M.toast({ html: result.twitter, classes: "bg-danger" });
-            if (result.instagram)
-              M.toast({ html: result.instagram, classes: "bg-danger" });
-            if (result.linkedin)
-              M.toast({ html: result.linkedin, classes: "bg-danger" });
-            if (result.youtube)
-              M.toast({ html: result.youtube, classes: "bg-danger" });
-            if (result.description)
-              M.toast({ html: result.description, classes: "bg-danger" });
-            if (result.email)
-              M.toast({ html: result.email, classes: "bg-danger" });
-            if (result.tags)
-              M.toast({ html: result.tags, classes: "bg-danger" });
-            if (result.coverImage)
-              M.toast({ html: result.coverImage, classes: "bg-danger" });
-            if (result.logoImage)
-              M.toast({ html: result.logoImage, classes: "bg-danger" });
-            if (result.address)
-              M.toast({ html: result.address, classes: "bg-danger" });
-            if (result.state)
-              M.toast({ html: result.state, classes: "bg-danger" });
-            if (result.city)
-              M.toast({ html: result.city, classes: "bg-danger" });
-            if (result.pinCode)
-              M.toast({ html: result.pinCode, classes: "bg-danger" });
-            if (result.user)
-              M.toast({ html: result.user, classes: "bg-danger" });
-          }
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
   };
 
   // Submit Handler
@@ -163,9 +162,37 @@ function EditProduct() {
     setIsAddLoaded(false);
     evt.preventDefault();
 
-    fetch(Config.SERVER_URL + "/product", {
-      method: "POST",
-      body: JSON.stringify(product),
+    const filteredPCat = selectPCat.map((value) => {
+      return value.catId;
+    });
+    const filteredSCat = selectSCat.map((value) => {
+      return value.catId;
+    });
+
+    const updateProduct = {
+      ...product,
+      parentCategories: filteredPCat,
+      categories: filteredSCat,
+      flavour: selectFlavour.value,
+      color: selectColor.value,
+      description: productDescriptions,
+      shape: selectShape.value,
+      _id: undefined,
+      id: undefined,
+      createdAt: undefined,
+      updatedAt: undefined,
+      images: previewImages.map((img) => {
+        return {
+          url: img,
+        };
+      }),
+    };
+
+    console.log(updateProduct);
+
+    fetch(`${Config.SERVER_URL}/product/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updateProduct),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -174,7 +201,6 @@ function EditProduct() {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result);
           if (result.status === 200) {
             M.toast({ html: result.message, classes: "bg-success" });
             history.goBack();
@@ -194,9 +220,9 @@ function EditProduct() {
       );
   };
 
-  // get Parent Category
+  // Get Product Details
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/parent-category`, {
+    fetch(`${Config.SERVER_URL}/product/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -207,7 +233,112 @@ function EditProduct() {
       .then(
         (result) => {
           if (result.status === 200) {
-            setParentCategory(result.body);
+            setProduct(result.body);
+            setProductDescriptions(result.body.description);
+            setDefaultImages(result.body.defaultImage);
+            setPreviewImages(
+              result.body.images.map((item) => {
+                return item.url;
+              })
+            );
+            console.log(result.body);
+
+            // Set Color
+            if (result.body.color) {
+              setSelectColor({
+                label: result.body.color.name,
+                value: result.body.color._id,
+              });
+            }
+
+            // Set Shape
+            if (result.body.shape) {
+              setSelectShape({
+                label: result.body.shape.name,
+                value: result.body.shape._id,
+              });
+            }
+
+            // Set Flavour
+            if (result.body.flavour) {
+              setSelectFlavour({
+                label: result.body.flavour.name,
+                value: result.body.flavour._id,
+              });
+            }
+
+            // Set Parent Category
+            if (result.body.parentCategories.length) {
+              let c = [];
+              result.body.parentCategories.forEach((item) => {
+                c.push({ name: item.name, catId: item._id });
+              });
+              setSelectPCat(c);
+            }
+
+            // Set Sub Categories
+            if (result.body.categories.length) {
+              let c = [];
+              result.body.categories.forEach((item) => {
+                c.push({ name: item.name, catId: item._id });
+              });
+              setSelectSCat(c);
+            }
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
+
+  // get Parent Category
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/parent-category?skip=0&limit=200`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            let f = result.body.map((v) => {
+              return { label: v.name, value: v._id };
+            });
+
+            setParentCategory(f);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
+
+  // get Shapes
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/shape?skip=0&limit=0`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            let modifyForSelect = result.body.map((value) => {
+              return { label: value.name, value: value._id };
+            });
+            setShapes(modifyForSelect);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -220,8 +351,22 @@ function EditProduct() {
 
   // get Category
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/category`, {
-      method: "GET",
+    let url = `${Config.SERVER_URL}/category`;
+    let body = "";
+    let method = "GET";
+    if (selectPCat.length) {
+      const filter = selectPCat.map((value) => value.catId);
+      url = `${url}/byParentCategory?limit=0`;
+      body = { catId: filter };
+      method = "POST";
+    } else {
+      url = `${url}?limit=0`;
+      setSelectSCat([]);
+    }
+
+    fetch(url, {
+      method: method,
+      body: body != "" ? JSON.stringify(body) : null,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -231,7 +376,11 @@ function EditProduct() {
       .then(
         (result) => {
           if (result.status === 200) {
-            setCategory(result.body);
+            if (!result.body.length) setSelectSCat([]);
+            let f = result.body.map((v) => {
+              return { label: v.name, value: v._id };
+            });
+            setCategory(f);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -240,11 +389,11 @@ function EditProduct() {
           M.toast({ html: error, classes: "bg-danger" });
         }
       );
-  }, []);
+  }, [selectPCat]);
 
   // get Flavour
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/flavour`, {
+    fetch(`${Config.SERVER_URL}/flavour?skip=0&limit=0`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -255,7 +404,10 @@ function EditProduct() {
       .then(
         (result) => {
           if (result.status === 200) {
-            setFlavour(result.body);
+            let f = result.body.map((v) => {
+              return { label: v.name, value: v._id };
+            });
+            setFlavour(f);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -268,7 +420,7 @@ function EditProduct() {
 
   // get Color
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/color`, {
+    fetch(`${Config.SERVER_URL}/color?skip=0&limit=0`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -279,7 +431,10 @@ function EditProduct() {
       .then(
         (result) => {
           if (result.status === 200) {
-            setColor(result.body);
+            let modifyForSelect = result.body.map((value) => {
+              return { label: value.name, value: value._id };
+            });
+            setColor(modifyForSelect);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -291,7 +446,7 @@ function EditProduct() {
   }, []);
 
   // Add Time Handler
-  const addSkusHandler = (evt) => {
+  const addPriceVariantsHandler = (evt) => {
     evt.preventDefault();
     if (weight == "" || mrp == "" || sellingPrice == "") {
       M.toast({ html: "Please Fill SKU Details", classes: "text-light" });
@@ -319,12 +474,71 @@ function EditProduct() {
     setMRP("");
     setWeight("");
     setSellingPrice("");
-  };
+  }; // Add Time Handler
 
-  const deleteSkuHandler = (i) => {
+  const deletePriceVariantsHandler = (i) => {
     const filtered = product.skus.filter((value, index) => index != i);
 
     setProduct({ ...product, skus: [...filtered] });
+  };
+
+  const addParentCategoryHandler = (evt) => {
+    const cat = {
+      catId: evt.value,
+      name: evt.label,
+    };
+
+    const isExist = selectPCat.find((value) => {
+      if (value.catId == cat.catId) {
+        return true;
+      }
+    });
+
+    if (isExist) {
+      M.toast({ html: "Already Exist", classes: "text-light" });
+      return;
+    }
+
+    setSelectPCat([...selectPCat, cat]);
+  };
+
+  const deleteParentCategoryHandler = (evt, value) => {
+    evt.preventDefault();
+    const filtered = selectPCat.filter(
+      (cat, index) => cat.catId != value.catId
+    );
+
+    setSelectPCat([...filtered]);
+  };
+
+  const addSubCategoryHandler = (evt) => {
+    const cat = {
+      name: evt.label,
+      catId: evt.value,
+    };
+
+    const isExist = selectSCat.find((value) => {
+      if (value.catId == cat.catId) {
+        return true;
+      }
+    });
+
+    if (isExist) {
+      M.toast({ html: "Already Exist", classes: "text-light" });
+      return;
+    }
+
+    console.log(selectSCat);
+    setSelectSCat([...selectSCat, cat]);
+  };
+
+  const deleteSubCategoryHandler = (evt, value) => {
+    evt.preventDefault();
+    const filtered = selectSCat.filter(
+      (cat, index) => cat.catId != value.catId
+    );
+
+    setSelectSCat([...filtered]);
   };
 
   return (
@@ -333,12 +547,12 @@ function EditProduct() {
         {/* Bread crumb and right sidebar toggle */}
         <div className="row page-titles mb-0">
           <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Products</h3>
+            <h3 className="text-themecolor m-b-0 m-t-0">Edit PRODUCT</h3>
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
                 <Link to="/">Admin</Link>
               </li>
-              <li className="breadcrumb-item active">Add Product</li>
+              <li className="breadcrumb-item active">Edit Product</li>
             </ol>
           </div>
         </div>
@@ -346,15 +560,15 @@ function EditProduct() {
 
         {/* Listing Form */}
         <div className="row mt-2">
-          <div className={"col-md-10 mx-auto"}>
+          <div className={"col-md-12 mx-auto"}>
             <form
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Product Details */}
+              {/* PRODUCT DETAILS */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Details</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT DETAILS</h3>
                 </div>
 
                 {/* Product Name */}
@@ -365,7 +579,9 @@ function EditProduct() {
                   <input
                     type="text"
                     value={product.name}
-                    onChange={titleChangeHandler}
+                    onChange={(evt) => {
+                      setProduct({ ...product, name: evt.target.value });
+                    }}
                     className="form-control"
                     placeholder={"Big Rectangle Cake"}
                   />
@@ -387,130 +603,163 @@ function EditProduct() {
                   />
                 </div>
 
-                {/* Product Size */}
+                {/* Product Sku */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PRODUCT SIZE HERE !
+                    PRODUCT SKU !
                   </label>
                   <input
                     type="text"
-                    value={product.size}
+                    value={product.sku}
                     onChange={(evt) =>
-                      setProduct({ ...product, size: evt.target.value })
+                      setProduct({ ...product, sku: evt.target.value })
                     }
                     className="form-control"
-                    placeholder={"Chocolaty"}
+                    placeholder={"CPXY1234"}
+                  />
+                </div>
+
+                {/* MAXIMUM ORDER QUANTITY */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    MAXIMUM ORDER QUANTITY !
+                  </label>
+                  <input
+                    type="text"
+                    value={product.maximumOrderQuantity}
+                    onChange={(evt) =>
+                      setProduct({
+                        ...product,
+                        maximumOrderQuantity: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"2"}
                   />
                 </div>
 
                 {/* Parent Category */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PARENT CATEGORY HERE !
+                    SELECT PARENT CATEGORY !
                   </label>
-                  <select
-                    className={"form-control"}
-                    name={"category"}
-                    onChange={(evt) =>
-                      setProduct({
-                        ...product,
-                        parentCategories: [
-                          ...product.parentCategories,
-                          { catId: evt.target.value },
-                        ],
-                      })
-                    }
-                  >
-                    <option value={""}>Select Parent Category</option>
-                    {parentCategory.map((value, index) => {
+                  <div className="">
+                    <Select
+                      options={parentCategory}
+                      onChange={addParentCategoryHandler}
+                    />
+                  </div>
+                </div>
+
+                {/* Selected Parent Category */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECTED PARENT CATEGORY !
+                  </label>
+                  <div className="border p-2">
+                    {selectPCat.map((value, index) => {
                       return (
-                        <option key={index} value={value._id}>
+                        <span
+                          key={index}
+                          className="badge badge-info p-2 btn mr-2"
+                          onClick={(evt) =>
+                            deleteParentCategoryHandler(evt, value)
+                          }
+                        >
                           {value.name}
-                        </option>
+                        </span>
                       );
                     })}
-                  </select>
+                  </div>
                 </div>
 
                 {/* Sub Category */}
-                <div className={"form-group col-md-6"}>
+                {/* <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    SUB CATEGORY HERE !
+                    SELECT SUB CATEGORY !
                   </label>
-                  <select
-                    className={"form-control"}
-                    name={"category"}
-                    onChange={(evt) =>
-                      setProduct({
-                        ...product,
-                        categories: [
-                          ...product.categories,
-                          { catId: evt.target.value },
-                        ],
-                      })
-                    }
-                  >
-                    <option value={""}>Select Sub Category</option>
-                    {category.map((value, index) => {
+
+                  <div className="">
+                    <Select
+                      options={category}
+                      onChange={addSubCategoryHandler}
+                    />
+                  </div>
+                </div> */}
+
+                {/* Selected Sub Category */}
+                {/* <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECTED SUB CATEGORY !
+                  </label>
+                  <div className="border p-2">
+                    {selectSCat.map((value, index) => {
                       return (
-                        <option key={index} value={value._id}>
+                        <span
+                          key={index}
+                          className="badge badge-info p-2 btn mr-2"
+                          onClick={(evt) =>
+                            deleteSubCategoryHandler(evt, value)
+                          }
+                        >
                           {value.name}
-                        </option>
+                        </span>
                       );
                     })}
-                  </select>
-                </div>
+                  </div>
+                </div> */}
 
                 {/* Flavour */}
-                <div className={"form-group col-md-6"}>
+                <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    FLAVOUR HERE !
+                    SELECT FLAVOUR !
                   </label>
-                  <select
-                    className={"form-control"}
-                    name={"flavour"}
-                    onChange={(evt) =>
-                      setProduct({ ...product, flavour: evt.target.value })
-                    }
-                  >
-                    <option value={""}>Select Cake Flavour</option>
-                    {flavour.map((value, index) => {
-                      return (
-                        <option key={index} value={value._id}>
-                          {value.name}
-                        </option>
-                      );
-                    })}
-                  </select>
+
+                  <Select
+                    value={selectFlavour}
+                    options={flavour}
+                    onChange={(evt) => {
+                      setSelectFlavour(evt);
+                    }}
+                  />
                 </div>
 
-                {/* Color Name */}
-                <div className={"form-group col-md-6"}>
+                {/* Color */}
+                {/* <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     COLOR HERE !
                   </label>
-                  <select
-                    className={"form-control"}
-                    name={"color"}
-                    onChange={(evt) =>
-                      setProduct({ ...product, color: evt.target.value })
-                    }
-                  >
-                    <option value={""}>Select Cake Color</option>
-                    {color.map((value, index) => {
-                      return (
-                        <option key={index} value={value._id}>
-                          {value.name}
-                        </option>
-                      );
-                    })}
-                  </select>
+
+                  <Select
+                    value={selectColor}
+                    options={color}
+                    onChange={(evt) => {
+                      setSelectColor(evt);
+                    }}
+                  />
+                </div> */}
+
+                {/* Cake Shape */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT CAKE SHAPE !
+                  </label>
+
+                  <div className="">
+                    <Select
+                      value={selectShape}
+                      options={shapes}
+                      onChange={(evt) => {
+                        setShapes(evt);
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Is Egg Cake*/}
                 <div className={"col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    IS EGG CAKE
+                    EGG CAKE
                   </label>
                   <div className="d-flex my-3">
                     <div className="custom-control custom-radio pl-0 ml-0">
@@ -518,11 +767,12 @@ function EditProduct() {
                         type="radio"
                         id="cakeType1"
                         name="eggCake"
-                        value={"true"}
+                        checked={product.isEggCake ? true : false}
+                        value={true}
                         onChange={(evt) =>
                           setProduct({
                             ...product,
-                            isEggCake: Boolean(evt.target.value),
+                            isEggCake: evt.target.value,
                           })
                         }
                         className="custom-control-input"
@@ -536,12 +786,12 @@ function EditProduct() {
                         type="radio"
                         id="cakeType2"
                         name="eggCake"
-                        checked={!product.isEggCake ? true : false}
-                        value={"false"}
+                        checked={product.isEggCake ? false : true}
+                        value={false}
                         onChange={(evt) =>
                           setProduct({
                             ...product,
-                            isEggCake: Boolean(evt.target.value),
+                            isEggCake: evt.target.value,
                           })
                         }
                         className="custom-control-input"
@@ -556,7 +806,7 @@ function EditProduct() {
                 {/* Is Photo Cake*/}
                 <div className={"col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    IS PHOTO CAKE
+                    PHOTO CAKE
                   </label>
                   <div className="d-flex my-3">
                     <div className="custom-control custom-radio pl-0 ml-0">
@@ -564,11 +814,12 @@ function EditProduct() {
                         type="radio"
                         id="cakeType3"
                         name="photoCake"
-                        value={"true"}
+                        value={true}
+                        checked={product.isPhotoCake ? true : false}
                         onChange={(evt) =>
                           setProduct({
                             ...product,
-                            isPhotoCake: Boolean(evt.target.value),
+                            isPhotoCake: evt.target.value,
                           })
                         }
                         className="custom-control-input"
@@ -582,14 +833,14 @@ function EditProduct() {
                         type="radio"
                         id="cakeType4"
                         name="photoCake"
-                        checked={!product.isPhotoCake ? true : false}
-                        value={"false"}
-                        onChange={(evt) =>
+                        checked={product.isPhotoCake ? false : true}
+                        value={false}
+                        onChange={(evt) => {
                           setProduct({
                             ...product,
-                            isPhotoCake: Boolean(evt.target.value),
-                          })
-                        }
+                            isPhotoCake: evt.target.value,
+                          });
+                        }}
                         className="custom-control-input"
                       />
                       <label className="custom-control-label" for="cakeType4">
@@ -598,44 +849,12 @@ function EditProduct() {
                     </div>
                   </div>
                 </div>
-
-                {/* Cake Type */}
-                <div className={"form-group col-md-6"}>
-                  <label htmlFor="" className="text-dark h6 active">
-                    CAKE TYPE
-                  </label>
-                  <input
-                    type="text"
-                    value={product.type}
-                    onChange={(evt) =>
-                      setProduct({ ...product, type: evt.target.value })
-                    }
-                    className="form-control"
-                    placeholder={"Party Cakes"}
-                  />
-                </div>
-
-                {/* Cake Shape */}
-                <div className={"form-group col-md-6"}>
-                  <label htmlFor="" className="text-dark h6 active">
-                    CAKE SHAPE
-                  </label>
-                  <input
-                    type="text"
-                    value={product.shape}
-                    onChange={(evt) =>
-                      setProduct({ ...product, shape: evt.target.value })
-                    }
-                    className="form-control"
-                    placeholder={"Heart"}
-                  />
-                </div>
               </div>
 
               {/* SKUs */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Skus</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT PRICE DETAILS</h3>
                 </div>
                 {/* Weight */}
                 <div className={"form-group col-md-4"}>
@@ -685,7 +904,7 @@ function EditProduct() {
                   <button
                     className="btn btn-info rounded px-3 py-2"
                     type={"button"}
-                    onClick={addSkusHandler}
+                    onClick={addPriceVariantsHandler}
                   >
                     <div>
                       <i className="fas fa-plus"></i> Add
@@ -694,7 +913,7 @@ function EditProduct() {
                 </div>
 
                 <div className="col-md-11">
-                  {product.skus.map((value, index) => {
+                  {product.priceVariants.map((value, index) => {
                     return (
                       <div className="card m-0 mb-1">
                         <div className="card-body px-2 py-2 d-flex justify-content-between">
@@ -704,7 +923,7 @@ function EditProduct() {
                           <button
                             type="button"
                             className="btn btn-danger px-2 py-0 m-0"
-                            onClick={() => deleteSkuHandler(index)}
+                            onClick={() => deletePriceVariantsHandler(index)}
                           >
                             X
                           </button>
@@ -715,64 +934,203 @@ function EditProduct() {
                 </div>
               </div>
 
-              {/* Product Description */}
+              {/* PRODUCT DESCRIPTION */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Description</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT DESCRIPTION</h3>
+                </div>
+
+                {/* SHORT DESCRIPTION */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SHORT DESCRIPTION
+                  </label>
+                  <input
+                    type="text"
+                    onChange={(evt) =>
+                      setProduct({
+                        ...product,
+                        shortDescription: evt.target.value,
+                      })
+                    }
+                    name="weight"
+                    value={product.shortDescription}
+                    className="form-control"
+                    placeholder={"Write Short Descriptions"}
+                  />
+                </div>
+
+                {/* PRODUCT TAGS */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    PRODUCT TAGS
+                  </label>
+                  <input
+                    type="text"
+                    onChange={(evt) =>
+                      setProduct({
+                        ...product,
+                        tags: evt.target.value,
+                      })
+                    }
+                    name="weight"
+                    value={product.tags}
+                    className="form-control"
+                    placeholder={"Snack, Organic, Brown"}
+                  />
                 </div>
                 <div className={"form-group col-md-12"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    LONG DESCTRIPTION
+                  </label>
                   <CKEditor
                     editor={ClassicEditor}
                     style={{ height: "100px" }}
                     onChange={(event, editor) => {
                       const data = editor.getData();
-                      setProduct({ ...product, description: data });
+                      setProductDescriptions(data);
                     }}
-                    data={product.description}
+                    data={productDescriptions}
                   />
                 </div>
               </div>
 
-              {/* Product Images */}
+              {/* PRODUCT IMAGES */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Images</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT IMAGES</h3>
                 </div>
 
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PRODUCT IMAGES
+                    PRODUCT DEFAULT IMAGE
                   </label>
                   <input
                     type="file"
-                    onChange={imageChangeHandler}
+                    multiple
+                    onChange={(evt) => imageChangeHandler(evt, "default_image")}
                     className="form-control"
                   />
                 </div>
 
-                <div className={"form-group col-md-2"}>
-                  <img
-                    style={{
-                      maxHeight: "100px",
-                      maxWidth: "100px",
-                      borderRadius: "100%",
-                      border: "1px solid #5a5a5a",
-                    }}
-                    src={logoDefault}
-                  />
-                  {progress ? (
-                    <div className="progress mt-2">
-                      <div
-                        className="progress-bar bg-success"
-                        style={{ width: `${progress}%`, height: "15px" }}
-                        role="progressbar"
+                <div className="col-md-6">
+                  {defaultImages ? (
+                    <div
+                      className={"form-group text-center"}
+                      style={{ position: "relative" }}
+                    >
+                      <img
+                        style={{
+                          maxHeight: "200px",
+                          maxWidth: "200px",
+                          border: "1px solid #5a5a5a",
+                        }}
+                        src={defaultImages}
+                      />
+                      <button
+                        style={{
+                          position: "absolute",
+                          top: "40%",
+                          left: "50%",
+                        }}
+                        type="button"
+                        className="btn bg-light text-danger"
+                        title={"Delete Image"}
+                        onClick={(evt) =>
+                          fileDeleteHandler(defaultImages, "", "default_image")
+                        }
                       >
-                        {progress}%
+                        X
+                      </button>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
+                  {defaultImgProgress ? (
+                    <div className="progress">
+                      <div
+                        className="progress-bar"
+                        role="progressbar"
+                        style={{ width: `${defaultImgProgress}%` }}
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        {defaultImgProgress}%
                       </div>
                     </div>
                   ) : (
                     ""
                   )}
+                </div>
+
+                {/* Products Multiple Images */}
+                <div className={"form-group col-md-12"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    PRODUCT IMAGES
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={imageChangeHandler}
+                    className="form-control"
+                  />
+                </div>
+
+                {/*Multiple Image Preview */}
+                <div className="col-md-12 mb-1">
+                  <div className="row">
+                    {previewImages.map((img, index) => {
+                      return (
+                        <div className={"form-group col-md-3"} key={index}>
+                          <img
+                            style={{
+                              maxHeight: "100%",
+                              maxWidth: "100%",
+                              border: "1px solid #5a5a5a",
+                            }}
+                            src={img}
+                          />
+                          <button
+                            style={{
+                              position: "absolute",
+                              top: "40%",
+                              right: "45%",
+                            }}
+                            type="button"
+                            className="btn bg-light text-danger"
+                            title={"Delete Image"}
+                            onClick={(evt) => fileDeleteHandler(img, index)}
+                          >
+                            X
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Multiple image prpgress */}
+                <div className="col-md-12 mb-2">
+                  <div className="row">
+                    {progressInfos.map((info, index) => {
+                      return (
+                        <div className="col-md-3" key={index}>
+                          <div className="progress">
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{ width: `${info}%` }}
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            >
+                              {info}%
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Submit Button */}
@@ -783,7 +1141,7 @@ function EditProduct() {
                   >
                     {isAddLoaded ? (
                       <div>
-                        <i className="fas fa-plus"></i> Add Product
+                        <i className="fas fa-refresh"></i> Update Product
                       </div>
                     ) : (
                       <div>

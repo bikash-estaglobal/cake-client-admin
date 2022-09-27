@@ -88,6 +88,14 @@ import AddSubCategory from "./pages/subCategory/AddSubCategory";
 import EditSubCategory from "./pages/subCategory/EditSubCategory";
 import AddSubCategoryFromCSV from "./pages/subCategory/AddSubCategoryFromCSV";
 import EditSubCategoryFromCSV from "./pages/subCategory/EditSubCategoryFromCSV";
+import ForgotPassword from "./pages/ForgotPassword";
+import EnterOtp from "./pages/EnterOtp";
+import CreateNewPassword from "./pages/CreateNewPassword";
+import TypeList from "./pages/types/TypeList";
+import AddType from "./pages/types/AddType";
+import EditType from "./pages/types/EditType";
+import AddTypeFromCSV from "./pages/types/AddTypeFromCSV";
+import EditTypeFromCSV from "./pages/types/EditTypeFromCSV";
 
 // Create Context
 export const BranchContext = createContext();
@@ -103,7 +111,7 @@ const Routing = () => {
       dispatch({ type: "BRANCH", payload: branch });
       // history.push("/")
     } else {
-      history.push("/branch/login");
+      // history.push("/branch/login");
     }
   }, []);
 
@@ -112,6 +120,13 @@ const Routing = () => {
       <Route exact path="/branch" component={Dashboard} />
       <Route exact path="/branch/login" component={Login} />
       <Route exact path="/branch/profile" component={Profile} />
+      <Route exact path="/branch/forgot-password" component={ForgotPassword} />
+      <Route exact path="/branch/enter-otp" component={EnterOtp} />
+      <Route
+        exact
+        path="/branch/create-password"
+        component={CreateNewPassword}
+      />
 
       {/* Parent Category */}
       <Route
@@ -248,6 +263,13 @@ const Routing = () => {
         component={EditShapeFromCSV}
       />
       <Route exact path="/branch/shape/edit/:id" component={EditShape} />
+
+      {/* Types */}
+      <Route exact path="/branch/types" component={TypeList} />
+      <Route exact path="/branch/type/add" component={AddType} />
+      <Route exact path="/branch/type/addByCSV" component={AddTypeFromCSV} />
+      <Route exact path="/branch/type/editByCSV" component={EditTypeFromCSV} />
+      <Route exact path="/branch/type/edit/:id" component={EditType} />
 
       {/* Pincode */}
       <Route exact path="/branch/pincodes" component={PincodeList} />

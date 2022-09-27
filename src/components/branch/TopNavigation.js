@@ -58,10 +58,15 @@ function TopNavigation() {
               {/* <!-- Logo icon --> */}
               <b>
                 {/* <!-- Dark Logo icon --> */}
-                <img src="/assets/images/logo-icon.png" className="dark-logo" />
+                <img
+                  style={{ height: "40px" }}
+                  src="/assets/images/logo.png"
+                  className="dark-logo"
+                />
                 {/* <!-- Light Logo icon --> */}
                 <img
-                  src={"/assets/images/logo-icon.png"}
+                  style={{ height: "40px" }}
+                  src={"/assets/images/logo.png"}
                   className="light-logo"
                 />
               </b>
@@ -69,16 +74,16 @@ function TopNavigation() {
               {/* <!-- Logo text --> */}
               <span>
                 {/* <!-- dark Logo text --> */}
-                <img
+                {/* <img
                   src="/assets/images/logo-text.png"
                   className="dark-logo"
                   style={{ width: "120px" }}
-                />
+                /> */}
                 {/* <!-- Light Logo text -->     */}
-                <img
+                {/* <img
                   src="/assets/images/logo-text.png"
                   className="light-logo"
-                />
+                /> */}
               </span>
             </Link>
           </div>
@@ -285,7 +290,7 @@ function TopNavigation() {
 
                     <li role="separator" className="divider"></li>
                     <li>
-                      <Link to="/branch/account">
+                      <Link to="/branch/profile">
                         <i className="ti-settings"></i> Account Setting
                       </Link>
                     </li>

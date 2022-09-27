@@ -2,22 +2,27 @@ import React, { useState, useEffect } from "react";
 import M from "materialize-css";
 import Config from "../../../config/Config";
 import { Link } from "react-router-dom";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const Setting = () => {
   const [isUpdateLoaded, setIsUpdateLoaded] = useState(true);
 
   const [setting, setSetting] = useState({});
+  const [contactUs, setContactUs] = useState({});
 
   // Submit Handler
   const submitHandler = (evt) => {
     setIsUpdateLoaded(false);
     evt.preventDefault();
 
+    delete setting.contactUs;
+
     const updateData = {
       cashback: setting.cashback || undefined,
       maximumCashbackAmount: setting.maximumCashbackAmount || undefined,
       minimumOrderAmount: setting.minimumOrderAmount || undefined,
       cashbackStatus: setting.cashbackStatus || false,
+      contactUs: { ...contactUs },
     };
 
     console.log(updateData);
@@ -65,6 +70,7 @@ const Setting = () => {
         (result) => {
           if (result.status === 200) {
             setSetting(result.body);
+            setContactUs(result.body.contactUs || {});
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -79,17 +85,12 @@ const Setting = () => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Setting</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Update Setting</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb
+          title={"Setting"}
+          pageTitle={"Update Setting"}
+          pageLink={"/branch/setting"}
+        />
+
         {/* End Bread crumb and right sidebar toggle */}
 
         {/* Add Setting Form */}
@@ -192,6 +193,148 @@ const Setting = () => {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Contact Details */}
+              <div className={"row shadow-sm bg-white py-3 mt-2"}>
+                <div className="col-md-12">
+                  <h3 className={"my-3 text-info"}>Contact Details</h3>
+                </div>
+
+                {/* Mobile Number */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Mobile Number
+                  </label>
+                  <input
+                    type="text"
+                    value={contactUs.mobile}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        mobile: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"9117162463"}
+                  />
+                </div>
+
+                {/* Whatsapp Number */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Whatsapp Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={contactUs.whatsappNumber}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        whatsappNumber: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"9117162463"}
+                  />
+                </div>
+
+                {/* Customer Support Number */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Customer Support Number
+                  </label>
+                  <input
+                    type="text"
+                    value={contactUs.customerSupportNumber}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        customerSupportNumber: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"1800123123"}
+                  />
+                </div>
+
+                {/* Email Address */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={contactUs.email}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        email: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"info@cake.com"}
+                  />
+                </div>
+
+                {/* Customer Support Email */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Customer Support Email
+                  </label>
+                  <input
+                    type="email"
+                    value={contactUs.customerSupportEmail}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        customerSupportEmail: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"info@cake.com"}
+                  />
+                </div>
+
+                {/* Address */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={contactUs.address}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        address: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"Write Address"}
+                  />
+                </div>
+
+                {/* Google Map Url */}
+                <div className={"form-group col-md-12"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Google Map Url
+                  </label>
+                  <input
+                    type="url"
+                    value={contactUs.googleMapUrl}
+                    onChange={(evt) =>
+                      setContactUs({
+                        ...contactUs,
+                        googleMapUrl: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={
+                      "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3683.480299686449!2d88.4079383!3d22.598532799999997!3m2!1i1024!2i768!4f13.1!4m3!3e6!4m0!4m0!5e0!3m2!1sen!2sin!4v1663319853505!5m2!1sen!2sin"
+                    }
+                  />
+                </div>
 
                 <div className={"form-group col-md-12 mt-2"}>
                   <button

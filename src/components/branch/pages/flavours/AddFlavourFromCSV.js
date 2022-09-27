@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddFlaourFromCSV = () => {
   const history = useHistory();
@@ -46,13 +47,6 @@ const AddFlaourFromCSV = () => {
           });
         },
       });
-
-      // Papa.parse(files[0], {
-      //   complete: function (results) {
-      //     console.log("Finished:", results.data);
-      //     insertDataHandler({ name: results.data });
-      //   },
-      // });
     }
   };
 
@@ -126,18 +120,8 @@ const AddFlaourFromCSV = () => {
       <div className="container-fluid">
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
-        {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Flavours</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Flavour</li>
-            </ol>
-          </div>
-        </div>
+
+        <Breadcrumb title="FLAVOURS" pageTitle={"Add Flavour"} />
 
         {/* Add Category Form */}
         <div className="row">

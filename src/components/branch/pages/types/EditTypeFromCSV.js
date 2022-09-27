@@ -5,8 +5,9 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
-const EditShapeFromCSV = () => {
+const EditTypeFromCSV = () => {
   const history = useHistory();
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
@@ -58,7 +59,7 @@ const EditShapeFromCSV = () => {
       name: name,
       status: status.toLowerCase(),
     };
-    fetch(`${Config.SERVER_URL}/shape/${id}`, {
+    fetch(`${Config.SERVER_URL}/type/${id}`, {
       method: "PUT",
       body: JSON.stringify(updateData),
       headers: {
@@ -117,7 +118,7 @@ const EditShapeFromCSV = () => {
     thead.appendChild(row);
     // Load Data from the Database
     setIsAllRecordLoaded(false);
-    fetch(`${Config.SERVER_URL}/shape?skip=0&limit=0`, {
+    fetch(`${Config.SERVER_URL}/type?skip=0&limit=0`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -134,11 +135,11 @@ const EditShapeFromCSV = () => {
               makeElement("td", item.id.toString(), dataRow);
               makeElement("td", item.name, dataRow);
 
-              makeElement("td", item.status, dataRow);
+              makeElement("td", item.status.toString(), dataRow);
 
               thead.appendChild(dataRow);
             });
-            tableToCSV("shapes.csv", table);
+            tableToCSV("types.csv", table);
             // setAllRecords(result.body || []);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
@@ -157,19 +158,9 @@ const EditShapeFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Shapes</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Update Shape</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"CAKE TYPE"} pageTitle="Update Type" />
 
-        {/* Add Color Form */}
+        {/* Update Type Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
@@ -204,13 +195,11 @@ const EditShapeFromCSV = () => {
                   </div>
                 </div>
 
-                {/* Color Name */}
                 <div className={"form-group col-md-6"}>
                   <input
                     type="file"
                     onChange={fileChangeHandler}
                     className="form-control"
-                    placeholder={"Range Name"}
                   />
                 </div>
                 <div className={"form-group col-md-6"}>
@@ -253,4 +242,4 @@ const EditShapeFromCSV = () => {
   );
 };
 
-export default EditShapeFromCSV;
+export default EditTypeFromCSV;

@@ -5,12 +5,13 @@ import Config from "../../../config/Config";
 import Breadcrumb from "../../components/Breadcrumb";
 import Spinner from "../../components/Spinner";
 
-const EditFlavour = () => {
+const EditType = () => {
   const history = useHistory();
   const { id } = useParams();
   const [isUpdateLoaded, setIsUpdateLoaded] = useState(true);
-  const [isFlavourLoaded, setIsFlavourLoaded] = useState(false);
-  const [flavour, setFlavour] = useState({
+  const [isDataLoaded, setIsDataLoaded] = useState(true);
+
+  const [type, setType] = useState({
     name: "",
     status: "",
   });
@@ -20,10 +21,10 @@ const EditFlavour = () => {
     setIsUpdateLoaded(false);
     evt.preventDefault();
     const updateData = {
-      name: flavour.name,
-      status: flavour.status,
+      name: type.name,
+      status: type.status,
     };
-    fetch(`${Config.SERVER_URL}/flavour/${id}`, {
+    fetch(`${Config.SERVER_URL}/type/${id}`, {
       method: "PUT",
       body: JSON.stringify(updateData),
       headers: {
@@ -55,7 +56,7 @@ const EditFlavour = () => {
 
   // get Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/flavour/${id}`, {
+    fetch(`${Config.SERVER_URL}/type/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -66,29 +67,29 @@ const EditFlavour = () => {
       .then(
         (result) => {
           if (result.status === 200) {
-            setFlavour(result.body);
+            setType(result.body);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
-          setIsFlavourLoaded(true);
+          setIsDataLoaded(true);
         },
         (error) => {
           M.toast({ html: error, classes: "bg-danger" });
-          setIsFlavourLoaded(true);
+          setIsDataLoaded(true);
         }
       );
   }, []);
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper px-0 pt-0">
       <div className="container-fluid">
         {/* <!-- ============================================================== --> */}
-        {/* <!-- Bread crumb and right sidebar toggle --> */}
-        <Breadcrumb title="FLAVOURS" pageTitle={"Update Flavour"} />
 
-        {/* Add Coupon Form */}
+        <Breadcrumb title={"CAKE TYPES"} pageTitle="Edit Type" />
+
+        {/* Add Type Form */}
         <div className="row">
-          {isFlavourLoaded ? (
+          {isDataLoaded ? (
             <div className={"col-md-11 mx-auto"}>
               <form
                 onSubmit={submitHandler}
@@ -97,36 +98,36 @@ const EditFlavour = () => {
                 {/* Coupon Details */}
                 <div className={"row shadow-sm bg-white py-3"}>
                   <div className="col-md-12">
-                    <h3 className={"my-3 text-info"}>Flavour Details</h3>
+                    <h3 className={"my-3 text-info"}>Type Details</h3>
                   </div>
 
-                  {/* Flavour Name */}
+                  {/* Type Name */}
                   <div className={"form-group col-md-6"}>
                     <label htmlFor="" className="text-dark h6 active">
-                      FLAVOUR NAME HERE !
+                      CAKE TYPE !
                     </label>
                     <input
                       type="text"
-                      value={flavour.name}
+                      value={type.name}
                       onChange={(evt) =>
-                        setFlavour({ ...flavour, name: evt.target.value })
+                        setType({ ...type, name: evt.target.value })
                       }
                       className="form-control"
-                      placeholder={"Chocolate Cake"}
+                      placeholder={"Heart"}
                     />
                   </div>
 
-                  {/* Flavour Status */}
+                  {/* Type Status */}
                   <div className={"form-group col-md-6"}>
                     <label htmlFor="" className="text-dark h6 active">
-                      FLAVOUR STATUS
+                      TYPE STATUS
                     </label>
                     <select
                       name=""
                       id=""
-                      value={flavour.status}
+                      value={type.status}
                       onChange={(evt) => {
-                        setFlavour({ ...flavour, status: evt.target.value });
+                        setType({ ...type, status: evt.target.value });
                       }}
                       className="form-control"
                     >
@@ -142,7 +143,7 @@ const EditFlavour = () => {
                     >
                       {isUpdateLoaded ? (
                         <div>
-                          <i className="fas fa-refresh"></i> Update Flavour
+                          <i className="fas fa-refresh"></i> Update Type
                         </div>
                       ) : (
                         <div>
@@ -170,4 +171,4 @@ const EditFlavour = () => {
   );
 };
 
-export default EditFlavour;
+export default EditType;

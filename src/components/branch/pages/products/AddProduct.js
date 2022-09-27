@@ -22,15 +22,18 @@ function AddProduct() {
     name: "",
     slug: "",
     parentCategories: [],
-    categories: [],
-    skus: [],
+    // categories: [],
+    priceVariants: [],
+    maximumOrderQuantity: 2,
+    sku: "",
     flavour: "",
-    color: "",
     shape: "",
     images: [],
     isEggCake: false,
     isPhotoCake: false,
     description: "",
+    shortDescription: "",
+    tags: "",
   });
   const [logoDefault, setlogoDefault] = useState("https://bit.ly/3kPLfxF");
   const [previewImages, setPreviewImages] = useState([]);
@@ -56,15 +59,6 @@ function AddProduct() {
       name: value,
     });
   };
-
-  // Imege Change
-  // const imageChangeHandler = (event) => {
-  //   if (event.target.files && event.target.files.length) {
-  //     [...event.target.files].map((value, index) => {
-  //       handleUpload(value, index);
-  //     });
-  //   }
-  // };
 
   // Image Change
   const imageChangeHandler = (event, type) => {
@@ -106,40 +100,6 @@ function AddProduct() {
         M.toast({ html: error, classes: "bg-danger" });
       });
   };
-
-  // Upload Image
-  // const handleUpload = (image, i) => {
-  //   const uploadTask = storage.ref(`cakes/${image.name}`).put(image);
-  //   uploadTask.on(
-  //     "state_changed",
-  //     (snapshot) => {
-  //       const progress = Math.round(
-  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-  //       );
-
-  //       setImageUploaded(false);
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //     },
-  //     () => {
-  //       storage
-  //         .ref("cakes")
-  //         .child(image.name)
-  //         .getDownloadURL()
-  //         .then((url) => {
-  //           setPreviewImages((old) => [...old, { url }]);
-  //           setImageUploaded(true);
-  //           setProduct((old) => {
-  //             return {
-  //               ...old,
-  //               images: [...old.images, { url }],
-  //             };
-  //           });
-  //         });
-  //     }
-  //   );
-  // };
 
   // Upload Image
   const handleUpload = (image, i, type) => {
@@ -201,17 +161,21 @@ function AddProduct() {
     const filteredPCat = selectPCat.map((value) => {
       return value.catId;
     });
-    const filteredSCat = selectSCat.map((value) => {
-      return value.catId;
-    });
+    // const filteredSCat = selectSCat.map((value) => {
+    //   return value.catId;
+    // });
 
     const addProduct = {
       ...product,
       parentCategories: filteredPCat,
-      categories: filteredSCat,
+      // categories: filteredSCat,
       flavour: selectFlavour,
-      color: selectColor,
-      images: previewImages,
+      // color: selectColor,
+      images: previewImages.map((img) => {
+        return {
+          url: img,
+        };
+      }),
     };
 
     fetch(Config.SERVER_URL + "/product", {
@@ -397,14 +361,14 @@ function AddProduct() {
   }, []);
 
   // Add Time Handler
-  const addSkusHandler = (evt) => {
+  const addPriceVariantsHandler = (evt) => {
     evt.preventDefault();
     if (weight == "" || mrp == "" || sellingPrice == "") {
       M.toast({ html: "Please Fill SKU Details", classes: "text-light" });
       return;
     }
 
-    const isExist = product.skus.find((value) => {
+    const isExist = product.priceVariants.find((value) => {
       if (
         value.mrp == mrp &&
         value.weight == weight &&
@@ -420,17 +384,17 @@ function AddProduct() {
     }
     setProduct({
       ...product,
-      skus: [...product.skus, { mrp, weight, sellingPrice }],
+      priceVariants: [...product.priceVariants, { mrp, weight, sellingPrice }],
     });
     setMRP("");
     setWeight("");
     setSellingPrice("");
   }; // Add Time Handler
 
-  const deleteSkuHandler = (i) => {
-    const filtered = product.skus.filter((value, index) => index != i);
+  const deletePriceVariantsHandler = (i) => {
+    const filtered = product.priceVariants.filter((value, index) => index != i);
 
-    setProduct({ ...product, skus: [...filtered] });
+    setProduct({ ...product, priceVariants: [...filtered] });
   };
 
   const addParentCategoryHandler = (evt) => {
@@ -525,7 +489,7 @@ function AddProduct() {
                 {/* Product Name */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PRODUCT NAME HERE !
+                    PRODUCT NAME !
                   </label>
                   <input
                     type="text"
@@ -539,7 +503,7 @@ function AddProduct() {
                 {/* Product Slug */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PRODUCT SLUG HERE !
+                    PRODUCT SLUG !
                   </label>
                   <input
                     type="text"
@@ -552,10 +516,45 @@ function AddProduct() {
                   />
                 </div>
 
+                {/* Product Sku */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    PRODUCT SKU !
+                  </label>
+                  <input
+                    type="text"
+                    value={product.sku}
+                    onChange={(evt) =>
+                      setProduct({ ...product, sku: evt.target.value })
+                    }
+                    className="form-control"
+                    placeholder={"CPXY1234"}
+                  />
+                </div>
+
+                {/* MAXIMUM ORDER QUANTITY */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    MAXIMUM ORDER QUANTITY !
+                  </label>
+                  <input
+                    type="text"
+                    value={product.maximumOrderQuantity}
+                    onChange={(evt) =>
+                      setProduct({
+                        ...product,
+                        maximumOrderQuantity: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"2"}
+                  />
+                </div>
+
                 {/* Parent Category */}
                 <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PARENT CATEGORY HERE !
+                    SELECT PARENT CATEGORY !
                   </label>
                   <div className="">
                     <Select
@@ -588,7 +587,7 @@ function AddProduct() {
                 </div>
 
                 {/* Sub Category */}
-                <div className={"form-group col-md-6 overflow-none"}>
+                {/* <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SUB CATEGORY HERE !
                   </label>
@@ -599,12 +598,12 @@ function AddProduct() {
                       onChange={addSubCategoryHandler}
                     />
                   </div>
-                </div>
+                </div> */}
 
                 {/* Selected Sub Category */}
-                <div className={"form-group col-md-6"}>
+                {/* <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    SELECTED SUB CATEGORY HERE !
+                    SELECTED SUB CATEGORY !
                   </label>
                   <div className="border p-2">
                     {selectSCat.map((value, index) => {
@@ -621,12 +620,12 @@ function AddProduct() {
                       );
                     })}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Flavour */}
                 <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    FLAVOUR HERE !
+                    SELECT FLAVOUR !
                   </label>
 
                   <Select
@@ -638,7 +637,7 @@ function AddProduct() {
                 </div>
 
                 {/* Color */}
-                <div className={"form-group col-md-6 overflow-none"}>
+                {/* <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     COLOR HERE !
                   </label>
@@ -649,6 +648,22 @@ function AddProduct() {
                       setSelectColor(evt.value);
                     }}
                   />
+                </div> */}
+
+                {/* Cake Shape */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT CAKE SHAPE !
+                  </label>
+
+                  <div className="">
+                    <Select
+                      options={shapes}
+                      onChange={(evt) => {
+                        setProduct({ ...product, shape: evt.value });
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Is Egg Cake*/}
@@ -744,25 +759,9 @@ function AddProduct() {
                     </div>
                   </div>
                 </div>
-
-                {/* Cake Shape */}
-                <div className={"form-group col-md-6 overflow-none"}>
-                  <label htmlFor="" className="text-dark h6 active">
-                    CAKE SHAPE !
-                  </label>
-
-                  <div className="">
-                    <Select
-                      options={shapes}
-                      onChange={(evt) => {
-                        setProduct({ ...product, shape: evt.value });
-                      }}
-                    />
-                  </div>
-                </div>
               </div>
 
-              {/* SKUs */}
+              {/* priceVariants */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
                   <h3 className={"my-3 text-info"}>PRODUCT PRICE DETAILS</h3>
@@ -815,7 +814,7 @@ function AddProduct() {
                   <button
                     className="btn btn-info rounded px-3 py-2"
                     type={"button"}
-                    onClick={addSkusHandler}
+                    onClick={addPriceVariantsHandler}
                   >
                     <div>
                       <i className="fas fa-plus"></i> Add
@@ -824,7 +823,7 @@ function AddProduct() {
                 </div>
 
                 <div className="col-md-11">
-                  {product.skus.map((value, index) => {
+                  {product.priceVariants.map((value, index) => {
                     return (
                       <div className="card m-0 mb-1">
                         <div className="card-body px-2 py-2 d-flex justify-content-between">
@@ -834,7 +833,7 @@ function AddProduct() {
                           <button
                             type="button"
                             className="btn btn-danger px-2 py-0 m-0"
-                            onClick={() => deleteSkuHandler(index)}
+                            onClick={() => deletePriceVariantsHandler(index)}
                           >
                             X
                           </button>
@@ -850,7 +849,51 @@ function AddProduct() {
                 <div className="col-md-12">
                   <h3 className={"my-3 text-info"}>PRODUCT DESCRIPTION</h3>
                 </div>
+
+                {/* SHORT DESCRIPTION */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SHORT DESCRIPTION
+                  </label>
+                  <input
+                    type="text"
+                    onChange={(evt) =>
+                      setProduct({
+                        ...product,
+                        shortDescription: evt.target.value,
+                      })
+                    }
+                    name="weight"
+                    value={product.shortDescription}
+                    className="form-control"
+                    placeholder={"Write Short Descriptions"}
+                  />
+                </div>
+
+                {/* PRODUCT TAGS */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    PRODUCT TAGS
+                  </label>
+                  <input
+                    type="text"
+                    onChange={(evt) =>
+                      setProduct({
+                        ...product,
+                        tags: evt.target.value,
+                      })
+                    }
+                    name="weight"
+                    value={product.tags}
+                    className="form-control"
+                    placeholder={"Snack, Organic, Brown"}
+                  />
+                </div>
+
                 <div className={"form-group col-md-12"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    LONG DESCTRIPTION
+                  </label>
                   <CKEditor
                     editor={ClassicEditor}
                     style={{ height: "100px" }}

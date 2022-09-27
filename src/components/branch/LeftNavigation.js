@@ -144,17 +144,22 @@ function LeftNavigation() {
                         to="/branch/flavours"
                         onClick={removeLeftNavigation}
                       >
-                        Flavour
+                        Cake Flavour
                       </Link>
                     </li>
                     <li>
                       <Link to="/branch/shapes" onClick={removeLeftNavigation}>
-                        Shape
+                        Cake Shape
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/branch/types" onClick={removeLeftNavigation}>
+                        Cake Type
                       </Link>
                     </li>
                     <li>
                       <Link to="/branch/colors" onClick={removeLeftNavigation}>
-                        Color
+                        Cake Color
                       </Link>
                     </li>
                     <li>

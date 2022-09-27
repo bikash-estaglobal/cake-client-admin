@@ -121,6 +121,7 @@ const NewOrders = (props) => {
         (result) => {
           setIsAllOrdersLoaded(true);
           if (result.status === 200) {
+            console.log(result.body);
             setAllOrders(result.body || []);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -136,7 +137,7 @@ const CouponList = (props) => {
           setIsAllCouponLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
 
   // Count Records
   useEffect(() => {
@@ -173,17 +174,8 @@ const CouponList = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">COUPON LISTS</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Coupon List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"COUPON LISTS"} pageTitle={"Coupon List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -262,6 +254,24 @@ const CouponList = (props) => {
                         </thead>
                         <tbody>
                           {allCoupon.map((coupon, index) => {
+                            let couponStatus = coupon.status
+                              ? "Active"
+                              : "Disabled";
+                            const today = new Date(
+                              date.format(new Date(), "YYYY-MM-DD")
+                            );
+                            const couponExpiryDate = new Date(
+                              date.format(
+                                new Date(coupon.validity),
+                                "YYYY-MM-DD"
+                              )
+                            );
+
+                            // Check validity
+                            if (today > couponExpiryDate) {
+                              couponStatus = "Expired";
+                            }
+
                             return (
                               <tr key={index}>
                                 <td>{++index}</td>
@@ -279,7 +289,7 @@ const CouponList = (props) => {
                                 </td>
                                 <td>{coupon.usesTimes}</td>
                                 <td>{coupon.applyFor}</td>
-                                <td>{coupon.status ? "active" : "disabled"}</td>
+                                <td>{couponStatus}</td>
                                 <td className="text-center">
                                   {/* Update Button */}
                                   <Link
@@ -322,6 +332,7 @@ const CouponList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

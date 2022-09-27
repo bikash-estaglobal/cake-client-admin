@@ -350,13 +350,13 @@ const ViewOrder = () => {
                       </tr>
                       <tr>
                         <td colSpan={4}>Delivery Charge</td>
-                        <td>
+                        {/* <td>
                           {order.shippingMethod.amount
                             ? (
                                 <span className="fa fa-inr"></span>
                               )`${order.shippingMethod.amount}`
                             : "FREE"}
-                        </td>
+                        </td> */}
                       </tr>
                       <tr>
                         <td colSpan={4}>Total Amount</td>
@@ -416,24 +416,6 @@ const ViewOrder = () => {
                         ) : (
                           ""
                         )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-md-3 px-1">
-                  <div className="card">
-                    <div className="card-body">
-                      <h3 className={"my-3 text-info"}> Billing Details </h3>
-                      <div className="">
-                        <h5> {order.billingAddress.name} </h5>
-                        <h6> {order.billingAddress.email} </h6>
-                        <h6> {order.billingAddress.mobile} </h6>
-                        <h6>
-                          {order.billingAddress.address},
-                          {order.billingAddress.city}
-                        </h6>
-                        <h6> {order.companyName} </h6>
                       </div>
                     </div>
                   </div>

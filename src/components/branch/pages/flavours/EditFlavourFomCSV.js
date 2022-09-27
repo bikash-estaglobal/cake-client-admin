@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditFlavourFromCSV = () => {
   const history = useHistory();
@@ -55,8 +56,8 @@ const EditFlavourFromCSV = () => {
   // Update Submit Handler
   const submitHandler = ({ id, name, status }) => {
     const updateData = {
-      name: name || undefined,
-      status: status.toLowerCase() || undefined,
+      name: name,
+      status: status.toLowerCase(),
     };
     fetch(`${Config.SERVER_URL}/flavour/${id}`, {
       method: "PUT",
@@ -134,7 +135,7 @@ const EditFlavourFromCSV = () => {
               makeElement("td", item.id.toString(), dataRow);
               makeElement("td", item.name, dataRow);
 
-              makeElement("td", item.status, dataRow);
+              makeElement("td", item.status.toString(), dataRow);
 
               thead.appendChild(dataRow);
             });
@@ -152,22 +153,10 @@ const EditFlavourFromCSV = () => {
   };
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper px-0 pt-0">
       <div className="container-fluid">
-        {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
-        {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Flavours</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Update Flavous</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"FLAVOURS"} pageTitle={"Update Flavour"} />
 
         {/* Add Color Form */}
         <div className="row">
