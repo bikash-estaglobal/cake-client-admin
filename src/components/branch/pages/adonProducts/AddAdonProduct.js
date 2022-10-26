@@ -3,6 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import M from "materialize-css";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
+import Breadcrumb from "../../components/Breadcrumb";
 
 function AddAdonProduct() {
   const history = useHistory();
@@ -75,7 +76,7 @@ function AddAdonProduct() {
     evt.preventDefault();
 
     const filteredPCat = selectPCat.map((value) => {
-      return { catId: value.catId };
+      return value.catId;
     });
     const filteredSCat = selectSCat.map((value) => {
       return { catId: value.catId };
@@ -239,17 +240,7 @@ function AddAdonProduct() {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Adon Products</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Add Product</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"ADON PRODUCTS"} pageTitle={"Add Product"} />
         {/* End Bread crumb and right sidebar toggle */}
 
         {/* Listing Form */}
@@ -259,16 +250,16 @@ function AddAdonProduct() {
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Product Details */}
+              {/* PRODUCT DETAILS */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Details</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT DETAILS</h3>
                 </div>
 
                 {/* Product Name */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PRODUCT NAME HERE !
+                    ENTER PRODUCT NAME !
                   </label>
                   <input
                     type="text"
@@ -300,7 +291,7 @@ function AddAdonProduct() {
                 {/* Parent Category */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    PARENT CATEGORY HERE !
+                    SELECT PARENT CATEGORY !
                   </label>
                   <div className="border p-2">
                     <select
@@ -349,7 +340,7 @@ function AddAdonProduct() {
                 </div>
 
                 {/* Sub Category */}
-                <div className={"form-group col-md-6"}>
+                {/* <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SUB CATEGORY HERE !
                   </label>
@@ -375,10 +366,10 @@ function AddAdonProduct() {
                       })}
                     </select>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Selected Sub Category */}
-                <div className={"form-group col-md-6"}>
+                {/* <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SELECTED SUB CATEGORY HERE !
                   </label>
@@ -397,13 +388,13 @@ function AddAdonProduct() {
                       );
                     })}
                   </div>
-                </div>
+                </div> */}
               </div>
 
-              {/* Product Images */}
+              {/* PRODUCT IMAGE */}
               <div className={"row shadow-sm bg-white mt-3 py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Product Images</h3>
+                  <h3 className={"my-3 text-info"}>PRODUCT IMAGE</h3>
                 </div>
 
                 <div className={"form-group col-md-6"}>

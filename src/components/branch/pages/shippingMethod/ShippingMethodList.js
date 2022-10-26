@@ -25,6 +25,7 @@ const ShippingMethodList = (props) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -113,7 +114,7 @@ const ShippingMethodList = (props) => {
     fetch(
       `${Config.SERVER_URL}/shipping-method?skip=${pagination.skip}&limit=${
         pagination.limit
-      }&searchQuery=${searchQuery || null}`,
+      }&searchQuery=${searchQuery || null}&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -137,14 +138,14 @@ const ShippingMethodList = (props) => {
           setIsAllShippingMethodLoaded(true);
         }
       );
-  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery, status]);
 
   // Count Records
   useEffect(() => {
     fetch(
       `${Config.SERVER_URL}/shipping-method?skip=0&limit=0&searchQuery=${
         searchQuery || null
-      }`,
+      }&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -167,7 +168,7 @@ const ShippingMethodList = (props) => {
           setIsAllShippingMethodLoaded(true);
         }
       );
-  }, [isDeleted, searchQuery]);
+  }, [isDeleted, searchQuery, status]);
 
   // Return function
   return (
@@ -185,8 +186,8 @@ const ShippingMethodList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
+                <div className="row">
+                  <div className="d-flex col-md-6">
                     <h4 className="mt-2 mr-2">Search: </h4>
                     <div className="border px-2">
                       <input
@@ -198,9 +199,25 @@ const ShippingMethodList = (props) => {
                         className="form-control"
                       />
                     </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={true}>STATUS</option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="">
+                  <div className="col-md-6 text-right">
                     <Link
                       className="btn btn-info rounded"
                       to={{

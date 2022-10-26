@@ -3,6 +3,7 @@ import M from "materialize-css";
 import { useHistory, useParams } from "react-router-dom";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditParentCategory = () => {
   const history = useHistory();
@@ -47,6 +48,7 @@ const EditParentCategory = () => {
       slug: formData.slug,
       image: formData.image,
       description: formData.description,
+      status: formData.status,
     };
 
     fetch(Config.SERVER_URL + "/parent-category/" + formData._id, {
@@ -159,26 +161,17 @@ const EditParentCategory = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Parent Category</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Parent Category</li>
-            </ol>
-          </div>
-        </div>
 
-        {/* Add Flavour Form */}
+        <Breadcrumb title={"PARENT CATEGORY"} pageTitle={"Update Category"} />
+
+        {/* Add Category Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Flavour Details */}
+              {/* Category Details */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
                   <h3 className={"my-3 text-info"}>Category Details</h3>
@@ -210,6 +203,25 @@ const EditParentCategory = () => {
                     className="form-control"
                     placeholder={"cake"}
                   />
+                </div>
+
+                {/* SELECT STATUS */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT STATUS
+                  </label>
+                  <select
+                    name=""
+                    id=""
+                    value={formData.status}
+                    onChange={(evt) => {
+                      setFormData({ ...formData, status: evt.target.value });
+                    }}
+                    className="form-control"
+                  >
+                    <option value={true}>Active</option>
+                    <option value={false}>Disabled</option>
+                  </select>
                 </div>
 
                 {/* Description */}
@@ -301,7 +313,7 @@ const EditParentCategory = () => {
                   <button className="btn btn-info rounded" type={"submit"}>
                     {isAddLaoded ? (
                       <div>
-                        <i className="fas fa-plus"></i> Add
+                        <i className="fas fa-refresh"></i> Update
                       </div>
                     ) : (
                       <div>

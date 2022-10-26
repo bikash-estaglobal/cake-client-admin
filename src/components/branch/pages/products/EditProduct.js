@@ -6,6 +6,7 @@ import M from "materialize-css";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
 import Select from "react-select";
+import Breadcrumb from "../../components/Breadcrumb";
 
 function EditProduct() {
   const history = useHistory();
@@ -26,6 +27,7 @@ function EditProduct() {
     skus: "",
     priceVariants: [],
     flavour: "",
+    type: "",
     // color: "",
     shape: "",
     images: [],
@@ -41,6 +43,7 @@ function EditProduct() {
   const [parentCategory, setParentCategory] = useState([]);
   const [flavour, setFlavour] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const [types, setTypes] = useState([]);
   const [color, setColor] = useState([]);
   const [progress, setProgress] = useState("");
 
@@ -48,6 +51,7 @@ function EditProduct() {
   const [selectSCat, setSelectSCat] = useState([]);
   const [selectShape, setSelectShape] = useState([]);
   const [selectFlavour, setSelectFlavour] = useState("");
+  const [selectType, setSelectType] = useState("");
   const [selectColor, setSelectColor] = useState("");
   const [productDescriptions, setProductDescriptions] = useState("");
 
@@ -174,6 +178,7 @@ function EditProduct() {
       parentCategories: filteredPCat,
       categories: filteredSCat,
       flavour: selectFlavour.value,
+      type: selectType.value,
       color: selectColor.value,
       description: productDescriptions,
       shape: selectShape.value,
@@ -232,6 +237,7 @@ function EditProduct() {
       .then((res) => res.json())
       .then(
         (result) => {
+          console.log("Type", result.body);
           if (result.status === 200) {
             setProduct(result.body);
             setProductDescriptions(result.body.description);
@@ -241,7 +247,6 @@ function EditProduct() {
                 return item.url;
               })
             );
-            console.log(result.body);
 
             // Set Color
             if (result.body.color) {
@@ -264,6 +269,14 @@ function EditProduct() {
               setSelectFlavour({
                 label: result.body.flavour.name,
                 value: result.body.flavour._id,
+              });
+            }
+
+            // Set Type
+            if (result.body.type) {
+              setSelectType({
+                label: result.body.type.name,
+                value: result.body.type._id,
               });
             }
 
@@ -418,6 +431,33 @@ function EditProduct() {
       );
   }, []);
 
+  // get Types
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/type?skip=0&limit=0`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            let f = result.body.map((v) => {
+              return { label: v.name, value: v._id };
+            });
+            setTypes(f);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
+
   // get Color
   useEffect(() => {
     fetch(`${Config.SERVER_URL}/color?skip=0&limit=0`, {
@@ -449,7 +489,7 @@ function EditProduct() {
   const addPriceVariantsHandler = (evt) => {
     evt.preventDefault();
     if (weight == "" || mrp == "" || sellingPrice == "") {
-      M.toast({ html: "Please Fill SKU Details", classes: "text-light" });
+      M.toast({ html: "Please Fill Price Details", classes: "text-light" });
       return;
     }
 
@@ -545,17 +585,7 @@ function EditProduct() {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Edit PRODUCT</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Edit Product</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PRODUCTS"} pageTitle={"Update Product"} />
         {/* End Bread crumb and right sidebar toggle */}
 
         {/* Listing Form */}
@@ -724,6 +754,21 @@ function EditProduct() {
                   />
                 </div>
 
+                {/* Type */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT CAKE TYPE !
+                  </label>
+
+                  <Select
+                    value={selectType}
+                    options={types}
+                    onChange={(evt) => {
+                      setSelectType(evt);
+                    }}
+                  />
+                </div>
+
                 {/* Color */}
                 {/* <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
@@ -848,6 +893,25 @@ function EditProduct() {
                       </label>
                     </div>
                   </div>
+                </div>
+
+                {/* SELECT STATUS */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT STATUS
+                  </label>
+                  <select
+                    name=""
+                    id=""
+                    value={product.status}
+                    onChange={(evt) => {
+                      setProduct({ ...product, status: evt.target.value });
+                    }}
+                    className="form-control"
+                  >
+                    <option value={true}>Active</option>
+                    <option value={false}>Disabled</option>
+                  </select>
                 </div>
               </div>
 

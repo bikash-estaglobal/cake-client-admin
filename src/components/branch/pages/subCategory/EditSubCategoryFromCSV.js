@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditSubCategoryFromCSV = () => {
   const history = useHistory();
@@ -186,17 +187,8 @@ const EditSubCategoryFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">UPDATE SUB CATEGORY</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">UPDATE SUB CATEGORY</li>
-            </ol>
-          </div>
-        </div>
+
+        <Breadcrumb title={"SUB CATEGORY"} pageTitle={"Update Category"} />
 
         {/* Add Color Form */}
         <div className="row">

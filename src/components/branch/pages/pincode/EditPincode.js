@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import M from "materialize-css";
 import Config from "../../../config/Config";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditPincode = () => {
   const history = useHistory();
@@ -21,6 +22,7 @@ const EditPincode = () => {
       state: pincode.state,
       city: pincode.city,
       pincode: pincode.pincode,
+      status: pincode.status,
     };
     fetch(`${Config.SERVER_URL}/pincode/${pincode.id}`, {
       method: "PUT",
@@ -82,17 +84,7 @@ const EditPincode = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Pincode</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Update Pincode</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PINCODES"} pageTitle={"Update Pincode"} />
 
         {/* Add Coupon Form */}
         <div className="row">
@@ -152,6 +144,26 @@ const EditPincode = () => {
                     className="form-control"
                     placeholder={"854301"}
                   />
+                </div>
+
+                {/* STATUS */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT STATUS!
+                  </label>
+                  <select
+                    value={pincode.status}
+                    onChange={(evt) =>
+                      setPincode({ ...pincode, status: evt.target.value })
+                    }
+                    name=""
+                    className="form-control"
+                    id=""
+                  >
+                    <option value="">Select Status</option>
+                    <option value={true}>Active</option>
+                    <option value={false}>Disabled</option>
+                  </select>
                 </div>
 
                 <div className={"form-group col-md-12"}>

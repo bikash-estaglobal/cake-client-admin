@@ -7,16 +7,15 @@ import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
 import Breadcrumb from "../../components/Breadcrumb";
 
-const AddSubCategoryFromCSV = () => {
+const EditNewsletterFromCSV = () => {
   const history = useHistory();
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
+  const [isAllRecordLoaded, setIsAllRecordLoaded] = useState(true);
 
   const fileChangeHandler = (event) => {
-    const files = event.target.files[0];
+    const files = event.target.files;
     if (files) {
-      setUploadLoading(true);
-
       Papa.parse(event.target.files[0], {
         complete: async (results) => {
           let keys = results.data[0];
@@ -38,18 +37,8 @@ const AddSubCategoryFromCSV = () => {
 
           // Get data from array and call the api
           objects.map((item, i) => {
-            if (item.name) {
-              item.slug = item.name
-                .toLowerCase()
-                .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "")
-                .replace(/\s+/g, "-");
-
-              item.parentCategories = item.parent_categories.split("_");
-              delete item.parent_categories;
+            if (item.id != "") {
               submitHandler(item);
-            }
-            if (i == objects.length - 1) {
-              setUploadLoading(false);
             }
           });
         },
@@ -57,49 +46,15 @@ const AddSubCategoryFromCSV = () => {
     }
   };
 
-  const makeElement = (elemName, innerText = null, row = null) => {
-    const elem = document.createElement(elemName);
-    if (innerText) {
-      elem.innerHTML = innerText;
-    }
-    if (row) {
-      row.appendChild(elem);
-    }
-    return elem;
-  };
-
-  const downloadCSVHandler = () => {
-    let table = makeElement("table");
-    let thead = makeElement("thead");
-    table.appendChild(thead);
-
-    let row = makeElement("tr");
-    makeElement("th", "name", row);
-    makeElement("th", "image", row);
-    makeElement("th", "parent_categories", row);
-    makeElement("th", "description", row);
-
-    let dummyRow = makeElement("tr");
-    makeElement("td", "Dummy Data", dummyRow);
-    makeElement(
-      "td",
-      "https://firebasestorage.googleapis.com/v0/b/perfect-app-5eef5.appspot.com/o/images%2Fpersonalised-birthday-cupcakes-cupc1742flav-D.jpg?alt=media&token=b32a78e8-413b-4d60-af8e-ba4d9a32e799",
-      dummyRow
-    );
-    makeElement("td", "623ee43164623df532111436", dummyRow);
-    makeElement("td", "Description", dummyRow);
-
-    thead.appendChild(row);
-    thead.appendChild(dummyRow);
-
-    tableToCSV("sub-category.csv", table);
-  };
-
-  // Submit Handler
-  const submitHandler = (data) => {
-    fetch(Config.SERVER_URL + "/category", {
-      method: "POST",
-      body: JSON.stringify(data),
+  // Update Submit Handler
+  const submitHandler = ({ id, name, status }) => {
+    const updateData = {
+      name: name,
+      status: status.toLowerCase(),
+    };
+    fetch(`${Config.SERVER_URL}/newsletters/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updateData),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -116,12 +71,11 @@ const AddSubCategoryFromCSV = () => {
               M.toast({ html: result.error[key], classes: "bg-danger" });
             });
           }
-          console.log(result);
           setUploaded((old) => {
             return [
               ...old,
               {
-                name: result.body.name || "",
+                email: result.body.email || "",
                 message: result.message || result.errors.message,
               },
             ];
@@ -133,22 +87,76 @@ const AddSubCategoryFromCSV = () => {
       );
   };
 
-  return (
-    <div className="page-wrapper">
-      <div className="container-fluid">
-        {/* <!-- ============================================================== --> */}
-        {/* <!-- Bread crumb and right sidebar toggle --> */}
-        {/* <!-- ============================================================== --> */}
-        <Breadcrumb title={"SUB CATEGORY"} pageTitle={"Add Category"} />
+  const makeElement = (elemName, innerText = null, row = null) => {
+    const elem = document.createElement(elemName);
+    if (innerText) {
+      elem.innerHTML = innerText;
+    }
+    if (row) {
+      row.appendChild(elem);
+    }
+    return elem;
+  };
 
-        {/* Add Category Form */}
+  const downloadCSVHandler = () => {
+    let table = makeElement("table");
+    table.setAttribute("id", "download-csv");
+    let thead = makeElement("thead");
+    table.appendChild(thead);
+
+    let row = makeElement("tr");
+    makeElement("th", "id", row);
+    makeElement("th", "email", row);
+    makeElement("th", "status", row);
+    thead.appendChild(row);
+    // Load Data from the Database
+    setIsAllRecordLoaded(false);
+    fetch(`${Config.SERVER_URL}/newsletters?skip=0&limit=0&status=All`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          setIsAllRecordLoaded(true);
+          if (result.status === 200) {
+            result.body.map((item, index) => {
+              let dataRow = document.createElement("tr");
+              makeElement("td", item.id.toString(), dataRow);
+              makeElement("td", item.email, dataRow);
+              makeElement("td", item.status.toString(), dataRow);
+              thead.appendChild(dataRow);
+            });
+            tableToCSV("newsletters.csv", table);
+            // setAllRecords(result.body || []);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+          setIsAllRecordLoaded(true);
+        }
+      );
+  };
+
+  return (
+    <div className="page-wrapper px-0 pt-0">
+      <div className="container-fluid">
+        {/* <!-- Bread crumb and right sidebar toggle --> */}
+        <Breadcrumb title={"NEWSLETTERS"} pageTitle={"Update Emails"} />
+
+        {/* Add Color Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
               //   onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Color Details */}
+              {/* Newsletter Details */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12 d-flex justify-content-between">
                   <h3 className={"my-3 text-info"}>Upload CSV File</h3>
@@ -158,17 +166,30 @@ const AddSubCategoryFromCSV = () => {
                       className="btn btn-info"
                       type="button"
                     >
-                      <i className="fa fa-download"></i> Download CSV Format
+                      {isAllRecordLoaded ? (
+                        <span>
+                          <i className="fa fa-download"></i> Download CSV Format
+                        </span>
+                      ) : (
+                        <div>
+                          <span
+                            className="spinner-border spinner-border-sm mr-1"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          Loading..
+                        </div>
+                      )}
                     </button>
                   </div>
                 </div>
 
+                {/* Email */}
                 <div className={"form-group col-md-6"}>
                   <input
                     type="file"
                     onChange={fileChangeHandler}
                     className="form-control"
-                    placeholder={"Chocolaty"}
                   />
                 </div>
                 <div className={"form-group col-md-6"}>
@@ -198,7 +219,7 @@ const AddSubCategoryFromCSV = () => {
                   return (
                     <div className="card card-body">
                       {" "}
-                      {item.name} {item.message}{" "}
+                      {item.email} {item.message}{" "}
                     </div>
                   );
                 })}
@@ -211,4 +232,4 @@ const AddSubCategoryFromCSV = () => {
   );
 };
 
-export default AddSubCategoryFromCSV;
+export default EditNewsletterFromCSV;

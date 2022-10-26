@@ -6,6 +6,7 @@ import M from "materialize-css";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
 import Select from "react-select";
+import Breadcrumb from "../../components/Breadcrumb";
 
 function AddProduct() {
   const history = useHistory();
@@ -28,6 +29,7 @@ function AddProduct() {
     sku: "",
     flavour: "",
     shape: "",
+    type: "",
     images: [],
     isEggCake: false,
     isPhotoCake: false,
@@ -43,19 +45,24 @@ function AddProduct() {
   const [parentCategory, setParentCategory] = useState([]);
   const [flavour, setFlavour] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const [types, setTypes] = useState([]);
   const [color, setColor] = useState([]);
   const [progress, setProgress] = useState("");
 
   const [selectPCat, setSelectPCat] = useState([]);
   const [selectSCat, setSelectSCat] = useState([]);
   const [selectFlavour, setSelectFlavour] = useState("");
+  const [selectType, setSelectType] = useState("");
   const [selectColor, setSelectColor] = useState("");
 
   const titleChangeHandler = (evt) => {
     const value = evt.target.value;
     setProduct({
       ...product,
-      slug: value.toLowerCase().replace(/\s+/g, "-"),
+      slug: value
+        .toLowerCase()
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "")
+        .replace(/\s+/g, "-"),
       name: value,
     });
   };
@@ -170,6 +177,7 @@ function AddProduct() {
       parentCategories: filteredPCat,
       // categories: filteredSCat,
       flavour: selectFlavour,
+      type: selectType,
       // color: selectColor,
       images: previewImages.map((img) => {
         return {
@@ -254,6 +262,33 @@ function AddProduct() {
               return { label: value.name, value: value._id };
             });
             setShapes(modifyForSelect);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
+
+  // get types
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/type?skip=0&limit=0`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            let modifyForSelect = result.body.map((value) => {
+              return { label: value.name, value: value._id };
+            });
+            setTypes(modifyForSelect);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -364,7 +399,7 @@ function AddProduct() {
   const addPriceVariantsHandler = (evt) => {
     evt.preventDefault();
     if (weight == "" || mrp == "" || sellingPrice == "") {
-      M.toast({ html: "Please Fill SKU Details", classes: "text-light" });
+      M.toast({ html: "Please Fill Price Details", classes: "text-light" });
       return;
     }
 
@@ -460,17 +495,8 @@ function AddProduct() {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">ADD PRODUCT</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Add Product</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PRODUCTS"} pageTitle={"Add Product"} />
+
         {/* End Bread crumb and right sidebar toggle */}
 
         {/* Listing Form */}
@@ -632,6 +658,20 @@ function AddProduct() {
                     options={flavour}
                     onChange={(evt) => {
                       setSelectFlavour(evt.value);
+                    }}
+                  />
+                </div>
+
+                {/* Flavour */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT CAKE TYPES !
+                  </label>
+
+                  <Select
+                    options={types}
+                    onChange={(evt) => {
+                      setSelectType(evt.value);
                     }}
                   />
                 </div>

@@ -24,6 +24,7 @@ const ShapeList = (props) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -136,7 +137,7 @@ const ShapeList = (props) => {
           setIsAllShapeLoaded(true);
         }
       );
-  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery, status]);
 
   // Count Records
   useEffect(() => {
@@ -166,7 +167,7 @@ const ShapeList = (props) => {
           setIsAllShapeLoaded(true);
         }
       );
-  }, [isDeleted, searchQuery]);
+  }, [isDeleted, searchQuery, status]);
 
   // Return function
   return (
@@ -185,8 +186,8 @@ const ShapeList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
+                <div className="row">
+                  <div className="d-flex col-md-6">
                     <h4 className="mt-2 mr-2">Search: </h4>
                     <div className="border px-2">
                       <input
@@ -198,9 +199,25 @@ const ShapeList = (props) => {
                         className="form-control"
                       />
                     </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={true}>STATUS</option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="">
+                  <div className="col-md-6 text-right">
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{

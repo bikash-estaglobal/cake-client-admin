@@ -3,6 +3,7 @@ import { useHistory, useParams, Link } from "react-router-dom";
 import M from "materialize-css";
 import Config from "../../../config/Config";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const ViewOrder = () => {
   const history = useHistory();
@@ -35,6 +36,7 @@ const ViewOrder = () => {
     if (order.orderStatus == "CANCELLED") {
       updateData.cancelledBy = "ADMIN";
     }
+
     if (order.cancelMessage != "")
       updateData.cancelMessage = order.cancelMessage;
 
@@ -49,7 +51,6 @@ const ViewOrder = () => {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result);
           if (result.status === 200) {
             M.toast({ html: result.message, classes: "bg-success" });
             history.goBack();
@@ -102,17 +103,7 @@ const ViewOrder = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">New Orders</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">View Order</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"ORDERS"} pageTitle={"View Odrer"} />
 
         {/* Add order Form */}
         <div className="row">
@@ -188,7 +179,7 @@ const ViewOrder = () => {
                       <tr>
                         <th>#</th>
                         <th>PRODUCT</th>
-                        <th>Flv & Color</th>
+                        <th>Flv & Shape</th>
                         <th>Msg</th>
                         <th>Weight</th>
                         <th>QTY</th>
@@ -216,9 +207,9 @@ const ViewOrder = () => {
                             </td>
 
                             <td>
-                              Flv: {product.flavour} <br /> Color:
-                              {product.color}
+                              Flv: {product.flavour}
                               <br /> Shape: {product.shape}
+                              <br /> Type: {product.cakeType}
                             </td>
                             <td>
                               <h6>{product.messageOnCake}</h6>
@@ -431,7 +422,8 @@ const ViewOrder = () => {
                         <h6> {order.shippingAddress.mobile} </h6>
                         <h6>
                           {order.shippingAddress.address},
-                          {order.shippingAddress.city}
+                          {order.shippingAddress.city},
+                          {order.shippingAddress.landmark}
                         </h6>
                         <h6> {order.companyName} </h6>
                       </div>
@@ -463,6 +455,21 @@ const ViewOrder = () => {
                             "hh:mm A"
                           )}
                         </h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-3 px-1">
+                  <div className="card">
+                    <div className="card-body">
+                      <h3 className={"my-3 text-info"}> Payment Method </h3>
+                      <div className="">
+                        <h5>
+                          <span className="badge badge-info">
+                            {order.paymentMethod}
+                          </span>
+                        </h5>
                       </div>
                     </div>
                   </div>

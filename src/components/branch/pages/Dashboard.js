@@ -465,7 +465,7 @@ function Dashboard() {
                 {/* Total Customers */}
                 <div className={"col-md-3"}>
                   <div className={"card bg-white border-0"}>
-                    <Link to={"/branch/batch"}>
+                    <Link to={"/branch/customers"}>
                       <div className={"card-body py-1"}>
                         <div className={"float-left"}>
                           <i
@@ -576,7 +576,7 @@ function Dashboard() {
                 {/* Total Cancelled Ordera */}
                 <div className={"col-md-4"}>
                   <div className={"card bg-white border-0"}>
-                    <Link to={"/branch/batch"}>
+                    <Link to={"/branch/orders?status=CANCELLED"}>
                       <div className={"card-body py-1"}>
                         <div className={"float-left"}>
                           <i
@@ -614,7 +614,7 @@ function Dashboard() {
                 {/* Total Delivered Order */}
                 <div className={"col-md-4"}>
                   <div className={"card bg-white border-0"}>
-                    <Link to={"/branch/order"}>
+                    <Link to={"/branch/orders?status=DELIVERED"}>
                       <div className={"card-body py-1"}>
                         <div className={"float-left"}>
                           <i className={"mdi mdi-car v-big-icon text-info"} />
@@ -648,7 +648,7 @@ function Dashboard() {
                 {/* Total Returns Orders */}
                 <div className={"col-md-4"}>
                   <div className={"card bg-white border-0"}>
-                    <Link to={"/branch/orders"}>
+                    <Link to={"/branch/orders?status=RETURNED"}>
                       <div className={"card-body py-1"}>
                         <div className={"float-left"}>
                           <i className={"mdi mdi-bus v-big-icon text-info"} />

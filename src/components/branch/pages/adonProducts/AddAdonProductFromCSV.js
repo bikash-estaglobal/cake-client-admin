@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddAdonProductFromCSV = () => {
   const history = useHistory();
@@ -38,10 +39,7 @@ const AddAdonProductFromCSV = () => {
           // Get data from array and call the api
           objects.map((item, i) => {
             if (item.name) {
-              item.slug = item.name
-                .toLowerCase()
-                .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "")
-                .replace(/\s+/g, "-");
+              item.parentCategories = item.parentCategories.split("__");
               submitHandler(item);
             }
             if (i == objects.length - 1) {
@@ -50,13 +48,6 @@ const AddAdonProductFromCSV = () => {
           });
         },
       });
-
-      // Papa.parse(files[0], {
-      //   complete: function (results) {
-      //     console.log("Finished:", results.data);
-      //     insertDataHandler({ name: results.data });
-      //   },
-      // });
     }
   };
 
@@ -78,27 +69,33 @@ const AddAdonProductFromCSV = () => {
 
     let row = makeElement("tr");
     makeElement("th", "name", row);
+    makeElement("th", "sellingPrice", row);
+    makeElement("th", "parentCategories", row);
     makeElement("th", "image", row);
-    makeElement("th", "description", row);
 
     let dummyRow = makeElement("tr");
     makeElement("td", "Dummy Data", dummyRow);
+    makeElement("td", "100", dummyRow);
+    makeElement(
+      "td",
+      "632c2adb2116425068dda48a__632c2b292116425068dda4bb",
+      dummyRow
+    );
     makeElement(
       "td",
       "https://firebasestorage.googleapis.com/v0/b/perfect-app-5eef5.appspot.com/o/images%2Fpersonalised-birthday-cupcakes-cupc1742flav-D.jpg?alt=media&token=b32a78e8-413b-4d60-af8e-ba4d9a32e799",
       dummyRow
     );
-    makeElement("td", "Description", dummyRow);
 
     thead.appendChild(row);
     thead.appendChild(dummyRow);
 
-    tableToCSV("parent-category.csv", table);
+    tableToCSV("adon-product.csv", table);
   };
 
   // Submit Handler
   const submitHandler = (data) => {
-    fetch(Config.SERVER_URL + "/parent-category", {
+    fetch(Config.SERVER_URL + "/adon-product", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
@@ -139,17 +136,7 @@ const AddAdonProductFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Adon Product</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Product</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"ADON PRODUCTS"} pageTitle={"Add Product By CSV"} />
 
         {/* Add  Form */}
         <div className="row">
@@ -206,7 +193,7 @@ const AddAdonProductFromCSV = () => {
               <div className="col-md-12">
                 {uploaded.map((item, index) => {
                   return (
-                    <div className="card card-body">
+                    <div className="card card-body" key={"item" + index}>
                       {" "}
                       {item.name} {item.message}{" "}
                     </div>

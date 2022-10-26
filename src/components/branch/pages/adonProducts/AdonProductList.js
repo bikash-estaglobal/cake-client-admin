@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 
 //  Component Function
 const AdonProductList = (props) => {
@@ -21,6 +22,8 @@ const AdonProductList = (props) => {
   const [allProduct, setAllProduct] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -107,7 +110,9 @@ const AdonProductList = (props) => {
   useEffect(() => {
     setIsAllProductLoaded(false);
     fetch(
-      `${Config.SERVER_URL}/adon-product?skip=${pagination.skip}&limit=${pagination.limit}`,
+      `${Config.SERVER_URL}/adon-product?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&searchQuery=${searchQuery || null}&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -131,17 +136,22 @@ const AdonProductList = (props) => {
           setIsAllProductLoaded(true);
         }
       );
-  }, [pagination, isDeleted]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery, status]);
 
   // Count Records
   useEffect(() => {
-    fetch(`${Config.SERVER_URL}/adon-product?skip=0&limit=0`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
+    fetch(
+      `${Config.SERVER_URL}/adon-product?skip=0&limit=0&searchQuery=${
+        searchQuery || null
+      }&status=${status}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(
         (result) => {
@@ -156,24 +166,15 @@ const AdonProductList = (props) => {
           setIsAllProductLoaded(true);
         }
       );
-  }, [isDeleted]);
+  }, [isDeleted, searchQuery, status]);
 
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Products</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Product List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"ADON PRODUCTS"} pageTitle={"Product List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -183,36 +184,65 @@ const AdonProductList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div>
-                  <h4 className="float-left mt-2 mr-2">Search: </h4>
+                <div className="row">
+                  <div className="d-flex col-md-6">
+                    <h4 className="mt-2 mr-2">Search: </h4>
+                    <div className="border px-2">
+                      <input
+                        type="search"
+                        onChange={(evt) => {
+                          setSearchQuery(evt.target.value);
+                        }}
+                        placeholder="By Name"
+                        className="form-control"
+                      />
+                    </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={``} selected disabled>
+                          SELECT STATUS
+                        </option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
+                  </div>
 
-                  {/* <!-- Button trigger modal --> */}
-                  <Link
-                    className="btn btn-info float-right rounded"
-                    to={{
-                      pathname: "/branch/adonProduct/add",
-                    }}
-                  >
-                    <span className={"fas fa-plus"}></span> Product
-                  </Link>
+                  <div className="col-md-6 text-right">
+                    <Link
+                      className="btn btn-info rounded mr-2"
+                      to={{
+                        pathname: "/branch/adonProduct/addByCSV",
+                      }}
+                    >
+                      <span className={"fas fa-file"}></span> Add By CSV
+                    </Link>
 
-                  <Link
-                    className="btn btn-info float-right rounded mr-2"
-                    to={{
-                      pathname: "/branch/adonProduct/addByCSV",
-                    }}
-                  >
-                    <span className={"fas fa-file"}></span> Add By CSV
-                  </Link>
+                    <Link
+                      className="btn btn-info rounded mr-2"
+                      to={{
+                        pathname: "/branch/adonProduct/editByCSV",
+                      }}
+                    >
+                      <span className={"fas fa-edit"}></span> Update By CSV
+                    </Link>
 
-                  <Link
-                    className="btn btn-info float-right rounded mr-2"
-                    to={{
-                      pathname: "/branch/adonProduct/editByCSV",
-                    }}
-                  >
-                    <span className={"fas fa-edit"}></span> Update By CSV
-                  </Link>
+                    <Link
+                      to={"/branch/adonProduct/add"}
+                      className={"btn btn-info "}
+                    >
+                      <span className={"fas fa-plus"}></span> Product
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -233,6 +263,7 @@ const AdonProductList = (props) => {
                             <th>NAME</th>
                             <th>PRICE</th>
                             <th>IMAGE</th>
+                            <th>STATUS</th>
                             <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
@@ -259,6 +290,10 @@ const AdonProductList = (props) => {
                                   )}
                                 </td>
                                 <td>
+                                  {product.status ? "Active" : "Disabled"}
+                                </td>
+
+                                <td>
                                   {date.format(
                                     new Date(product.createdAt),
                                     "DD-MM-YYYY"
@@ -270,7 +305,7 @@ const AdonProductList = (props) => {
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"
                                     to={{
-                                      pathname: `/branch/editAdonProduct/edit/${product.id}`,
+                                      pathname: `/branch/adonProduct/edit/${product.id}`,
                                     }}
                                   >
                                     <span

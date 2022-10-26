@@ -3,6 +3,7 @@ import { useHistory, useParams, Link } from "react-router-dom";
 import M from "materialize-css";
 import Config from "../../../config/Config";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const ViewCustomer = () => {
   const history = useHistory();
@@ -14,7 +15,6 @@ const ViewCustomer = () => {
   const [orders, setOrders] = useState([]);
   const [orderLoaded, setOrderLoaded] = useState(false);
   const [user, setUser] = useState({
-    billingAddress: {},
     shippingAddresses: [],
     wallet: {
       history: [],
@@ -24,7 +24,7 @@ const ViewCustomer = () => {
 
   const [order, setOrder] = useState({
     products: [],
-    billingAddress: {},
+
     shippingAddress: {},
     adonProducts: [],
     shippingMethod: {
@@ -141,18 +141,7 @@ const ViewCustomer = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">USER DETAILS</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">User Details</li>
-            </ol>
-          </div>
-        </div>
-
+        <Breadcrumb title={"USER LISTS"} pageTitle={"Update User"} />
         {/* Details */}
 
         {userLoaded ? (
@@ -213,7 +202,7 @@ const ViewCustomer = () => {
                   <div className="card-body">
                     <div className="d-flex justify-content-between">
                       <div className="">
-                        <h4>Total Orders : {orders.length} </h4>
+                        <h4>Total Orders : {orders.length} Orders </h4>
                       </div>
                       <button
                         className="btn btn-info mdi mdi-arrow-down-bold"
@@ -310,37 +299,16 @@ const ViewCustomer = () => {
                       {user.wallet.totalAmount ? (
                         <span className="badge badge-info">
                           <span className="mdi mdi-currency-inr"></span>
-                          {user.wallet.totalAmount}
+                          {user.wallet.totalAmount || 0}
                         </span>
                       ) : (
                         <span className="badge badge-danger">
                           <span className="mdi mdi-currency-inr"></span>
-                          {user.wallet.totalAmount}
+                          {user.wallet.totalAmount || 0}
                         </span>
                       )}
                     </h4>
                   </div>
-                </div>
-              </div>
-
-              {/* Billing Address */}
-              <div className="card shadow-sm border-0 mt-3">
-                <div className="card-body">
-                  <h4>Billing Address</h4>
-                  {user.billingAddress ? (
-                    <div className="mt-3">
-                      <h5>Name : {user.billingAddress.name || ""}</h5>
-                      <h5>Email : {user.billingAddress.email || ""} </h5>
-                      <h5>Mobile : {user.billingAddress.mobile || ""}</h5>
-                      <h5>Address : {user.billingAddress.address || ""}</h5>
-                      <h5>City : {user.billingAddress.city || ""}</h5>
-                      <h5>Pincode : {user.billingAddress.pincode || ""} </h5>
-                    </div>
-                  ) : (
-                    <div className="alert alert-danger h6">
-                      Address Not Available
-                    </div>
-                  )}
                 </div>
               </div>
 

@@ -96,6 +96,13 @@ import AddType from "./pages/types/AddType";
 import EditType from "./pages/types/EditType";
 import AddTypeFromCSV from "./pages/types/AddTypeFromCSV";
 import EditTypeFromCSV from "./pages/types/EditTypeFromCSV";
+import NewsletterList from "./pages/newsletters/NewsletterList";
+import AddNewsletter from "./pages/newsletters/AddNewsletter";
+import EditNewsletter from "./pages/newsletters/EditNewsletter";
+import AddNewsletterFromCSV from "./pages/newsletters/AddNewsletterFromCSV";
+import EditNewsletterFromCSV from "./pages/newsletters/EditNewsletterFromCSV";
+import AddProductFromCSV from "./pages/products/AddProductFromCSV";
+import EditProductFromCSV from "./pages/products/EditProductFromCSV";
 
 // Create Context
 export const BranchContext = createContext();
@@ -181,7 +188,17 @@ const Routing = () => {
       {/* Products */}
       <Route exact path="/branch/products" component={ProductList} />
       <Route exact path="/branch/product/add" component={AddProduct} />
+      <Route
+        exact
+        path="/branch/product/addByCSV"
+        component={AddProductFromCSV}
+      />
       <Route exact path="/branch/product/edit/:id" component={EditProduct} />
+      <Route
+        exact
+        path="/branch/product/editByCSV"
+        component={EditProductFromCSV}
+      />
 
       {/* Adon Products */}
       <Route exact path="/branch/adonProducts" component={AdonProductList} />
@@ -196,6 +213,7 @@ const Routing = () => {
         path="/branch/adonProduct/editByCSV"
         component={EditAdonProductFromCSV}
       />
+
       <Route
         exact
         path="/branch/adonProduct/edit/:id"
@@ -308,12 +326,32 @@ const Routing = () => {
         path="/branch/report/customers"
         component={CustomerReports}
       />
+
       <Route exact path="/branch/report/products" component={ProductReports} />
 
       {/* Customer */}
       <Route exact path="/branch/customers" component={CustomerList} />
       <Route exact path="/branch/customer/edit/:id" component={EditCustomer} />
       <Route exact path="/branch/customer/show/:id" component={ViewCustomer} />
+
+      {/* Newsletter */}
+      <Route exact path="/branch/newsletters" component={NewsletterList} />
+      <Route exact path="/branch/newsletter/add" component={AddNewsletter} />
+      <Route
+        exact
+        path="/branch/newsletter/addByCSV"
+        component={AddNewsletterFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/newsletter/editByCSV"
+        component={EditNewsletterFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/newsletter/edit/:id"
+        component={EditNewsletter}
+      />
 
       {/* Settings */}
       <Route exact path="/branch/setting" component={Setting} />

@@ -157,11 +157,11 @@ function LeftNavigation() {
                         Cake Type
                       </Link>
                     </li>
-                    <li>
+                    {/* <li>
                       <Link to="/branch/colors" onClick={removeLeftNavigation}>
                         Cake Color
                       </Link>
-                    </li>
+                    </li> */}
                     <li>
                       <Link
                         to="/branch/pincodes"
@@ -170,11 +170,11 @@ function LeftNavigation() {
                         Pincodes
                       </Link>
                     </li>
-                    <li>
+                    {/* <li>
                       <Link to="/branch/deals" onClick={removeLeftNavigation}>
                         Deals
                       </Link>
-                    </li>
+                    </li> */}
                   </ul>
                 </li>
 
@@ -198,6 +198,14 @@ function LeftNavigation() {
                         User Lists
                       </Link>
                     </li>
+                    <li>
+                      <Link
+                        to="/branch/newsletters"
+                        onClick={removeLeftNavigation}
+                      >
+                        Newsletter Emails
+                      </Link>
+                    </li>
                   </ul>
                 </li>
 
@@ -208,8 +216,8 @@ function LeftNavigation() {
                     to="/"
                     aria-expanded="false"
                   >
-                    <i className="mdi mdi-account-plus"></i>
-                    <span className="hide-menu">Banners</span>
+                    <i className="mdi mdi-image-area"></i>
+                    <span className="hide-menu">BANNERS</span>
                   </Link>
 
                   <ul aria-expanded="false" className="collapse">
@@ -261,7 +269,7 @@ function LeftNavigation() {
                     aria-expanded="false"
                   >
                     <i className="mdi mdi-book-open-variant"></i>
-                    <span className="hide-menu">Category</span>
+                    <span className="hide-menu">CATEGORIES</span>
                   </Link>
 
                   <ul aria-expanded="false" className="collapse">
@@ -322,7 +330,7 @@ function LeftNavigation() {
                     to="/"
                     aria-expanded="false"
                   >
-                    <i className="mdi mdi-note-multiple-outline"></i>
+                    <i className="mdi mdi-checkbox-multiple-marked-circle"></i>
                     <span className="hide-menu">ORDERS</span>
                   </Link>
 

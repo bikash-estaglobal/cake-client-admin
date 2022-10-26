@@ -3,6 +3,7 @@ import M from "materialize-css";
 import { useHistory, useParams } from "react-router-dom";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditSubCategory = () => {
   const { id } = useParams();
@@ -21,6 +22,7 @@ const EditSubCategory = () => {
     image: "null",
     parentCategories: [],
     description: "",
+    status: "",
   });
 
   const titleChangeHandler = (evt) => {
@@ -48,6 +50,7 @@ const EditSubCategory = () => {
       image: formData.image,
       description: formData.description,
       parentCategories: formData.parentCategories,
+      status: formData.status,
     };
 
     fetch(Config.SERVER_URL + "/category/" + formData._id, {
@@ -181,18 +184,8 @@ const EditSubCategory = () => {
       <div className="container-fluid">
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
+        <Breadcrumb title={"SUB CATEGORY"} pageTitle={"Edit Category"} />
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">EDIT SUB CATEGORY</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Edit Sub Category</li>
-            </ol>
-          </div>
-        </div>
 
         {/* Add Flavour Form */}
         <div className="row">
@@ -204,12 +197,12 @@ const EditSubCategory = () => {
               {/* Flavour Details */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Category Details</h3>
+                  <h3 className={"my-3 text-info"}>CATEGORY DETAILS</h3>
                 </div>
 
-                {/* Category Name */}
+                {/* CATEGORY NAME */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Category Name</label>
+                  <label className={"text-dark h6"}>CATEGORY NAME</label>
                   <input
                     type="text"
                     onChange={titleChangeHandler}
@@ -218,9 +211,9 @@ const EditSubCategory = () => {
                     placeholder={"Cakes...."}
                   />
                 </div>
-                {/* Category Slug */}
+                {/* CATEGORY SLUG */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Category Slug</label>
+                  <label className={"text-dark h6"}>CATEGORY SLUG</label>
                   <input
                     type="text"
                     onChange={(evt) =>
@@ -235,9 +228,11 @@ const EditSubCategory = () => {
                   />
                 </div>
 
-                {/* Parent Category */}
+                {/* SELECT PARENT CATEGORY */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Parent Category</label>
+                  <label className={"text-dark h6"}>
+                    SELECT PARENT CATEGORY
+                  </label>
                   <select
                     name=""
                     id=""
@@ -261,7 +256,7 @@ const EditSubCategory = () => {
                   </select>
                 </div>
 
-                {/* Images */}
+                {/* SELECT IMAGE */}
                 <div className={"form-group mb-3 col-md-6"}>
                   <div className="row">
                     <div
@@ -269,7 +264,7 @@ const EditSubCategory = () => {
                         formData.image !== "null" ? "col-md-8" : "col-md-12"
                       }
                     >
-                      <label className={"text-dark h6"}>Image</label>
+                      <label className={"text-dark h6"}>SELECT IMAGE</label>
                       <input
                         type="file"
                         name=""
@@ -315,9 +310,9 @@ const EditSubCategory = () => {
                   </h6>
                 </div>
 
-                {/* Image Url */}
+                {/* IMAGE URL */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Image URL</label>
+                  <label className={"text-dark h6"}>IMAGE URL</label>
                   <input
                     type="text"
                     name=""
@@ -329,9 +324,9 @@ const EditSubCategory = () => {
                   />
                 </div>
 
-                {/* Description */}
+                {/* DESCRIPTION */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Description</label>
+                  <label className={"text-dark h6"}>DESCRIPTION</label>
                   <input
                     type="text"
                     onChange={(evt) =>
@@ -345,12 +340,30 @@ const EditSubCategory = () => {
                     placeholder={"Description Here"}
                   />
                 </div>
+                {/* SELECT STATUS */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT STATUS
+                  </label>
+                  <select
+                    name=""
+                    id=""
+                    value={formData.status}
+                    onChange={(evt) => {
+                      setFormData({ ...formData, status: evt.target.value });
+                    }}
+                    className="form-control"
+                  >
+                    <option value={true}>Active</option>
+                    <option value={false}>Disabled</option>
+                  </select>
+                </div>
 
                 <div className={"form-group col-md-12"}>
                   <button className="btn btn-info rounded" type={"submit"}>
                     {isAddLaoded ? (
                       <div>
-                        <i className="fas fa-plus"></i> Add
+                        <i className="fas fa-refresh"></i> Update
                       </div>
                     ) : (
                       <div>
@@ -362,14 +375,6 @@ const EditSubCategory = () => {
                         Loading..
                       </div>
                     )}
-                  </button>
-
-                  <button
-                    className="btn btn-secondary rounded ml-2"
-                    data-dismiss="modal"
-                    id={"closeAddModalButton"}
-                  >
-                    Close
                   </button>
                 </div>
               </div>

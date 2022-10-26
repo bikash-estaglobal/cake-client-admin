@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditPincodeFromCSV = () => {
   const history = useHistory();
@@ -163,17 +164,7 @@ const EditPincodeFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Pincodes</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Update Pincode</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PINCODES"} pageTitle={"Update Pincode"} />
 
         {/* Add Form */}
         <div className="row">

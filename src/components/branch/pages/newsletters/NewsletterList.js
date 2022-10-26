@@ -3,20 +3,12 @@ import M from "materialize-css";
 import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
-import { storage } from "../../../../firebase/FirebaseConfig";
 import date from "date-and-time";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import Breadcrumb from "../../components/Breadcrumb";
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
 
 //  Component Function
-const SubCategoryList = (props) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    image: "null",
-    description: "",
-  });
-
+const NewsletterList = (props) => {
   const [pagination, setPagination] = useState({
     skip: 0,
     limit: 10,
@@ -26,11 +18,9 @@ const SubCategoryList = (props) => {
   });
 
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
-  const [isAdded, setIsAdded] = useState(false);
-  const [isAllCategoryLoaded, setIsAllCategoryLoaded] = useState(false);
-  const [allCategory, setAllCategory] = useState([]);
-  const [data, setData] = useState({});
-  const [isUpdated, setIsUpdated] = useState(false);
+  const [isAllEmailsLoaded, setIsAllEmailLoaded] = useState(false);
+  const [allEmails, setAllEmails] = useState([]);
+
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,9 +30,8 @@ const SubCategoryList = (props) => {
   const deleteSubmitHandler = () => {
     setIsDeleted(false);
     setIsDeleteLaoded(false);
-    console.log(deleteId);
 
-    fetch(`${Config.SERVER_URL}/category/${deleteId}`, {
+    fetch(`${Config.SERVER_URL}/newsletters/${deleteId}`, {
       method: "DELETE",
       // body: JSON.stringify({deleteId}),
       headers: {
@@ -69,68 +58,6 @@ const SubCategoryList = (props) => {
         }
       );
   };
-
-  // Get Data From Database
-  useEffect(() => {
-    setIsAllCategoryLoaded(false);
-    fetch(
-      `${Config.SERVER_URL}/category?skip=${pagination.skip}&limit=${
-        pagination.limit
-      }&searchQuery=${searchQuery || null}&status=${status}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setIsAllCategoryLoaded(true);
-          if (result.status === 200) {
-            setAllCategory(result.body || []);
-          } else {
-            M.toast({ html: result.message, classes: "bg-danger" });
-          }
-        },
-        (error) => {
-          M.toast({ html: error, classes: "bg-danger" });
-          setIsAllCategoryLoaded(true);
-        }
-      );
-  }, [isAdded, isUpdated, isDeleted, pagination, searchQuery, status]);
-
-  // Count Records
-  useEffect(() => {
-    fetch(
-      `${Config.SERVER_URL}/category?skip=0&limit=0&searchQuery=${
-        searchQuery || null
-      }&status=${status}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          console.log("Count", result);
-          setPagination({
-            ...pagination,
-            totalRecord: result.body.length,
-            totalPage: Math.ceil(result.body.length / pagination.limit),
-          });
-        },
-        (error) => {
-          M.toast({ html: error, classes: "bg-danger" });
-        }
-      );
-  }, [isAdded, isUpdated, isDeleted, searchQuery, status]);
 
   const limitHandler = (e) => {
     const limit = e.target.value;
@@ -180,19 +107,81 @@ const SubCategoryList = (props) => {
     });
   };
 
+  // Get Data From Database
+  useEffect(() => {
+    setIsAllEmailLoaded(false);
+    fetch(
+      `${Config.SERVER_URL}/newsletters?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&q=${searchQuery || null}&status=${status}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          setIsAllEmailLoaded(true);
+          if (result.status === 200) {
+            setAllEmails(result.body || []);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+          setIsAllEmailLoaded(true);
+        }
+      );
+  }, [pagination.limit, pagination.skip, isDeleted, searchQuery, status]);
+
+  // Count Records
+  useEffect(() => {
+    fetch(
+      `${Config.SERVER_URL}/customer?skip=0&limit=0&searchQuery=${
+        searchQuery || null
+      }&status=${status}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          setPagination({
+            ...pagination,
+            totalRecord: result.body.length,
+            totalPage: Math.ceil(result.body.length / pagination.limit),
+          });
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+          setIsAllEmailLoaded(true);
+        }
+      );
+  }, [isDeleted, searchQuery, status]);
+
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <Breadcrumb title={"SUB CATEGORY"} pageTitle={"Category List"} />
-
+        <Breadcrumb title={"NEWSLETTESR EMAILS"} pageTitle={"Email List"} />
         {/* End Bread crumb and right sidebar toggle */}
+
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
           style={{ background: "none" }}
         >
-          <div className={"col-md-12 px-0"}>
+          <div className={"col-md-12 px-0 mt-0"}>
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
@@ -205,7 +194,7 @@ const SubCategoryList = (props) => {
                         onChange={(evt) => {
                           setSearchQuery(evt.target.value);
                         }}
-                        placeholder="By Name"
+                        placeholder="Email"
                         className="form-control"
                       />
                     </div>
@@ -233,7 +222,7 @@ const SubCategoryList = (props) => {
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{
-                        pathname: "/branch/categories/addByCSV",
+                        pathname: "/branch/newsletter/addByCSV",
                       }}
                     >
                       <span className={"fas fa-file"}></span> Add By CSV
@@ -242,17 +231,17 @@ const SubCategoryList = (props) => {
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{
-                        pathname: "/branch/categories/editByCSV",
+                        pathname: "/branch/newsletter/editByCSV",
                       }}
                     >
                       <span className={"fas fa-edit"}></span> Update By CSV
                     </Link>
 
                     <Link
-                      to={"/branch/categories/add"}
+                      to={"/branch/newsletter/add"}
                       className={"btn btn-info "}
                     >
-                      <span className={"fas fa-plus"}></span> category
+                      <span className={"fas fa-plus"}></span> Email
                     </Link>
                   </div>
                 </div>
@@ -260,64 +249,67 @@ const SubCategoryList = (props) => {
             </div>
 
             {/* Data */}
-            {isAllCategoryLoaded ? (
+            {isAllEmailsLoaded ? (
               <div className="card border-0 rounded m-0 py-1">
-                {allCategory.length ? (
+                {allEmails.length ? (
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
-                        id={"table-to-xls"}
+                        id="table-to-xls"
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
                           <tr>
                             <th>SN</th>
-                            <th>NAME</th>
-                            <th>IMAGE</th>
+                            <th>EMAIL</th>
                             <th>STATUS</th>
-                            <th>CREATED AT </th>
+                            <th>CREATED DATE</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {allCategory.map((category, index) => {
+                          {allEmails.map((email, index) => {
                             return (
                               <tr key={index}>
-                                <td>{++index}</td>
-                                <td>{category.name}</td>
+                                <td>{index + 1}</td>
+                                <td>{email.email}</td>
+
                                 <td>
-                                  {category.image != "null" ? (
-                                    <img
-                                      src={category.image}
-                                      className="img img-fluid"
-                                      alt="Category Image"
-                                      style={{
-                                        height: "80px",
-                                        width: "80px",
-                                        borderRadius: "40px",
-                                      }}
-                                    />
+                                  {email.status ? (
+                                    <span className="badge badge-success">
+                                      Active
+                                    </span>
                                   ) : (
-                                    "N/A"
+                                    <span className="badge badge-danger">
+                                      Disabled
+                                    </span>
                                   )}
                                 </td>
-                                <td>
-                                  {category.status ? "active" : "disabled"}
-                                </td>
-                                <td>
-                                  {date.format(
-                                    new Date(category.createdAt),
-                                    "DD-MM-YYYY"
-                                  )}
-                                </td>
+                                <td>{email.createdAt}</td>
                                 <td className="text-center">
-                                  {/* Edit Button */}
+                                  {/* Update Button */}
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"
-                                    to={`/branch/categories/edit/${category._id}`}
+                                    to={{
+                                      pathname: `/branch/newsletter/edit/${email.id}`,
+                                    }}
                                   >
                                     <span
                                       className="fas fa-pencil-alt"
+                                      aria-hidden="true"
+                                    ></span>
+                                  </Link>
+
+                                  {/* View Button */}
+                                  <Link
+                                    className="ml-2 btn btn-warning footable-edit rounded"
+                                    // to={{
+                                    //   pathname: `/branch/newsletter/show/${email.id}`,
+                                    // }}
+                                    title="Show"
+                                  >
+                                    <span
+                                      className="fas fa-envelope"
                                       aria-hidden="true"
                                     ></span>
                                   </Link>
@@ -329,7 +321,7 @@ const SubCategoryList = (props) => {
                                     data-toggle="modal"
                                     data-target="#deleteModal"
                                     onClick={(e) => {
-                                      setDeleteId(category._id);
+                                      setDeleteId(email._id);
                                     }}
                                   >
                                     <span
@@ -350,6 +342,7 @@ const SubCategoryList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >
@@ -366,7 +359,7 @@ const SubCategoryList = (props) => {
                               id="test-table-xls-button"
                               className="download-table-xls-button shadow-sm px-3 border"
                               table="table-to-xls"
-                              filename="child-categories"
+                              filename="newsletters"
                               sheet="data"
                               buttonText="Download as XLS"
                             />
@@ -441,10 +434,7 @@ const SubCategoryList = (props) => {
               </div>
             )}
           </div>
-        </div>
 
-        {/* -- Modal Designing -- */}
-        <div>
           {/* -- Delete Modal -- */}
           <div
             className="modal fade rounded"
@@ -505,4 +495,4 @@ const SubCategoryList = (props) => {
   );
 };
 
-export default SubCategoryList;
+export default NewsletterList;

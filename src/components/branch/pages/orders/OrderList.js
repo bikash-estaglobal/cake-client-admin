@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import M from "materialize-css";
 import $ from "jquery";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 // Component Function
@@ -17,12 +18,16 @@ const OrderList = (props) => {
     currentPage: 1,
   });
 
+  const history = useHistory();
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
   const [isAllOrdersLoaded, setIsAllOrdersLoaded] = useState(false);
   const [allOrders, setAllOrders] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
-  const [orderStatus, setOrderStatus] = useState("ALL");
+
+  const query = new URLSearchParams(history.location.search);
+  const status = query.get("status");
+  const [orderStatus, setOrderStatus] = useState(status || "ALL");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -134,7 +139,7 @@ const OrderList = (props) => {
           setIsAllOrdersLoaded(true);
         }
       );
-  }, [pagination, isDeleted, orderStatus]);
+  }, [pagination.skip, pagination.limit, isDeleted, orderStatus]);
 
   // Count Records
   useEffect(() => {
@@ -170,17 +175,8 @@ const OrderList = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Orders</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Orders List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"ORDERS"} pageTitle={"Odrer Lists"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -191,7 +187,7 @@ const OrderList = (props) => {
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
                 <div className="d-flex justify-content-between">
-                  <h4 className="float-left mt-2 mr-2">Search: </h4>
+                  {/* <h4 className="float-left mt-2 mr-2">Search: </h4> */}
 
                   <div className="form-inline">
                     <label htmlFor="" className="h6">
@@ -201,6 +197,9 @@ const OrderList = (props) => {
                       className="form-control shadow-sm rounded"
                       onChange={(evt) => {
                         setOrderStatus(evt.target.value);
+                        history.push(
+                          "/branch/orders?status=" + evt.target.value
+                        );
                       }}
                       value={orderStatus}
                     >
@@ -328,6 +327,7 @@ const OrderList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

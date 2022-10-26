@@ -39,7 +39,7 @@ function Login() {
             localStorage.setItem("branch", JSON.stringify(result.body));
             localStorage.setItem("jwt_branch_token", result.body.token);
             dispatch({ type: "BRANCH", payload: result.data });
-            history.push("/branch");
+            window.location.href = "/branch";
           } else {
             if (result.email)
               M.toast({ html: result.email, classes: "bg-danger" });

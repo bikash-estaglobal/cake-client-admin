@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -55,17 +56,8 @@ const CustomerReports = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Customer Reports</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/branch">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Reports</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"CUSTOMER REPORTS"} pageTitle={"Customer Report"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}

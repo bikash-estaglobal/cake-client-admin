@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import M from "materialize-css";
 import Config from "../../../config/Config";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const EditCustomer = () => {
   const history = useHistory();
@@ -87,17 +88,7 @@ const EditCustomer = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Update User </h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">User</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"USER LISTS"} pageTitle={"Update User"} />
 
         {/* Add Color Form */}
         <div className="row">

@@ -3,6 +3,7 @@ import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddSubCategory = () => {
   const history = useHistory();
@@ -149,17 +150,7 @@ const AddSubCategory = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">ADD SUB CATEGORY</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Sub Category</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"SUB CATEGORY"} pageTitle={"Add Category"} />
 
         {/* Add Flavour Form */}
         <div className="row">

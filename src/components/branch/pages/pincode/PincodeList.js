@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 //  Component Function
 const PincodeList = (props) => {
   const [pagination, setPagination] = useState({
@@ -21,6 +22,7 @@ const PincodeList = (props) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -107,7 +109,7 @@ const PincodeList = (props) => {
     fetch(
       `${Config.SERVER_URL}/pincode?skip=${pagination.skip}&limit=${
         pagination.limit
-      }&searchQuery=${searchQuery || null}`,
+      }&searchQuery=${searchQuery || null}&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -131,14 +133,14 @@ const PincodeList = (props) => {
           setIsAllPincodeLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery, status]);
 
   // Count Records
   useEffect(() => {
     fetch(
       `${Config.SERVER_URL}/pincode?skip=0&limit=0&searchQuery=${
         searchQuery || null
-      }`,
+      }&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -161,24 +163,15 @@ const PincodeList = (props) => {
           setIsAllPincodeLoaded(true);
         }
       );
-  }, [isDeleted, searchQuery]);
+  }, [isDeleted, searchQuery, status]);
 
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">PINCODES</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Pincode List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PINCODES"} pageTitle={"Pincode List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -188,8 +181,8 @@ const PincodeList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
+                <div className="row">
+                  <div className="d-flex col-md-6">
                     <h4 className="mt-2 mr-2">Search: </h4>
                     <div className="border px-2">
                       <input
@@ -201,9 +194,26 @@ const PincodeList = (props) => {
                         className="form-control"
                       />
                     </div>
+
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={true}>STATUS</option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="">
+                  <div className="col-md-6 text-right">
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{
@@ -252,6 +262,7 @@ const PincodeList = (props) => {
                             <th>CITY</th>
                             <th>PINCODE</th>
                             <th>CREATED AT</th>
+                            <th>STATUS</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
@@ -263,11 +274,15 @@ const PincodeList = (props) => {
                                 <td>{pincode.state}</td>
                                 <td>{pincode.city}</td>
                                 <td>{pincode.pincode}</td>
+
                                 <td>
                                   {date.format(
                                     new Date(pincode.createdAt),
                                     "DD-MM-YYYY"
                                   )}
+                                </td>
+                                <td>
+                                  {pincode.status ? "Active" : "Disabled"}
                                 </td>
                                 <td className="text-center">
                                   {/* Update Button */}
@@ -311,6 +326,7 @@ const PincodeList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

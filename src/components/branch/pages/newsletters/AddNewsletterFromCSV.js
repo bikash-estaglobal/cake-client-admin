@@ -7,7 +7,7 @@ import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
 import Breadcrumb from "../../components/Breadcrumb";
 
-const AddSubCategoryFromCSV = () => {
+const AddNewsletterFromCSV = () => {
   const history = useHistory();
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
@@ -38,14 +38,7 @@ const AddSubCategoryFromCSV = () => {
 
           // Get data from array and call the api
           objects.map((item, i) => {
-            if (item.name) {
-              item.slug = item.name
-                .toLowerCase()
-                .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "")
-                .replace(/\s+/g, "-");
-
-              item.parentCategories = item.parent_categories.split("_");
-              delete item.parent_categories;
+            if (item.email) {
               submitHandler(item);
             }
             if (i == objects.length - 1) {
@@ -74,30 +67,20 @@ const AddSubCategoryFromCSV = () => {
     table.appendChild(thead);
 
     let row = makeElement("tr");
-    makeElement("th", "name", row);
-    makeElement("th", "image", row);
-    makeElement("th", "parent_categories", row);
-    makeElement("th", "description", row);
+    makeElement("th", "email", row);
 
     let dummyRow = makeElement("tr");
-    makeElement("td", "Dummy Data", dummyRow);
-    makeElement(
-      "td",
-      "https://firebasestorage.googleapis.com/v0/b/perfect-app-5eef5.appspot.com/o/images%2Fpersonalised-birthday-cupcakes-cupc1742flav-D.jpg?alt=media&token=b32a78e8-413b-4d60-af8e-ba4d9a32e799",
-      dummyRow
-    );
-    makeElement("td", "623ee43164623df532111436", dummyRow);
-    makeElement("td", "Description", dummyRow);
+    makeElement("td", "tanu@gmail.com", dummyRow);
 
     thead.appendChild(row);
     thead.appendChild(dummyRow);
 
-    tableToCSV("sub-category.csv", table);
+    tableToCSV("newsletters.csv", table);
   };
 
   // Submit Handler
   const submitHandler = (data) => {
-    fetch(Config.SERVER_URL + "/category", {
+    fetch(Config.SERVER_URL + "/newsletters", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
@@ -116,12 +99,11 @@ const AddSubCategoryFromCSV = () => {
               M.toast({ html: result.error[key], classes: "bg-danger" });
             });
           }
-          console.log(result);
           setUploaded((old) => {
             return [
               ...old,
               {
-                name: result.body.name || "",
+                email: result.body.email || "",
                 message: result.message || result.errors.message,
               },
             ];
@@ -138,10 +120,10 @@ const AddSubCategoryFromCSV = () => {
       <div className="container-fluid">
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
-        {/* <!-- ============================================================== --> */}
-        <Breadcrumb title={"SUB CATEGORY"} pageTitle={"Add Category"} />
 
-        {/* Add Category Form */}
+        <Breadcrumb title="NEWSLETTERS" pageTitle={"Add Emails"} />
+
+        {/* Add Emails Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
@@ -198,7 +180,7 @@ const AddSubCategoryFromCSV = () => {
                   return (
                     <div className="card card-body">
                       {" "}
-                      {item.name} {item.message}{" "}
+                      {item.email} {item.message}{" "}
                     </div>
                   );
                 })}
@@ -211,4 +193,4 @@ const AddSubCategoryFromCSV = () => {
   );
 };
 
-export default AddSubCategoryFromCSV;
+export default AddNewsletterFromCSV;

@@ -6,6 +6,7 @@ import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import Breadcrumb from "../../components/Breadcrumb";
 
 //  Component Function
 const ParentCategoryList = (props) => {
@@ -33,6 +34,7 @@ const ParentCategoryList = (props) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -74,7 +76,7 @@ const ParentCategoryList = (props) => {
     fetch(
       `${Config.SERVER_URL}/parent-category?skip=${pagination.skip}&limit=${
         pagination.limit
-      }&searchQuery=${searchQuery || null}`,
+      }&searchQuery=${searchQuery || null}&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -98,14 +100,22 @@ const ParentCategoryList = (props) => {
           setIsAllCategoryLoaded(true);
         }
       );
-  }, [isAdded, isUpdated, isDeleted, pagination, searchQuery]);
+  }, [
+    isAdded,
+    isUpdated,
+    isDeleted,
+    pagination.limit,
+    pagination.skip,
+    searchQuery,
+    status,
+  ]);
 
   // Count Records
   useEffect(() => {
     fetch(
       `${Config.SERVER_URL}/parent-category?skip=0&limit=1000000&searchQuery=${
         searchQuery || null
-      }`,
+      }&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -128,7 +138,7 @@ const ParentCategoryList = (props) => {
           M.toast({ html: error, classes: "bg-danger" });
         }
       );
-  }, [isAdded, isUpdated, isDeleted, searchQuery]);
+  }, [isAdded, isUpdated, isDeleted, searchQuery, status]);
 
   const limitHandler = (e) => {
     const limit = e.target.value;
@@ -183,17 +193,7 @@ const ParentCategoryList = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">PARENT CATEGORY</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Parent Category</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PARENT CATEGORY"} pageTitle={"Category List"} />
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -203,8 +203,8 @@ const ParentCategoryList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
+                <div className="row">
+                  <div className="d-flex col-md-6">
                     <h4 className="mt-2 mr-2">Search: </h4>
                     <div className="border px-2">
                       <input
@@ -216,9 +216,27 @@ const ParentCategoryList = (props) => {
                         className="form-control"
                       />
                     </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={``} selected disabled>
+                          SELECT STATUS
+                        </option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="">
+                  <div className="col-md-6 text-right">
                     <Link
                       className="btn btn-info rounded mr-2"
                       to={{
@@ -339,6 +357,7 @@ const ParentCategoryList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

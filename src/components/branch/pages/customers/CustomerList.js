@@ -4,6 +4,8 @@ import $ from "jquery";
 import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -23,6 +25,8 @@ const CustomerList = (props) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
+  const [isVerified, setIsVerified] = useState(null);
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -111,7 +115,9 @@ const CustomerList = (props) => {
     fetch(
       `${Config.SERVER_URL}/customer?skip=${pagination.skip}&limit=${
         pagination.limit
-      }&searchQuery=${searchQuery || null}`,
+      }&searchQuery=${
+        searchQuery || null
+      }&status=${status}&isVerified=${isVerified}`,
       {
         method: "GET",
         headers: {
@@ -135,14 +141,21 @@ const CustomerList = (props) => {
           setIsAllCustomersLoaded(true);
         }
       );
-  }, [pagination, isDeleted, searchQuery]);
+  }, [
+    pagination.skip,
+    pagination.limit,
+    isDeleted,
+    searchQuery,
+    status,
+    isVerified,
+  ]);
 
   // Count Records
   useEffect(() => {
     fetch(
       `${Config.SERVER_URL}/customer?skip=0&limit=0&searchQuery=${
         searchQuery || null
-      }`,
+      }&status=${status}&isVerified=${isVerified}`,
       {
         method: "GET",
         headers: {
@@ -165,25 +178,16 @@ const CustomerList = (props) => {
           setIsAllCustomersLoaded(true);
         }
       );
-  }, [isDeleted, searchQuery]);
+  }, [isDeleted, searchQuery, status, isVerified]);
 
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">USER LISTS</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">User List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"USER LISTS"} pageTitle={"User List"} />
         {/* End Bread crumb and right sidebar toggle */}
+
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
           style={{ background: "none" }}
@@ -205,6 +209,43 @@ const CustomerList = (props) => {
                         className="form-control"
                       />
                     </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={``} selected disabled>
+                          USER STATUS
+                        </option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
+
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={isVerified}
+                        onChange={(evt) => {
+                          setIsVerified(evt.target.value);
+                        }}
+                      >
+                        <option selected disabled value={``}>
+                          VERIFICATION STATUS
+                        </option>
+                        <option value={true}>VERIFIED</option>
+                        <option value={false}>NOT VERIFIED</option>
+                        <option value={"null"}>ALL</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className=""></div>
@@ -219,6 +260,7 @@ const CustomerList = (props) => {
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
+                        id="table-to-xls"
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
@@ -298,7 +340,7 @@ const CustomerList = (props) => {
                                   </Link>
 
                                   {/* Delete Button */}
-                                  {/* <button
+                                  <button
                                     type="button"
                                     className="ml-2 btn btn-danger footable-delete rounded"
                                     data-toggle="modal"
@@ -311,7 +353,7 @@ const CustomerList = (props) => {
                                       className="fas fa-trash-alt"
                                       aria-hidden="true"
                                     ></span>
-                                  </button> */}
+                                  </button>
                                 </td>
                               </tr>
                             );
@@ -320,17 +362,33 @@ const CustomerList = (props) => {
                       </table>
                       {/* Pagination */}
                       <div className="mt-2 d-flex justify-content-between">
-                        <div className="limit form-group shadow-sm px-3 border">
-                          <select
-                            name=""
-                            id=""
-                            className="form-control"
-                            onChange={limitHandler}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="30">30</option>
-                          </select>
+                        <div className="d-flex">
+                          <div className="limit form-group shadow-sm px-3 border">
+                            <select
+                              name=""
+                              id=""
+                              value={pagination.limit}
+                              className="form-control"
+                              onChange={limitHandler}
+                            >
+                              <option value="10">10</option>
+                              <option value="20">20</option>
+                              <option value="30">30</option>
+                              <option value={pagination.totalRecord}>
+                                All
+                              </option>
+                            </select>
+                          </div>
+                          <div className="">
+                            <ReactHTMLTableToExcel
+                              id="test-table-xls-button"
+                              className="download-table-xls-button shadow-sm px-3 border"
+                              table="table-to-xls"
+                              filename="customers"
+                              sheet="data"
+                              buttonText="Download as XLS"
+                            />
+                          </div>
                         </div>
                         <nav aria-label="Page navigation example">
                           <ul className="pagination">

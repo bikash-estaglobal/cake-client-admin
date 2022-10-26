@@ -7,7 +7,7 @@ import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
 import Breadcrumb from "../../components/Breadcrumb";
 
-const EditAdonProductFromCSV = () => {
+const EditProductFromCSV = () => {
   const history = useHistory();
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
@@ -41,38 +41,57 @@ const EditAdonProductFromCSV = () => {
               if (item.parentCategories) {
                 item.parentCategories = item.parentCategories.split("__");
               }
+
+              item.slug = item.name
+                .toLowerCase()
+                .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "")
+                .replace(/\s+/g, "-");
+
+              // tags
+              item.tags = item.tags.replaceAll("__", ",");
+              item.shortDescription = item.shortDescription.replaceAll(
+                "__",
+                ","
+              );
+
+              if (item.images) {
+                item.images = item.images.split("__").map((img) => {
+                  return { url: img };
+                });
+              }
+
+              item.isEggCake = item.isEggCake.toLowerCase();
+              item.isPhotoCake = item.isPhotoCake.toLowerCase();
+              item.status = item.status.toLowerCase();
+
               submitHandler(item);
             }
           });
         },
       });
-
-      // Papa.parse(files[0], {
-      //   complete: function (results) {
-      //     console.log("Finished:", results.data);
-      //     insertDataHandler({ name: results.data });
-      //   },
-      // });
     }
   };
 
   // Update Submit Handler
-  const submitHandler = ({
-    id,
-    name,
-    image,
-    sellingPrice,
-    parentCategories,
-    status,
-  }) => {
+  const submitHandler = (data) => {
     const updateData = {
-      name: name,
-      image,
-      parentCategories,
-      sellingPrice,
-      status: status.toLowerCase() || undefined,
+      name: data.name,
+      slug: data.slug,
+      sku: data.sku,
+      tags: data.tags,
+      maximumOrderQuantity: data.maximumOrderQuantity,
+      flavour: data.flavour,
+      shape: data.shape,
+      isEggCake: data.isEggCake,
+      isPhotoCake: data.isPhotoCake,
+      parentCategories: data.parentCategories,
+      defaultImage: data.defaultImage,
+      images: data.images,
+      shortDescription: data.shortDescription,
+      type: data.type,
+      status: data.status,
     };
-    fetch(`${Config.SERVER_URL}/adon-product/${id}`, {
+    fetch(`${Config.SERVER_URL}/product/${data.id}`, {
       method: "PUT",
       body: JSON.stringify(updateData),
       headers: {
@@ -127,14 +146,30 @@ const EditAdonProductFromCSV = () => {
     let row = makeElement("tr");
     makeElement("th", "id", row);
     makeElement("th", "name", row);
-    makeElement("th", "sellingPrice", row);
+    makeElement("th", "sku", row);
+
+    // for price
+    // makeElement("th", "mrp", row);
+    // makeElement("th", "sellingPrice", row);
+    // makeElement("th", "weight", row);
+
+    makeElement("th", "tags", row);
+    makeElement("th", "maximumOrderQuantity", row);
+    makeElement("th", "flavour", row);
+    makeElement("th", "shape", row);
+    makeElement("th", "isEggCake", row);
+    makeElement("th", "isPhotoCake", row);
     makeElement("th", "parentCategories", row);
-    makeElement("th", "image", row);
+    makeElement("th", "defaultImage", row);
+    makeElement("th", "images", row);
+    makeElement("th", "shortDescription", row);
+    makeElement("th", "type", row);
     makeElement("th", "status", row);
+
     thead.appendChild(row);
     // Load Data from the Database
     setIsAllRecordLoaded(false);
-    fetch(`${Config.SERVER_URL}/adon-product?skip=0&limit=0&status=All`, {
+    fetch(`${Config.SERVER_URL}/product?skip=0&limit=0&status=All`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -146,6 +181,8 @@ const EditAdonProductFromCSV = () => {
         (result) => {
           setIsAllRecordLoaded(true);
           if (result.status === 200) {
+            console.log(result.body);
+
             result.body.map((item, index) => {
               const parentCategories = item.parentCategories
                 .map((item) => {
@@ -153,18 +190,40 @@ const EditAdonProductFromCSV = () => {
                 })
                 .join("__");
 
-              let dataRow = document.createElement("tr");
-              makeElement("td", item._id.toString(), dataRow);
-              makeElement("td", item.name, dataRow);
-              makeElement("td", item.sellingPrice, dataRow);
-              makeElement("td", parentCategories, dataRow);
-              makeElement("td", item.image, dataRow);
+              let images = "";
+              if (item.images) {
+                images = item.images
+                  .map((img) => {
+                    return img.url;
+                  })
+                  .join("__");
+              }
 
-              makeElement("td", item.status.toString(), dataRow);
+              let dataRow = document.createElement("tr");
+              makeElement("td", item._id.toString(), dataRow); //id
+              makeElement("td", item.name, dataRow); // name
+              makeElement("td", item.sku, dataRow); // sku
+              makeElement("td", item.tags.replaceAll(",", "__"), dataRow); // tags
+              makeElement("td", item.maximumOrderQuantity, dataRow); // maximum Order Quantity
+              makeElement("td", item.flavour._id, dataRow); // flavour
+              makeElement("td", item.shape._id, dataRow); // flavour
+              makeElement("td", item.isEggCake.toString(), dataRow); // flavour
+              makeElement("td", item.isPhotoCake.toString(), dataRow); // flavour
+              makeElement("td", parentCategories, dataRow); // parent categories
+              makeElement("td", item.defaultImage, dataRow); // default image
+              makeElement("td", images, dataRow); // images
+              makeElement(
+                "td",
+                item.shortDescription.replaceAll(",", "__"),
+                dataRow
+              ); // shortDescription
+
+              makeElement("td", item.type._id, dataRow); // type
+              makeElement("td", item.status.toString(), dataRow); //
 
               thead.appendChild(dataRow);
             });
-            tableToCSV("adon-product.csv", table);
+            tableToCSV("products.csv", table);
             // setAllRecords(result.body || []);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
@@ -184,10 +243,7 @@ const EditAdonProductFromCSV = () => {
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
 
-        <Breadcrumb
-          title={"ADON PRODUCTS"}
-          pageTitle={"Update Product By CSV"}
-        />
+        <Breadcrumb title={"PRODUCTS"} pageTitle={"Update Product"} />
 
         {/* Add Color Form */}
         <div className="row">
@@ -273,4 +329,4 @@ const EditAdonProductFromCSV = () => {
   );
 };
 
-export default EditAdonProductFromCSV;
+export default EditProductFromCSV;

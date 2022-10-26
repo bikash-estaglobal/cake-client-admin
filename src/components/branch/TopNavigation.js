@@ -175,8 +175,7 @@ function TopNavigation() {
 
             {/* <!-- User profile and search --> */}
             <ul className="navbar-nav my-lg-0">
-              {/*<!-- Comment -->*/}
-              <li className="nav-item dropdown">
+              {/* <li className="nav-item dropdown">
                 <Link
                   className="nav-link dropdown-toggle text-muted text-muted  waves-dark"
                   to=""
@@ -198,9 +197,7 @@ function TopNavigation() {
                     </li>
                     <li>
                       <div className="message-center">
-                        {/* <!-- Message --> */}
-
-                        {/* <Link to={'/'}>
+                        <Link to={"/"}>
                           <div className="btn btn-primary btn-circle">
                             <i className="ti-user"></i>
                           </div>
@@ -211,7 +208,7 @@ function TopNavigation() {
                             </span>
                             <span className="time">9:02 AM</span>
                           </div>
-                        </Link> */}
+                        </Link>
                       </div>
                     </li>
                     <li>
@@ -222,7 +219,7 @@ function TopNavigation() {
                     </li>
                   </ul>
                 </div>
-              </li>
+              </li> */}
 
               {/* <!-- End Comment --> */}
 

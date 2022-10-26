@@ -3,6 +3,7 @@ import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import Config from "../../../config/Config";
 import { storage } from "../../../../firebase/FirebaseConfig";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddParentCategory = () => {
   const history = useHistory();
@@ -126,17 +127,7 @@ const AddParentCategory = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Parent Category</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Parent Category</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PARENT CATEGORY"} pageTitle={"Add Category"} />
 
         {/* Add Flavour Form */}
         <div className="row">
@@ -151,20 +142,21 @@ const AddParentCategory = () => {
                   <h3 className={"my-3 text-info"}>Category Details</h3>
                 </div>
 
-                {/* Category Name */}
+                {/* CATEGORY NAME */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Category Name</label>
+                  <label className={"text-dark h6"}>CATEGORY NAME</label>
                   <input
                     type="text"
                     onChange={titleChangeHandler}
                     value={formData.name}
                     className="form-control"
-                    placeholder={"Cakes...."}
+                    placeholder={"Photo Cake"}
                   />
                 </div>
-                {/* Category Slug */}
+
+                {/* CATEGORY SLUG */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Category Slug</label>
+                  <label className={"text-dark h6"}>CATEGORY SLUG</label>
                   <input
                     type="text"
                     onChange={(evt) =>
@@ -175,13 +167,13 @@ const AddParentCategory = () => {
                     }
                     value={formData.slug}
                     className="form-control"
-                    placeholder={"cake"}
+                    placeholder={"photo-cake"}
                   />
                 </div>
 
-                {/* Description */}
+                {/* DESCRIPTION */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Description</label>
+                  <label className={"text-dark h6"}>DESCRIPTION</label>
                   <input
                     type="text"
                     onChange={(evt) =>
@@ -192,11 +184,11 @@ const AddParentCategory = () => {
                     }
                     value={formData.description}
                     className="form-control"
-                    placeholder={"Description Here"}
+                    placeholder={"Enter Description"}
                   />
                 </div>
 
-                {/* Images */}
+                {/* CATEGORY IMAGE */}
                 <div className={"form-group mb-3 col-md-6"}>
                   <div className="row">
                     <div
@@ -204,7 +196,7 @@ const AddParentCategory = () => {
                         formData.image !== "null" ? "col-md-8" : "col-md-12"
                       }
                     >
-                      <label className={"text-dark h6"}>Image</label>
+                      <label className={"text-dark h6"}>CATEGORY IMAGE</label>
                       <input
                         type="file"
                         name=""
@@ -250,9 +242,9 @@ const AddParentCategory = () => {
                   </h6>
                 </div>
 
-                {/* Image Url */}
+                {/* EMAGE URL */}
                 <div className={"form-group mb-3 col-md-6"}>
-                  <label className={"text-dark h6"}>Image URL</label>
+                  <label className={"text-dark h6"}>EMAGE URL</label>
                   <input
                     type="text"
                     name=""

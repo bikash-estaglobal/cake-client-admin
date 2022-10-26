@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 
 //  Component Function
@@ -28,7 +29,7 @@ const NewOrders = (props) => {
     setIsDeleted(false);
     setIsDeleteLaoded(false);
 
-    fetch(`${Config.SERVER_URL}/product/${deleteId}`, {
+    fetch(`${Config.SERVER_URL}/order/${deleteId}`, {
       method: "DELETE",
       // body: JSON.stringify({deleteId}),
       headers: {
@@ -132,7 +133,7 @@ const NewOrders = (props) => {
           setIsAllOrdersLoaded(true);
         }
       );
-  }, [pagination, isDeleted]);
+  }, [pagination.limit, pagination.skip, isDeleted]);
 
   // Count Records
   useEffect(() => {
@@ -164,17 +165,8 @@ const NewOrders = (props) => {
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">Orders</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">New Orders List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"ORDERS"} pageTitle={"New Odrer Lists"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -207,6 +199,7 @@ const NewOrders = (props) => {
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
+                        id="table-to-xls"
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>

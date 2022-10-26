@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import date from "date-and-time";
+import Breadcrumb from "../../components/Breadcrumb";
 
 // import { storage } from "../../../firebase/FirebaseConfig";
 
@@ -24,6 +25,7 @@ const ProductList = (props) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
@@ -112,7 +114,7 @@ const ProductList = (props) => {
     fetch(
       `${Config.SERVER_URL}/product?skip=${pagination.skip}&limit=${
         pagination.limit
-      }&searchQuery=${searchQuery || null}`,
+      }&searchQuery=${searchQuery || null}&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -136,14 +138,14 @@ const ProductList = (props) => {
           setIsAllProductLoaded(true);
         }
       );
-  }, [pagination.skip, pagination.limit, isDeleted, searchQuery]);
+  }, [pagination.skip, pagination.limit, isDeleted, searchQuery, status]);
 
   // Count Records
   useEffect(() => {
     fetch(
       `${Config.SERVER_URL}/product?skip=0&limit=0&searchQuery=${
         searchQuery || null
-      }`,
+      }&status=${status}`,
       {
         method: "GET",
         headers: {
@@ -166,24 +168,15 @@ const ProductList = (props) => {
           setIsAllProductLoaded(true);
         }
       );
-  }, [isDeleted, searchQuery]);
+  }, [isDeleted, searchQuery, status]);
 
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <div className="row page-titles mb-0">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor m-b-0 m-t-0">PRODUCTS</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Admin</Link>
-              </li>
-              <li className="breadcrumb-item active">Product List</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PRODUCTS"} pageTitle={"Product List"} />
+
         {/* End Bread crumb and right sidebar toggle */}
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
@@ -193,8 +186,8 @@ const ProductList = (props) => {
             {/* Heading */}
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
+                <div className="row">
+                  <div className="d-flex col-md-6">
                     <h4 className="mt-2 mr-2">Search: </h4>
                     <div className="border px-2">
                       <input
@@ -202,18 +195,52 @@ const ProductList = (props) => {
                         onChange={(evt) => {
                           setSearchQuery(evt.target.value);
                         }}
-                        placeholder="By Name/Slug/Description"
+                        placeholder="By Name"
                         className="form-control"
                       />
                     </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={``} selected disabled>
+                          SELECT STATUS
+                        </option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="">
+                  <div className="col-md-6 text-right">
                     <Link
-                      className="btn btn-info rounded"
+                      className="btn btn-info rounded mr-2"
                       to={{
-                        pathname: "/branch/product/add",
+                        pathname: "/branch/product/addByCSV",
                       }}
+                    >
+                      <span className={"fas fa-file"}></span> Add By CSV
+                    </Link>
+
+                    <Link
+                      className="btn btn-info rounded mr-2"
+                      to={{
+                        pathname: "/branch/product/editByCSV",
+                      }}
+                    >
+                      <span className={"fas fa-edit"}></span> Update By CSV
+                    </Link>
+
+                    <Link
+                      to={"/branch/adonProduct/add"}
+                      className={"btn btn-info "}
                     >
                       <span className={"fas fa-plus"}></span> Product
                     </Link>
@@ -332,6 +359,7 @@ const ProductList = (props) => {
                             <select
                               name=""
                               id=""
+                              value={pagination.limit}
                               className="form-control"
                               onChange={limitHandler}
                             >

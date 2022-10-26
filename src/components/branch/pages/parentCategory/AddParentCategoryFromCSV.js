@@ -5,6 +5,7 @@ import Config from "../../../config/Config";
 import M from "materialize-css";
 import { useHistory } from "react-router-dom";
 import tableToCSV from "../../helpers";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const AddParentCategoryFromCSV = () => {
   const history = useHistory();
@@ -140,17 +141,7 @@ const AddParentCategoryFromCSV = () => {
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
         {/* <!-- ============================================================== --> */}
-        <div className="row page-titles">
-          <div className="col-md-5 col-8 align-self-center">
-            <h3 className="text-themecolor">Parent Category</h3>
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Home</a>
-              </li>
-              <li className="breadcrumb-item active">Add Category</li>
-            </ol>
-          </div>
-        </div>
+        <Breadcrumb title={"PARENT CATEGORY"} pageTitle={"Add Category"} />
 
         {/* Add Category Form */}
         <div className="row">

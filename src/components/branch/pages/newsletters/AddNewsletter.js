@@ -4,13 +4,11 @@ import M from "materialize-css";
 import Config from "../../../config/Config";
 import Breadcrumb from "../../components/Breadcrumb";
 
-const AddPincode = () => {
+const AddNewsletter = () => {
   const history = useHistory();
   const [isAddLoaded, setIsAddLoaded] = useState(true);
-  const [pincode, setPincode] = useState({
-    pincode: "",
-    city: "",
-    state: "",
+  const [formData, setFormData] = useState({
+    email: "",
   });
 
   // Submit Handler
@@ -18,9 +16,9 @@ const AddPincode = () => {
     setIsAddLoaded(false);
     evt.preventDefault();
 
-    fetch(Config.SERVER_URL + "/pincode", {
+    fetch(Config.SERVER_URL + "/newsletters", {
       method: "POST",
-      body: JSON.stringify(pincode),
+      body: JSON.stringify(formData),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
@@ -29,6 +27,7 @@ const AddPincode = () => {
       .then((res) => res.json())
       .then(
         (result) => {
+          console.log(result);
           if (result.status === 200) {
             M.toast({ html: result.message, classes: "bg-success" });
             history.goBack();
@@ -51,72 +50,38 @@ const AddPincode = () => {
   return (
     <div className="page-wrapper">
       <div className="container-fluid">
-        {/* <!-- ============================================================== --> */}
+        {/* <!-- ===================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
-        {/* <!-- ============================================================== --> */}
-        <Breadcrumb title={"PINCODES"} pageTitle={"Add Pincode"} />
+        <Breadcrumb title="NEWSLETTER" pageTitle={"Add Email"} />
 
-        {/* Add Pincode Form */}
+        {/* Add Flavour Form */}
         <div className="row">
           <div className={"col-md-11 mx-auto"}>
             <form
               onSubmit={submitHandler}
               className="form-horizontal form-material"
             >
-              {/* Pincode Details */}
+              {/* NEWSLETTER EMAIL */}
               <div className={"row shadow-sm bg-white py-3"}>
                 <div className="col-md-12">
-                  <h3 className={"my-3 text-info"}>Pincode Details</h3>
+                  <h3 className={"my-3 text-info"}>NEWSLETTER EMAIL</h3>
                 </div>
 
-                {/* STATE NAME */}
+                {/* ENTER EMAIL */}
                 <div className={"form-group col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
-                    STATE NAME!
+                    ENTER EMAIL !
                   </label>
                   <input
-                    type="text"
-                    value={pincode.state}
+                    type="email"
+                    value={formData.name}
                     onChange={(evt) =>
-                      setPincode({ ...pincode, state: evt.target.value })
+                      setFormData({ ...formData, email: evt.target.value })
                     }
                     className="form-control"
-                    placeholder={"Bengal"}
+                    placeholder={"tanu@gmail.com"}
                   />
                 </div>
-
-                {/* CITY NAME */}
-                <div className={"form-group col-md-6"}>
-                  <label htmlFor="" className="text-dark h6 active">
-                    CITY NAME!
-                  </label>
-                  <input
-                    type="text"
-                    value={pincode.city}
-                    onChange={(evt) =>
-                      setPincode({ ...pincode, city: evt.target.value })
-                    }
-                    className="form-control"
-                    placeholder={"Kolkata"}
-                  />
-                </div>
-
-                {/* PINCODE */}
-                <div className={"form-group col-md-6"}>
-                  <label htmlFor="" className="text-dark h6 active">
-                    PINCODE!
-                  </label>
-                  <input
-                    type="number"
-                    value={pincode.pincode}
-                    onChange={(evt) =>
-                      setPincode({ ...pincode, pincode: evt.target.value })
-                    }
-                    className="form-control"
-                    placeholder={"854301"}
-                  />
-                </div>
-
                 <div className={"form-group col-md-6"}>
                   <button
                     className="btn btn-info rounded px-3 py-2"
@@ -124,7 +89,7 @@ const AddPincode = () => {
                   >
                     {isAddLoaded ? (
                       <div>
-                        <i className="fas fa-plus"></i> Add Pincode
+                        <i className="fas fa-plus"></i> Add Email
                       </div>
                     ) : (
                       <div>
@@ -147,4 +112,4 @@ const AddPincode = () => {
   );
 };
 
-export default AddPincode;
+export default AddNewsletter;
