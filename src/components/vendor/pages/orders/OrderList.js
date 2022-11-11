@@ -9,9 +9,8 @@ import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
 import { convertDeliveryDay } from "../../helpers";
 
-//  Component Function
-const NewOrders = (props) => {
-  const history = useHistory();
+// Component Function
+const OrderList = (props) => {
   const [pagination, setPagination] = useState({
     skip: 0,
     limit: 10,
@@ -20,11 +19,13 @@ const NewOrders = (props) => {
     currentPage: 1,
   });
 
+  const history = useHistory();
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
   const [isAllOrdersLoaded, setIsAllOrdersLoaded] = useState(false);
   const [allOrders, setAllOrders] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
+
   const query = new URLSearchParams(history.location.search);
   const status = query.get("status");
   const [orderStatus, setOrderStatus] = useState(status || "ALL");
@@ -104,32 +105,19 @@ const NewOrders = (props) => {
           ? pagination.totalPage
           : pagination.currentPage + 1,
       skip:
-        pagination.currentPage == pagination.totalPage
-          ? 0
-          : pagination.currentPage * pagination.limit,
+        pagination.currentPage == 1
+          ? pagination.limit
+          : (pagination.currentPage + 1) * pagination.limit,
     });
   };
 
-  function getPreviousDay(date = new Date()) {
-    const previous = new Date(date.getTime());
-    previous.setDate(date.getDate() - 1);
-
-    return previous;
-  }
-
   // Get Data From Database
   useEffect(() => {
-    let url = `${Config.SERVER_URL}/order/report?skip=${
-      pagination.skip
-    }&limit=${pagination.limit}&startDate=${date.format(
-      new Date(getPreviousDay()),
-      "YYYY-MM-DD"
-    )}`;
-
+    setIsAllOrdersLoaded(false);
+    let url = `${Config.SERVER_URL}/order?skip=${pagination.skip}&limit=${pagination.limit}`;
     if (orderStatus !== "ALL") {
       url = url + `&orderStatus=${orderStatus}`;
     }
-
     fetch(url, {
       method: "GET",
       headers: {
@@ -152,17 +140,11 @@ const NewOrders = (props) => {
           setIsAllOrdersLoaded(true);
         }
       );
-  }, [pagination.limit, pagination.skip, isDeleted, orderStatus]);
+  }, [pagination.skip, pagination.limit, isDeleted, orderStatus]);
 
   // Count Records
   useEffect(() => {
-    let url = `${Config.SERVER_URL}/order/report?skip=${
-      pagination.skip
-    }&limit=${pagination.limit}&startDate=${date.format(
-      new Date(getPreviousDay()),
-      "YYYY-MM-DD"
-    )}`;
-
+    let url = `${Config.SERVER_URL}/order?skip=0&limit=0`;
     if (orderStatus !== "ALL") {
       url = url + `&orderStatus=${orderStatus}`;
     }
@@ -196,8 +178,8 @@ const NewOrders = (props) => {
         {/* Bread crumb and right sidebar toggle */}
         <Breadcrumb
           title={"ORDERS"}
-          pageTitle={"New Odrer Lists"}
-          homeLink="/branch"
+          pageTitle={"Odrer Lists"}
+          homeLink="/vendor"
         />
 
         {/* End Bread crumb and right sidebar toggle */}
@@ -221,7 +203,7 @@ const NewOrders = (props) => {
                       onChange={(evt) => {
                         setOrderStatus(evt.target.value);
                         history.push(
-                          "/branch/newOrders?status=" + evt.target.value
+                          "/vendor/orders?status=" + evt.target.value
                         );
                       }}
                       value={orderStatus}
@@ -270,7 +252,7 @@ const NewOrders = (props) => {
                                 <td>{order._id}</td>
                                 <td>
                                   <p>{order.customerId.name}</p>
-                                  <p>
+                                  {/* <p>
                                     <a
                                       href={`mailto:${order.customerId.email}`}
                                     >
@@ -281,7 +263,7 @@ const NewOrders = (props) => {
                                     <a href={`tel:${order.customerId.mobile}`}>
                                       {order.customerId.mobile}
                                     </a>
-                                  </p>
+                                  </p> */}
                                 </td>
                                 <td>
                                   {order.products[0].name}/
@@ -305,9 +287,11 @@ const NewOrders = (props) => {
                                       alt=""
                                     />
                                   </a>
-                                  {order.products.length - 1 > 0
-                                    ? order.products.length - 1 + " + Products"
-                                    : ""}
+                                  <p>
+                                    {order.products.length - 1 > 0
+                                      ? `+ ${order.products.length - 1} Items`
+                                      : ""}
+                                  </p>
                                 </td>
                                 <td>
                                   <p>
@@ -342,13 +326,6 @@ const NewOrders = (props) => {
                                 </td>
 
                                 <td>
-                                  {date.format(
-                                    new Date(order.createdAt),
-                                    "DD-MM-YYYY"
-                                  )}
-                                </td>
-
-                                <td>
                                   {order.orderStatus === "PENDING" ? (
                                     <span className="badge badge-warning">
                                       {order.orderStatus}
@@ -377,13 +354,19 @@ const NewOrders = (props) => {
                                     ""
                                   )}
                                 </td>
+                                <td>
+                                  {date.format(
+                                    new Date(order.createdAt),
+                                    "DD-MM-YYYY"
+                                  )}
+                                </td>
 
                                 <td className="text-center">
                                   {/* Update Button */}
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"
                                     to={{
-                                      pathname: `/branch/order/show/${order.id}`,
+                                      pathname: `/vendor/order/show/${order.id}`,
                                     }}
                                   >
                                     <span
@@ -573,4 +556,4 @@ const NewOrders = (props) => {
   );
 };
 
-export default NewOrders;
+export default OrderList;

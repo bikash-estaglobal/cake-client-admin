@@ -103,6 +103,11 @@ import AddNewsletterFromCSV from "./pages/newsletters/AddNewsletterFromCSV";
 import EditNewsletterFromCSV from "./pages/newsletters/EditNewsletterFromCSV";
 import AddProductFromCSV from "./pages/products/AddProductFromCSV";
 import EditProductFromCSV from "./pages/products/EditProductFromCSV";
+import VendorList from "./pages/vendors/VendorList";
+import AddVendor from "./pages/vendors/AddVendors";
+import EditVendor from "./pages/vendors/EditVendor";
+import VendorDashboard from "./pages/vendors/VendorDashboard";
+import Footer from "./Footer";
 
 // Create Context
 export const BranchContext = createContext();
@@ -118,7 +123,7 @@ const Routing = () => {
       dispatch({ type: "BRANCH", payload: branch });
       // history.push("/")
     } else {
-      // history.push("/branch/login");
+      history.push("/branch/login");
     }
   }, []);
 
@@ -234,6 +239,16 @@ const Routing = () => {
         component={EditCouponFromCSV}
       />
       <Route exact path="/branch/coupon/edit/:id" component={EditCoupon} />
+
+      {/* Vendors */}
+      <Route exact path="/branch/vendors" component={VendorList} />
+      <Route exact path="/branch/vendor/add" component={AddVendor} />
+      <Route exact path="/branch/vendor/edit/:id" component={EditVendor} />
+      <Route
+        exact
+        path="/branch/vendor/dashboard/:id"
+        component={VendorDashboard}
+      />
 
       {/* Deals */}
       <Route exact path="/branch/deals" component={DealsList} />
@@ -386,6 +401,7 @@ const Branch = () => {
           <TopNavigation />
           <LeftNavigation />
           <Routing />
+          <Footer />
         </Router>
       </BranchContext.Provider>
     </div>

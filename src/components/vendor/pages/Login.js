@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import M from "materialize-css";
-import { AdminContext } from "../Admin";
+import { VendorContext } from "../Vendor";
 import Config from "../../config/Config";
 
 function Login() {
@@ -9,12 +9,12 @@ function Login() {
   const history = useHistory();
 
   // Create State
-  const [email, setEmail] = useState("codescroller@gmail.com");
+  const [email, setEmail] = useState("bikashsinghak47@gmail.com");
   const [password, setPassword] = useState("123456");
   const [isLoaded, setIsLoaded] = useState(true);
 
   // Use Context
-  const { state, dispatch } = useContext(AdminContext);
+  const { state, dispatch } = useContext(VendorContext);
   // Submit Handler
   const submitHandler = (evt) => {
     evt.preventDefault();
@@ -39,7 +39,7 @@ function Login() {
             localStorage.setItem("vendor", JSON.stringify(result.body));
             localStorage.setItem("jwt_vendor_token", result.body.token);
             dispatch({ type: "VENDOR", payload: result.data });
-            window.location.href = "/admin";
+            window.location.href = "/vendor";
           } else {
             if (result.email)
               M.toast({ html: result.email, classes: "bg-danger" });
@@ -113,7 +113,7 @@ function Login() {
                   </div>
 
                   <div className={"mt-3"}>
-                    <Link to={"/branch/forgot-password"}>
+                    <Link to={"/vendor/forgot-password"}>
                       Lost your password?
                     </Link>
                   </div>

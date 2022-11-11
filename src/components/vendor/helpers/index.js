@@ -59,6 +59,7 @@ export function downloadCSVFile(csv_data, fileName) {
   // const table = document.querySelector("#download-csv");
   // document.body.removeChild(table);
 }
+
 export function convertDeliveryDay(shippingMethod) {
   // delivery date
   const currentDate = new Date();

@@ -111,18 +111,21 @@ const ViewOrder = () => {
             <div className={"col-md-11 mx-auto"}>
               {/* order Details */}
               <div className={"row shadow-sm bg-white py-3 px-3"}>
+                <div className="col-md-12 d-flex justify-content-between">
+                  <h3 className={"text-info"}>Products Details</h3>
+                </div>
                 <div className="col-md-12 d-flex justify-content-between my-3">
                   <div className="">
-                    <button
+                    {/* <button
                       className="btn btn-info rounded py-2"
                       onClick={(evt) => history.goBack()}
                     >
                       <span className={"fas fa-arrow-left"}></span> Go Back
-                    </button>
+                    </button> */}
                   </div>
                   {/* <!-- Button trigger modal --> */}
 
-                  <div className="form-inline">
+                  {/* <div className="form-inline">
                     <select
                       className="form-control shadow-sm rounded"
                       onChange={(evt) => {
@@ -143,7 +146,6 @@ const ViewOrder = () => {
                       <option value="DISPATCHED">DISPATCHED</option>
                       <option value="DELIVERED">DELIVERED</option>
                       <option value="CANCELLED">CANCELLED</option>
-                      <option value="RETURNED">RETURNED</option>
                     </select>
                     {showCancelInput ? (
                       <div className="ml-2">
@@ -169,7 +171,7 @@ const ViewOrder = () => {
                     >
                       Update
                     </button>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* order Code */}
@@ -180,7 +182,8 @@ const ViewOrder = () => {
                         <th>#</th>
                         <th>PRODUCT</th>
                         <th>Flv & Shape</th>
-                        <th>Msg</th>
+                        <th>Message</th>
+                        <th>Photo</th>
                         <th>Weight</th>
                         <th>QTY</th>
                         <th>PRICE</th>
@@ -207,12 +210,27 @@ const ViewOrder = () => {
                             </td>
 
                             <td>
-                              Flv: {product.flavour}
-                              <br /> Shape: {product.shape}
-                              <br /> Type: {product.cakeType}
+                              <p>
+                                <span className="text-dark font-weight-bold">
+                                  Flv:
+                                </span>{" "}
+                                {product.flavour}
+                              </p>
+                              <p>
+                                <span className="text-dark font-weight-bold">
+                                  Shape:
+                                </span>{" "}
+                                {product.shape}
+                              </p>
+                              <p>
+                                <span className="text-dark font-weight-bold">
+                                  Type:
+                                </span>{" "}
+                                {product.cakeType}
+                              </p>
                             </td>
+                            <td>{product.messageOnCake || "N/A"}</td>
                             <td>
-                              <h6>{product.messageOnCake}</h6>
                               {product.imageOnCake ? (
                                 <a
                                   href={product.imageOnCake}
@@ -228,7 +246,7 @@ const ViewOrder = () => {
                                   />
                                 </a>
                               ) : (
-                                ""
+                                "N/A"
                               )}
                             </td>
                             <td>{product.weight}</td>
@@ -310,13 +328,13 @@ const ViewOrder = () => {
                       ""
                     )}
                     <tfoot>
-                      <tr>
+                      {/* <tr>
                         <td colSpan={4}>Sub Total</td>
                         <td>
                           <span className="fa fa-inr"></span>
                           {order.subtotal}
                         </td>
-                      </tr>
+                      </tr> */}
                       <tr>
                         <td colSpan={4}>
                           Discount With Coupon
@@ -341,13 +359,10 @@ const ViewOrder = () => {
                       </tr>
                       <tr>
                         <td colSpan={4}>Delivery Charge</td>
-                        {/* <td>
-                          {order.shippingMethod.amount
-                            ? (
-                                <span className="fa fa-inr"></span>
-                              )`${order.shippingMethod.amount}`
-                            : "FREE"}
-                        </td> */}
+                        <td>
+                          <span className="fa fa-inr"></span>
+                          {order.shippingMethod.amount}
+                        </td>
                       </tr>
                       <tr>
                         <td colSpan={4}>Total Amount</td>
@@ -369,7 +384,7 @@ const ViewOrder = () => {
                       <h3 className={"my-3 text-info"}> Order Status </h3>
                       <div className="">
                         <h5>
-                          {order.orderStatus === "ORDERPLACED" ? (
+                          {order.orderStatus === "PENDING" ? (
                             <span className="badge badge-info">
                               {order.orderStatus}
                             </span>
@@ -386,10 +401,6 @@ const ViewOrder = () => {
                               {order.orderStatus}
                             </span>
                           ) : order.orderStatus === "CANCELLED" ? (
-                            <span className="badge badge-danger">
-                              {order.orderStatus}
-                            </span>
-                          ) : order.orderStatus === "RETURNED" ? (
                             <span className="badge badge-danger">
                               {order.orderStatus}
                             </span>

@@ -600,11 +600,12 @@ function AddProduct() {
                       return (
                         <span
                           key={index}
-                          className="badge badge-info p-2 btn mr-2"
+                          className="badge badge-success p-2 btn mr-2 "
                           onClick={(evt) =>
                             deleteParentCategoryHandler(evt, value)
                           }
                         >
+                          <i className="fa fa-times text-danger"></i>{" "}
                           {value.name}
                         </span>
                       );

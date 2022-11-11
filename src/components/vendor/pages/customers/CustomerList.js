@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import M from "materialize-css";
 import $ from "jquery";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Config from "../../../config/Config";
 import date from "date-and-time";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import Breadcrumb from "../../components/Breadcrumb";
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
 // import { storage } from "../../../firebase/FirebaseConfig";
-import { convertDeliveryDay } from "../../helpers";
 
 //  Component Function
-const NewOrders = (props) => {
-  const history = useHistory();
+const CustomerList = (props) => {
   const [pagination, setPagination] = useState({
     skip: 0,
     limit: 10,
@@ -21,20 +19,21 @@ const NewOrders = (props) => {
   });
 
   const [isDeleteLaoded, setIsDeleteLaoded] = useState(true);
-  const [isAllOrdersLoaded, setIsAllOrdersLoaded] = useState(false);
-  const [allOrders, setAllOrders] = useState([]);
+  const [isAllCustomersLoaded, setIsAllCustomersLoaded] = useState(false);
+  const [allCustomers, setAllCustomers] = useState([]);
+
   const [isDeleted, setIsDeleted] = useState(false);
   const [deleteId, setDeleteId] = useState("");
-  const query = new URLSearchParams(history.location.search);
-  const status = query.get("status");
-  const [orderStatus, setOrderStatus] = useState(status || "ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState("All");
+  const [isVerified, setIsVerified] = useState(null);
 
   // Delete Submit Handler
   const deleteSubmitHandler = () => {
     setIsDeleted(false);
     setIsDeleteLaoded(false);
 
-    fetch(`${Config.SERVER_URL}/order/${deleteId}`, {
+    fetch(`${Config.SERVER_URL}/customer/${deleteId}`, {
       method: "DELETE",
       // body: JSON.stringify({deleteId}),
       headers: {
@@ -104,75 +103,67 @@ const NewOrders = (props) => {
           ? pagination.totalPage
           : pagination.currentPage + 1,
       skip:
-        pagination.currentPage == pagination.totalPage
-          ? 0
-          : pagination.currentPage * pagination.limit,
+        pagination.currentPage == 1
+          ? pagination.limit
+          : (pagination.currentPage + 1) * pagination.limit,
     });
   };
 
-  function getPreviousDay(date = new Date()) {
-    const previous = new Date(date.getTime());
-    previous.setDate(date.getDate() - 1);
-
-    return previous;
-  }
-
   // Get Data From Database
   useEffect(() => {
-    let url = `${Config.SERVER_URL}/order/report?skip=${
-      pagination.skip
-    }&limit=${pagination.limit}&startDate=${date.format(
-      new Date(getPreviousDay()),
-      "YYYY-MM-DD"
-    )}`;
-
-    if (orderStatus !== "ALL") {
-      url = url + `&orderStatus=${orderStatus}`;
-    }
-
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
+    setIsAllCustomersLoaded(false);
+    fetch(
+      `${Config.SERVER_URL}/customer?skip=${pagination.skip}&limit=${
+        pagination.limit
+      }&searchQuery=${
+        searchQuery || null
+      }&status=${status}&isVerified=${isVerified}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(
         (result) => {
-          setIsAllOrdersLoaded(true);
+          setIsAllCustomersLoaded(true);
           if (result.status === 200) {
-            setAllOrders(result.body || []);
+            setAllCustomers(result.body || []);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
         },
         (error) => {
           M.toast({ html: error, classes: "bg-danger" });
-          setIsAllOrdersLoaded(true);
+          setIsAllCustomersLoaded(true);
         }
       );
-  }, [pagination.limit, pagination.skip, isDeleted, orderStatus]);
+  }, [
+    pagination.skip,
+    pagination.limit,
+    isDeleted,
+    searchQuery,
+    status,
+    isVerified,
+  ]);
 
   // Count Records
   useEffect(() => {
-    let url = `${Config.SERVER_URL}/order/report?skip=${
-      pagination.skip
-    }&limit=${pagination.limit}&startDate=${date.format(
-      new Date(getPreviousDay()),
-      "YYYY-MM-DD"
-    )}`;
-
-    if (orderStatus !== "ALL") {
-      url = url + `&orderStatus=${orderStatus}`;
-    }
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
-      },
-    })
+    fetch(
+      `${Config.SERVER_URL}/customer?skip=0&limit=0&searchQuery=${
+        searchQuery || null
+      }&status=${status}&isVerified=${isVerified}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(
         (result) => {
@@ -184,23 +175,19 @@ const NewOrders = (props) => {
         },
         (error) => {
           M.toast({ html: error, classes: "bg-danger" });
-          setIsAllOrdersLoaded(true);
+          setIsAllCustomersLoaded(true);
         }
       );
-  }, [isDeleted, orderStatus]);
+  }, [isDeleted, searchQuery, status, isVerified]);
 
   // Return function
   return (
     <div className="page-wrapper px-0 pt-0">
       <div className={"container-fluid"}>
         {/* Bread crumb and right sidebar toggle */}
-        <Breadcrumb
-          title={"ORDERS"}
-          pageTitle={"New Odrer Lists"}
-          homeLink="/branch"
-        />
-
+        <Breadcrumb title={"USER LISTS"} pageTitle={"User List"} />
         {/* End Bread crumb and right sidebar toggle */}
+
         <div
           className={"row page-titles px-1 my-0 shadow-none"}
           style={{ background: "none" }}
@@ -210,181 +197,141 @@ const NewOrders = (props) => {
             <div className={"card mb-0 mt-2 border-0 rounded"}>
               <div className={"card-body pb-0 pt-2"}>
                 <div className="d-flex justify-content-between">
-                  {/* <h4 className="float-left mt-2 mr-2">Search: </h4> */}
+                  <div className="d-flex">
+                    <h4 className="mt-2 mr-2">Search: </h4>
+                    <div className="border px-2">
+                      <input
+                        type="search"
+                        onChange={(evt) => {
+                          setSearchQuery(evt.target.value);
+                        }}
+                        placeholder="By Name/Email/Mobile"
+                        className="form-control"
+                      />
+                    </div>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={status}
+                        onChange={(evt) => {
+                          setStatus(evt.target.value);
+                        }}
+                      >
+                        <option value={``} selected disabled>
+                          USER STATUS
+                        </option>
+                        <option value={true}>ACTIVE</option>
+                        <option value={false}>DISABLED</option>
+                        <option value={`All`}>ALL</option>
+                      </select>
+                    </div>
 
-                  <div className="form-inline">
-                    <label htmlFor="" className="h6">
-                      Filter :{" "}
-                    </label>
-                    <select
-                      className="form-control shadow-sm rounded"
-                      onChange={(evt) => {
-                        setOrderStatus(evt.target.value);
-                        history.push(
-                          "/branch/newOrders?status=" + evt.target.value
-                        );
-                      }}
-                      value={orderStatus}
-                    >
-                      <option value="ALL">ALL</option>
-                      <option value="PENDING">PENDING</option>
-                      <option value="CONFIRMED">CONFIRMED</option>
-                      <option value="CANCELLED">CANCELLED</option>
-                      <option value="READYTOSHIP">READY TO SHIP</option>
-                      <option value="DISPATCHED">DISPATCHED</option>
-                      <option value="DELIVERED">DELIVERED</option>
-                    </select>
+                    <div className="border px-2 ml-2">
+                      <select
+                        name=""
+                        id=""
+                        className="form-control"
+                        value={isVerified}
+                        onChange={(evt) => {
+                          setIsVerified(evt.target.value);
+                        }}
+                      >
+                        <option selected disabled value={``}>
+                          VERIFICATION STATUS
+                        </option>
+                        <option value={true}>VERIFIED</option>
+                        <option value={false}>NOT VERIFIED</option>
+                        <option value={"null"}>ALL</option>
+                      </select>
+                    </div>
                   </div>
+
+                  <div className=""></div>
                 </div>
               </div>
             </div>
 
             {/* Data */}
-            {isAllOrdersLoaded ? (
+            {isAllCustomersLoaded ? (
               <div className="card border-0 rounded m-0 py-1">
-                {allOrders.length ? (
+                {allCustomers.length ? (
                   <div className="card-body py-0">
                     <div className="table-responsive">
                       <table
-                        id={"table-to-xls"}
+                        id="table-to-xls"
                         className={"table table-bordered table-striped my-0"}
                       >
                         <thead>
                           <tr>
                             <th>SN</th>
-                            <th>ORDER ID</th>
-                            <th>CUSTOMER DETAILS</th>
-                            <th>PRODUCT NAME/WEIGHT</th>
-                            <th>ORDER ITEMS</th>
-                            <th>DELIVERY DETAILS</th>
-                            <th>CREATED AT</th>
+                            <th>NAME</th>
+                            <th>EMAIL</th>
+                            <th>MOBILE</th>
+                            <th>VERIFIED</th>
                             <th>STATUS</th>
+                            <th>CREATED DATE</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {allOrders.map((order, index) => {
+                          {allCustomers.map((customer, index) => {
                             return (
                               <tr key={index}>
-                                <td>{++index}</td>
-                                <td>{order._id}</td>
+                                <td>{index + 1}</td>
+                                <td>{customer.name}</td>
+                                <td>{customer.email}</td>
+                                <td>{customer.mobile}</td>
                                 <td>
-                                  <p>{order.customerId.name}</p>
-                                  <p>
-                                    <a
-                                      href={`mailto:${order.customerId.email}`}
-                                    >
-                                      {order.customerId.email}
-                                    </a>
-                                  </p>
-                                  <p>
-                                    <a href={`tel:${order.customerId.mobile}`}>
-                                      {order.customerId.mobile}
-                                    </a>
-                                  </p>
-                                </td>
-                                <td>
-                                  {order.products[0].name}/
-                                  {order.products[0].weight}
-                                </td>
-                                {/* <td>
-                                  <i className="fa fa-inr"></i>
-                                  {order.totalAmount}
-                                </td> */}
-                                <td>
-                                  <a
-                                    target="_blank"
-                                    href={order.products[0].image}
-                                  >
-                                    <img
-                                      style={{
-                                        height: "80px",
-                                        borderRadius: "40px",
-                                      }}
-                                      src={order.products[0].image}
-                                      alt=""
-                                    />
-                                  </a>
-                                  {order.products.length - 1 > 0
-                                    ? order.products.length - 1 + " + Products"
-                                    : ""}
-                                </td>
-                                <td>
-                                  <p>
-                                    Date :
-                                    <span className="badge bg-danger text-light">
-                                      {convertDeliveryDay(order.shippingMethod)}
+                                  {customer.isVerified ? (
+                                    <span className="badge badge-success">
+                                      Verified
                                     </span>
-                                  </p>
-
-                                  <p>
-                                    Time :
-                                    <span className="badge bg-danger text-light">
-                                      {date.transform(
-                                        order.shippingMethod.startTime,
-                                        "HH:mm",
-                                        "hh:mm A"
-                                      )}
-                                      -{" "}
-                                      {date.transform(
-                                        order.shippingMethod.endTime,
-                                        "HH:mm",
-                                        "hh:mm A"
-                                      )}
+                                  ) : (
+                                    <span className="badge badge-danger">
+                                      Not Verified
                                     </span>
-                                  </p>
-
-                                  <p>
-                                    <span className="badge bg-danger text-light">
-                                      ({order.shippingMethod.method})
-                                    </span>
-                                  </p>
+                                  )}
                                 </td>
-
+                                <td>
+                                  {customer.status ? (
+                                    <span className="badge badge-success">
+                                      Active
+                                    </span>
+                                  ) : (
+                                    <span className="badge badge-danger">
+                                      Disabled
+                                    </span>
+                                  )}
+                                </td>
                                 <td>
                                   {date.format(
-                                    new Date(order.createdAt),
+                                    new Date(customer.createdAt),
                                     "DD-MM-YYYY"
                                   )}
                                 </td>
-
-                                <td>
-                                  {order.orderStatus === "PENDING" ? (
-                                    <span className="badge badge-warning">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : order.orderStatus === "CONFIRMED" ? (
-                                    <span className="badge badge-info">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : order.orderStatus === "READYTOSHIP" ? (
-                                    <span className="badge badge-primary">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : order.orderStatus === "DISPATCHED" ? (
-                                    <span className="badge badge-success">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : order.orderStatus === "DELIVERED" ? (
-                                    <span className="badge badge-warning">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : order.orderStatus === "CANCELLED" ? (
-                                    <span className="badge badge-danger">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </td>
-
                                 <td className="text-center">
                                   {/* Update Button */}
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"
                                     to={{
-                                      pathname: `/branch/order/show/${order.id}`,
+                                      pathname: `/branch/customer/edit/${customer.id}`,
                                     }}
+                                  >
+                                    <span
+                                      className="fas fa-pencil-alt"
+                                      aria-hidden="true"
+                                    ></span>
+                                  </Link>
+
+                                  {/* View Button */}
+                                  <Link
+                                    className="ml-2 btn btn-warning footable-edit rounded"
+                                    to={{
+                                      pathname: `/branch/customer/show/${customer.id}`,
+                                    }}
+                                    title="Show"
                                   >
                                     <span
                                       className="fas fa-eye"
@@ -393,20 +340,20 @@ const NewOrders = (props) => {
                                   </Link>
 
                                   {/* Delete Button */}
-                                  {/* <button
+                                  <button
                                     type="button"
                                     className="ml-2 btn btn-danger footable-delete rounded"
                                     data-toggle="modal"
                                     data-target="#deleteModal"
                                     onClick={(e) => {
-                                      setDeleteId(order._id);
+                                      setDeleteId(customer._id);
                                     }}
                                   >
                                     <span
                                       className="fas fa-trash-alt"
                                       aria-hidden="true"
                                     ></span>
-                                  </button> */}
+                                  </button>
                                 </td>
                               </tr>
                             );
@@ -437,7 +384,7 @@ const NewOrders = (props) => {
                               id="test-table-xls-button"
                               className="download-table-xls-button shadow-sm px-3 border"
                               table="table-to-xls"
-                              filename="orders"
+                              filename="customers"
                               sheet="data"
                               buttonText="Download as XLS"
                             />
@@ -573,4 +520,4 @@ const NewOrders = (props) => {
   );
 };
 
-export default NewOrders;
+export default CustomerList;

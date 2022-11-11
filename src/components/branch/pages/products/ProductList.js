@@ -239,7 +239,7 @@ const ProductList = (props) => {
                     </Link>
 
                     <Link
-                      to={"/branch/adonProduct/add"}
+                      to={"/branch/product/add"}
                       className={"btn btn-info "}
                     >
                       <span className={"fas fa-plus"}></span> Product

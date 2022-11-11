@@ -885,13 +885,6 @@ const ParentCategory = (props) => {
                         </div>
                       )}
                     </button>
-                    <button
-                      className="btn btn-secondary rounded ml-2 px-3"
-                      data-dismiss="modal"
-                      id={"closeDeleteModalButton"}
-                    >
-                      Close
-                    </button>
                   </div>
                 </div>
               </div>

@@ -7,7 +7,7 @@ import date from "date-and-time";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import Breadcrumb from "../../components/Breadcrumb";
 // import { storage } from "../../../firebase/FirebaseConfig";
-
+import { convertDeliveryDay } from "../../helpers";
 // Component Function
 const OrderList = (props) => {
   const [pagination, setPagination] = useState({
@@ -198,18 +198,18 @@ const OrderList = (props) => {
                       onChange={(evt) => {
                         setOrderStatus(evt.target.value);
                         history.push(
-                          "/branch/orders?status=" + evt.target.value
+                          "/branch/newOrders?status=" + evt.target.value
                         );
                       }}
                       value={orderStatus}
                     >
                       <option value="ALL">ALL</option>
-                      <option value="ORDERPLACED">ORDER PLACED</option>
+                      <option value="PENDING">PENDING</option>
                       <option value="CONFIRMED">CONFIRMED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                      <option value="READYTOSHIP">READY TO SHIP</option>
                       <option value="DISPATCHED">DISPATCHED</option>
                       <option value="DELIVERED">DELIVERED</option>
-                      <option value="CANCELLED">CANCELLED</option>
-                      <option value="RETURNED">RETURNED</option>
                     </select>
                   </div>
                 </div>
@@ -229,10 +229,12 @@ const OrderList = (props) => {
                         <thead>
                           <tr>
                             <th>SN</th>
-                            <th>NAME</th>
-                            <th>AMOUNT</th>
-                            <th>ITEMS</th>
-                            <th>DATE</th>
+                            <th>ORDER ID</th>
+                            <th>CUSTOMER DETAILS</th>
+                            <th>PRODUCT NAME/WEIGHT</th>
+                            <th>ORDER ITEMS</th>
+                            <th>DELIVERY DETAILS</th>
+                            <th>CREATED AT</th>
                             <th>STATUS</th>
                             <th className="text-center">ACTION</th>
                           </tr>
@@ -242,12 +244,82 @@ const OrderList = (props) => {
                             return (
                               <tr key={index}>
                                 <td>{++index}</td>
-                                <td>{order.customerId.name}</td>
+                                <td>{order._id}</td>
                                 <td>
+                                  <p>{order.customerId.name}</p>
+                                  <p>
+                                    <a
+                                      href={`mailto:${order.customerId.email}`}
+                                    >
+                                      {order.customerId.email}
+                                    </a>
+                                  </p>
+                                  <p>
+                                    <a href={`tel:${order.customerId.mobile}`}>
+                                      {order.customerId.mobile}
+                                    </a>
+                                  </p>
+                                </td>
+                                <td>
+                                  {order.products[0].name}/
+                                  {order.products[0].weight}
+                                </td>
+                                {/* <td>
                                   <i className="fa fa-inr"></i>
                                   {order.totalAmount}
+                                </td> */}
+                                <td>
+                                  <a
+                                    target="_blank"
+                                    href={order.products[0].image}
+                                  >
+                                    <img
+                                      style={{
+                                        height: "80px",
+                                        borderRadius: "40px",
+                                      }}
+                                      src={order.products[0].image}
+                                      alt=""
+                                    />
+                                  </a>
+                                  <p>
+                                    {order.products.length - 1 > 0
+                                      ? `+ ${order.products.length - 1} Items`
+                                      : ""}
+                                  </p>
                                 </td>
-                                <td>{order.products.length} Items</td>
+                                <td>
+                                  <p>
+                                    Date :
+                                    <span className="badge bg-danger text-light">
+                                      {convertDeliveryDay(order.shippingMethod)}
+                                    </span>
+                                  </p>
+
+                                  <p>
+                                    Time :
+                                    <span className="badge bg-danger text-light">
+                                      {date.transform(
+                                        order.shippingMethod.startTime,
+                                        "HH:mm",
+                                        "hh:mm A"
+                                      )}
+                                      -{" "}
+                                      {date.transform(
+                                        order.shippingMethod.endTime,
+                                        "HH:mm",
+                                        "hh:mm A"
+                                      )}
+                                    </span>
+                                  </p>
+
+                                  <p>
+                                    <span className="badge bg-danger text-light">
+                                      ({order.shippingMethod.method})
+                                    </span>
+                                  </p>
+                                </td>
+
                                 <td>
                                   {date.format(
                                     new Date(order.createdAt),
@@ -256,27 +328,27 @@ const OrderList = (props) => {
                                 </td>
 
                                 <td>
-                                  {order.orderStatus === "ORDERPLACED" ? (
-                                    <span className="badge badge-info">
-                                      {order.orderStatus}
-                                    </span>
-                                  ) : order.orderStatus === "CONFIRMED" ? (
+                                  {order.orderStatus === "PENDING" ? (
                                     <span className="badge badge-warning">
                                       {order.orderStatus}
                                     </span>
-                                  ) : order.orderStatus === "DISPATCHED" ? (
+                                  ) : order.orderStatus === "CONFIRMED" ? (
+                                    <span className="badge badge-info">
+                                      {order.orderStatus}
+                                    </span>
+                                  ) : order.orderStatus === "READYTOSHIP" ? (
                                     <span className="badge badge-primary">
                                       {order.orderStatus}
                                     </span>
-                                  ) : order.orderStatus === "DELIVERED" ? (
+                                  ) : order.orderStatus === "DISPATCHED" ? (
                                     <span className="badge badge-success">
                                       {order.orderStatus}
                                     </span>
-                                  ) : order.orderStatus === "CANCELLED" ? (
-                                    <span className="badge badge-danger">
+                                  ) : order.orderStatus === "DELIVERED" ? (
+                                    <span className="badge badge-warning">
                                       {order.orderStatus}
                                     </span>
-                                  ) : order.orderStatus === "RETURNED" ? (
+                                  ) : order.orderStatus === "CANCELLED" ? (
                                     <span className="badge badge-danger">
                                       {order.orderStatus}
                                     </span>
@@ -300,7 +372,7 @@ const OrderList = (props) => {
                                   </Link>
 
                                   {/* Delete Button */}
-                                  <button
+                                  {/* <button
                                     type="button"
                                     className="ml-2 btn btn-danger footable-delete rounded"
                                     data-toggle="modal"
@@ -313,7 +385,7 @@ const OrderList = (props) => {
                                       className="fas fa-trash-alt"
                                       aria-hidden="true"
                                     ></span>
-                                  </button>
+                                  </button> */}
                                 </td>
                               </tr>
                             );

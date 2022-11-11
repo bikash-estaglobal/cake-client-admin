@@ -197,7 +197,7 @@ const NewOrders = (props) => {
         <Breadcrumb
           title={"ORDERS"}
           pageTitle={"New Odrer Lists"}
-          homeLink="/branch"
+          homeLink="/vendor"
         />
 
         {/* End Bread crumb and right sidebar toggle */}
@@ -221,7 +221,7 @@ const NewOrders = (props) => {
                       onChange={(evt) => {
                         setOrderStatus(evt.target.value);
                         history.push(
-                          "/branch/newOrders?status=" + evt.target.value
+                          "/vendor/newOrders?status=" + evt.target.value
                         );
                       }}
                       value={orderStatus}
@@ -270,7 +270,7 @@ const NewOrders = (props) => {
                                 <td>{order._id}</td>
                                 <td>
                                   <p>{order.customerId.name}</p>
-                                  <p>
+                                  {/* <p>
                                     <a
                                       href={`mailto:${order.customerId.email}`}
                                     >
@@ -281,7 +281,7 @@ const NewOrders = (props) => {
                                     <a href={`tel:${order.customerId.mobile}`}>
                                       {order.customerId.mobile}
                                     </a>
-                                  </p>
+                                  </p> */}
                                 </td>
                                 <td>
                                   {order.products[0].name}/
@@ -305,9 +305,11 @@ const NewOrders = (props) => {
                                       alt=""
                                     />
                                   </a>
-                                  {order.products.length - 1 > 0
-                                    ? order.products.length - 1 + " + Products"
-                                    : ""}
+                                  <p>
+                                    {order.products.length - 1 > 0
+                                      ? `+ ${order.products.length - 1} Items`
+                                      : ""}
+                                  </p>
                                 </td>
                                 <td>
                                   <p>
@@ -383,7 +385,7 @@ const NewOrders = (props) => {
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"
                                     to={{
-                                      pathname: `/branch/order/show/${order.id}`,
+                                      pathname: `/vendor/order/show/${order.id}`,
                                     }}
                                   >
                                     <span

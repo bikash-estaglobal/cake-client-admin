@@ -209,6 +209,26 @@ function LeftNavigation() {
                   </ul>
                 </li>
 
+                {/* Vendors Section */}
+                <li>
+                  <Link
+                    className="has-arrow waves-dark"
+                    to="/"
+                    aria-expanded="false"
+                  >
+                    <i className="mdi mdi-account-plus"></i>
+                    <span className="hide-menu">VENDORS</span>
+                  </Link>
+
+                  <ul aria-expanded="false" className="collapse">
+                    <li>
+                      <Link to="/branch/vendors" onClick={removeLeftNavigation}>
+                        Vendor Lists
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+
                 {/* Customer Section */}
                 <li>
                   <Link
@@ -340,7 +360,7 @@ function LeftNavigation() {
                         to="/branch/newOrders"
                         onClick={removeLeftNavigation}
                       >
-                        New Orders
+                        Today Orders
                       </Link>
                     </li>
                     <li>
