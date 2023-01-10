@@ -80,11 +80,11 @@ function MainSlider() {
       image.onload = async function () {
         const width = image.width;
         const height = image.height;
-        if (height == 615 && width == 1200) {
+        if (height == 413 && width == 1440) {
           handleUpload(file[0]);
         } else {
           M.toast({
-            html: "Please Upload Image Size 1200 X 615",
+            html: "Please Upload Image Size 1440 X 413",
             classes: "bg-danger",
           });
           return;

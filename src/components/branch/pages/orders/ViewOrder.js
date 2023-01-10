@@ -4,6 +4,8 @@ import M from "materialize-css";
 import Config from "../../../config/Config";
 import date from "date-and-time";
 import Breadcrumb from "../../components/Breadcrumb";
+import { storage } from "../../../../firebase/FirebaseConfig";
+// import { getDownloadURL } from "firebase/storage";
 
 const ViewOrder = () => {
   const history = useHistory();
@@ -97,6 +99,85 @@ const ViewOrder = () => {
       );
   }, []);
 
+  // Download Image
+  // const download = async () => {
+  //   const originalImage =
+  //     "https://firebasestorage.googleapis.com/v0/b/perfect-app-5eef5.appspot.com/o/cakes%2Fbikash-kumar-singh.png?alt=media&token=625b3b11-3104-4cc7-8726-c684f55bb5cf";
+  //   const image = await fetch(originalImage);
+
+  //   //Split image name
+  //   const nameSplit = originalImage.split("/");
+  //   const duplicateName = nameSplit.pop();
+
+  //   const imageBlog = await image.blob();
+  //   const imageURL = URL.createObjectURL(imageBlog);
+  //   const link = document.createElement("a");
+  //   link.href = imageURL;
+  //   link.download = "" + duplicateName + "";
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
+
+  const download = (evt) => {
+    evt.preventDefault();
+    var element = document.createElement("a");
+    var file = new Blob(
+      [
+        "https://firebasestorage.googleapis.com/v0/b/perfect-app-5eef5.appspot.com/o/cakes%2Fbikash-kumar-singh.png?alt=media&token=625b3b11-3104-4cc7-8726-c684f55bb5cf",
+      ],
+      { type: "image/*" }
+    );
+    element.href = URL.createObjectURL(file);
+    element.download = "bikash-kumar-singh.png";
+    element.click();
+  };
+
+  const downloadImageHandler = async (evt, url) => {
+    evt.preventDefault();
+
+    // download();
+
+    // var a = document.createElement("a");
+    // a.href = url;
+    // a.download = "output.png";
+    // document.body.appendChild(a);
+    // a.click();
+    // document.body.removeChild(a);
+
+    // const httpsReference = storage.refFromURL(url);
+    // // console.log(httpsReference);
+
+    const { getStorage, ref } = storage;
+    console.log(getStorage);
+
+    // httpsReference
+    //   .getDownloadURL()
+    //   .then((url) => {
+    //     // `url` is the download URL for 'images/stars.jpg'
+    //     console.log("1", url);
+    //     // This can be downloaded directly:
+    //     // const xhr = new XMLHttpRequest();
+    //     // xhr.responseType = "blob";
+    //     // xhr.onload = (event) => {
+    //     //   const blob = xhr.response;
+    //     // };
+    //     // xhr.open("GET", url);
+    //     // xhr.send();
+
+    //     // Or inserted into an <img> element
+    //     const img = document.getElementById("myimg");
+    //     img.setAttribute("src", url);
+
+    //     console.log("URL", url);
+    //   })
+    //   .catch((error) => {
+    //     // Handle any errors
+    //   });
+
+    // console.log(ref);
+  };
+
   return (
     <div className="page-wrapper">
       <div className="container-fluid">
@@ -176,7 +257,7 @@ const ViewOrder = () => {
 
                 {/* order Code */}
                 <div className={"col-md-12"}>
-                  <table className="table">
+                  <table className="table table-responsive">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -233,8 +314,16 @@ const ViewOrder = () => {
                             <td>
                               {product.imageOnCake ? (
                                 <a
+                                  // onClick={(evt) => {
+                                  //   downloadImageHandler(
+                                  //     evt,
+                                  //     product.imageOnCake
+                                  //   );
+                                  // }}
+
+                                  download
+                                  onClick={(evt) => download(evt)}
                                   href={product.imageOnCake}
-                                  target={"_target"}
                                 >
                                   <img
                                     style={{
@@ -278,7 +367,7 @@ const ViewOrder = () => {
                 )}
 
                 {/* order Code */}
-                <div className={"col-md-12"}>
+                <div className={"col-md-12 table-responsive"}>
                   <table className="table" style={{ width: "100%" }}>
                     {order.adonProducts.length ? (
                       <>

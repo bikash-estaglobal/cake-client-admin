@@ -10527,3 +10527,103 @@ a {
 table {
   font-family: "Poppins", sans-serif;
 }
+
+.download-table-xls-button {
+  border: 0;
+  color: #99abb4;
+  cursor: pointer;
+  background-color: transparent !important;
+  padding: 8px 4px;
+  margin-left: 5px;
+  transition: all 0.5s;
+}
+.download-table-xls-button:hover {
+  background-color: #007bb6 !important;
+  color: white;
+}
+
+.overflow-none {
+  overflow: visible !important;
+}
+
+/* Steeper Design for Order Details Page */
+#stepProgressBar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  width: 90% !important;
+  margin: 0 auto !important;
+  margin-bottom: 40px !important;
+}
+
+#stepProgressBar .step {
+  text-align: center !important;
+  width: 19.7% !important;
+  position: relative !important;
+}
+
+#stepProgressBar .step-text {
+  margin-bottom: -24px !important;
+  color: #0d829f !important;
+  font-weight: 600 !important;
+}
+
+#stepProgressBar .bullet {
+  border: 2px solid #0d829f !important;
+  height: 25px !important;
+  width: 25px !important;
+  color: #0d829f !important;
+  display: inline-block !important;
+  transition: background-color 500ms !important;
+  line-height: 25px !important;
+}
+
+#stepProgressBar .bullet.completed {
+  color: white !important;
+  background-color: #0d829f !important;
+}
+
+#stepProgressBar .bullet.line::after {
+  content: "" !important;
+  position: absolute !important;
+  /* bottom: 10px !important; */
+  bottom: 52px !important;
+  height: 1px !important;
+  width: calc(133% - 21px) !important;
+  background-color: #0d829f !important;
+  margin-left: 7px !important;
+}
+
+@media print {
+  #print-container {
+    width: 100%;
+    margin-top: 30% !important;
+    height: 500px;
+    box-shadow: inset 0 0 0 1000px #000;
+  }
+  #print-container .right {
+    margin-left: 50% !important;
+  }
+
+  #print-container h4 {
+    font-size: 40px !important;
+  }
+
+  #print-container p {
+    font-size: 30px !important;
+    color: rgba(0, 0, 0, 0.7);
+  }
+  #print-container #heading {
+    padding: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  #print-container table {
+    font-size: 30px !important;
+    color: black !important;
+  }
+
+  #print-container .to {
+    margin-top: 40px !important;
+  }
+}
