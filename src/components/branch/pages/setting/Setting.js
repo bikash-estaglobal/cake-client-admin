@@ -9,6 +9,13 @@ const Setting = () => {
 
   const [setting, setSetting] = useState({});
   const [contactUs, setContactUs] = useState({});
+  const [socialLinks, setSocialLinks] = useState({
+    facebook: "",
+    twitter: "",
+    instagram: "",
+    pintrest: "",
+    youtube: "",
+  });
 
   // Submit Handler
   const submitHandler = (evt) => {
@@ -23,6 +30,8 @@ const Setting = () => {
       minimumOrderAmount: setting.minimumOrderAmount || undefined,
       cashbackStatus: setting.cashbackStatus || false,
       contactUs: { ...contactUs },
+      socialLinks,
+      alertMessage: setting.alertMessage || "",
     };
 
     console.log(updateData);
@@ -71,6 +80,7 @@ const Setting = () => {
           if (result.status === 200) {
             setSetting(result.body);
             setContactUs(result.body.contactUs || {});
+            setSocialLinks(result.body.socialLinks || {});
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -333,6 +343,133 @@ const Setting = () => {
                     placeholder={
                       "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3683.480299686449!2d88.4079383!3d22.598532799999997!3m2!1i1024!2i768!4f13.1!4m3!3e6!4m0!4m0!5e0!3m2!1sen!2sin!4v1663319853505!5m2!1sen!2sin"
                     }
+                  />
+                </div>
+              </div>
+
+              {/* Alert Details */}
+              <div className={"row shadow-sm bg-white py-3 mt-2"}>
+                <div className="col-md-12">
+                  <h3 className={"my-3 text-info"}>Alert Message</h3>
+                </div>
+
+                {/*  Text Alert  */}
+                <div className={"form-group col-md-12"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Alert Message
+                  </label>
+                  <input
+                    type="text"
+                    value={setting.alertMessage}
+                    onChange={(evt) =>
+                      setSetting({
+                        ...setting,
+                        alertMessage: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"Alert Message"}
+                  />
+                </div>
+              </div>
+
+              {/* Social Links */}
+              <div className={"row shadow-sm bg-white py-3 mt-2"}>
+                <div className="col-md-12">
+                  <h3 className={"my-3 text-info"}>Social Links</h3>
+                </div>
+                {/* Facebook */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Facebook
+                  </label>
+                  <input
+                    type="url"
+                    value={socialLinks.facebook}
+                    onChange={(evt) =>
+                      setSocialLinks({
+                        ...socialLinks,
+                        facebook: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"Facebook Url"}
+                  />
+                </div>
+
+                {/* Twitter */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Twitter
+                  </label>
+                  <input
+                    type="url"
+                    value={socialLinks.twitter}
+                    onChange={(evt) =>
+                      setSocialLinks({
+                        ...socialLinks,
+                        twitter: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"Twitter URL"}
+                  />
+                </div>
+
+                {/* Instagram */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Instagram
+                  </label>
+                  <input
+                    type="url"
+                    value={socialLinks.instagram}
+                    onChange={(evt) =>
+                      setSocialLinks({
+                        ...socialLinks,
+                        instagram: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"Instagram URL"}
+                  />
+                </div>
+
+                {/* Pintrest */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    Pintrest
+                  </label>
+                  <input
+                    type="url"
+                    value={socialLinks.pintrest}
+                    onChange={(evt) =>
+                      setSocialLinks({
+                        ...socialLinks,
+                        pintrest: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"Pintrest URL"}
+                  />
+                </div>
+
+                {/* YouTube */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    YouTube
+                  </label>
+                  <input
+                    type="url"
+                    value={socialLinks.youtue}
+                    onChange={(evt) =>
+                      setSocialLinks({
+                        ...socialLinks,
+                        youtue: evt.target.value,
+                      })
+                    }
+                    className="form-control"
+                    placeholder={"YouTue URL"}
                   />
                 </div>
 

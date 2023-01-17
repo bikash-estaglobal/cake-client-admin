@@ -33,6 +33,7 @@ function AddProduct() {
     images: [],
     isEggCake: false,
     isPhotoCake: false,
+    featuredCake: "false",
     description: "",
     shortDescription: "",
     tags: "",
@@ -795,6 +796,53 @@ function AddProduct() {
                         className="custom-control-input"
                       />
                       <label className="custom-control-label" for="cakeType4">
+                        NO
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FEATURED CAKE*/}
+                <div className={"col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    FEATURED CAKE
+                  </label>
+                  <div className="d-flex my-3">
+                    <div className="custom-control custom-radio pl-0 ml-0">
+                      <input
+                        type="radio"
+                        id="featured1"
+                        name="featuredCake"
+                        value={true}
+                        checked={product.featuredCake == "true" ? true : false}
+                        onChange={(evt) =>
+                          setProduct({
+                            ...product,
+                            featuredCake: evt.target.value,
+                          })
+                        }
+                        className="custom-control-input"
+                      />
+                      <label className="custom-control-label" for="featured1">
+                        YES
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio">
+                      <input
+                        type="radio"
+                        id="featured2"
+                        name="featuredCake"
+                        checked={product.featuredCake == "false" ? true : false}
+                        value={false}
+                        onChange={(evt) => {
+                          setProduct({
+                            ...product,
+                            featuredCake: evt.target.value,
+                          });
+                        }}
+                        className="custom-control-input"
+                      />
+                      <label className="custom-control-label" for="featured2">
                         NO
                       </label>
                     </div>
