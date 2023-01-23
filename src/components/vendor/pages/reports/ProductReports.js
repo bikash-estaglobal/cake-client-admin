@@ -115,7 +115,7 @@ const ProductReports = (props) => {
                             <th>SN</th>
                             <th>NAME</th>
                             <th>NO OF ORDERS</th>
-                            <th>AMOUNT</th>
+                            {/* <th>AMOUNT</th> */}
 
                             {/* <th className="text-center">ACTION</th> */}
                           </tr>
@@ -128,10 +128,10 @@ const ProductReports = (props) => {
                                 <td>{order.name}</td>
 
                                 <td>{order.value}</td>
-                                <td>
+                                {/* <td>
                                   <i className="fa fa-inr"></i>
                                   {order.amount}
-                                </td>
+                                </td> */}
                                 {/* <td className="text-center">
                                   <Link
                                     className="ml-2 btn btn-info footable-edit rounded"

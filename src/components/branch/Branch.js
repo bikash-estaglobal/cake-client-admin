@@ -108,6 +108,12 @@ import AddVendor from "./pages/vendors/AddVendors";
 import EditVendor from "./pages/vendors/EditVendor";
 import VendorDashboard from "./pages/vendors/VendorDashboard";
 import Footer from "./Footer";
+import CategoryNavigationBanner from "./pages/banners/CategoryNavigationBanner";
+import InquiryList from "./pages/inquiries/InquiryList";
+import AddInquiry from "./pages/inquiries/AddInquiry";
+import EditInquiry from "./pages/inquiries/EditInquiry";
+import AddInquiryFromCSV from "./pages/inquiries/AddInquiryFromCSV";
+import EditInquiryFromCSV from "./pages/inquiries/EditInquiryFromCSV";
 
 // Create Context
 export const BranchContext = createContext();
@@ -368,6 +374,21 @@ const Routing = () => {
         component={EditNewsletter}
       />
 
+      {/* Inquiries */}
+      <Route exact path="/branch/inquiries" component={InquiryList} />
+      <Route exact path="/branch/inquiry/add" component={AddInquiry} />
+      <Route
+        exact
+        path="/branch/inquiry/addByCSV"
+        component={AddInquiryFromCSV}
+      />
+      <Route
+        exact
+        path="/branch/inquiry/editByCSV"
+        component={EditInquiryFromCSV}
+      />
+      <Route exact path="/branch/inquiry/edit/:id" component={EditInquiry} />
+
       {/* Settings */}
       <Route exact path="/branch/setting" component={Setting} />
 
@@ -385,6 +406,11 @@ const Routing = () => {
         component={CategoryPageBanner}
       />
       <Route exact path="/branch/offerBanner" component={OfferBanner} />
+      <Route
+        exact
+        path="/branch/categoryNavigationBanner"
+        component={CategoryNavigationBanner}
+      />
 
       {/* Page Not Found */}
       <Route exact path="/*" component={PageNoteFound} />

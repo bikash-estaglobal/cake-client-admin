@@ -31,9 +31,10 @@ function AddProduct() {
     shape: "",
     type: "",
     images: [],
-    isEggCake: false,
-    isPhotoCake: false,
+    isEggCake: "false",
+    isPhotoCake: "false",
     featuredCake: "false",
+    breadType: "",
     description: "",
     shortDescription: "",
     tags: "",
@@ -591,7 +592,7 @@ function AddProduct() {
                   </div>
                 </div>
 
-                {/* Selected Parent Category */}
+                {/* SELECTED PARENT CATEGORY */}
                 <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SELECTED PARENT CATEGORY!
@@ -650,7 +651,7 @@ function AddProduct() {
                   </div>
                 </div> */}
 
-                {/* Flavour */}
+                {/* SELECT FLAVOUR */}
                 <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SELECT FLAVOUR !
@@ -664,7 +665,7 @@ function AddProduct() {
                   />
                 </div>
 
-                {/* Flavour */}
+                {/* SELECT CAKE TYPES */}
                 <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SELECT CAKE TYPES !
@@ -692,7 +693,7 @@ function AddProduct() {
                   />
                 </div> */}
 
-                {/* Cake Shape */}
+                {/* CAKE SHAPE */}
                 <div className={"form-group col-md-6 overflow-none"}>
                   <label htmlFor="" className="text-dark h6 active">
                     SELECT CAKE SHAPE !
@@ -708,7 +709,7 @@ function AddProduct() {
                   </div>
                 </div>
 
-                {/* Is Egg Cake*/}
+                {/* EGG CAKE*/}
                 <div className={"col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
                     EGG CAKE
@@ -719,7 +720,7 @@ function AddProduct() {
                         type="radio"
                         id="cakeType1"
                         name="eggCake"
-                        // checked={!product.isEggCake ? true : false}
+                        checked={product.isEggCake == "true" ? true : false}
                         value={true}
                         onChange={(evt) =>
                           setProduct({
@@ -738,7 +739,7 @@ function AddProduct() {
                         type="radio"
                         id="cakeType2"
                         name="eggCake"
-                        // checked={!product.isEggCake ? true : false}
+                        checked={product.isEggCake == "false" ? true : false}
                         value={false}
                         onChange={(evt) =>
                           setProduct({
@@ -755,7 +756,7 @@ function AddProduct() {
                   </div>
                 </div>
 
-                {/* Is Photo Cake*/}
+                {/* PHOTO CAKE*/}
                 <div className={"col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
                     PHOTO CAKE
@@ -767,7 +768,7 @@ function AddProduct() {
                         id="cakeType3"
                         name="photoCake"
                         value={true}
-                        // checked={!product.isPhotoCake ? true : false}
+                        checked={product.isPhotoCake == "true" ? true : false}
                         onChange={(evt) =>
                           setProduct({
                             ...product,
@@ -785,7 +786,7 @@ function AddProduct() {
                         type="radio"
                         id="cakeType4"
                         name="photoCake"
-                        // checked={!product.isPhotoCake ? true : false}
+                        checked={product.isPhotoCake == "false" ? true : false}
                         value={false}
                         onChange={(evt) => {
                           setProduct({
@@ -847,6 +848,22 @@ function AddProduct() {
                       </label>
                     </div>
                   </div>
+                </div>
+
+                {/* TYPE OF BREAD */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    TYPE OF BREAD !
+                  </label>
+                  <input
+                    type="text"
+                    value={product.breadType}
+                    onChange={(evt) =>
+                      setProduct({ ...product, breadType: evt.target.value })
+                    }
+                    className="form-control"
+                    placeholder={"Vanilla"}
+                  />
                 </div>
               </div>
 

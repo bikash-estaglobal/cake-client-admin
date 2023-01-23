@@ -206,6 +206,15 @@ function LeftNavigation() {
                         Newsletter Emails
                       </Link>
                     </li>
+
+                    <li>
+                      <Link
+                        to="/branch/inquiries"
+                        onClick={removeLeftNavigation}
+                      >
+                        Inquiries Data
+                      </Link>
+                    </li>
                   </ul>
                 </li>
 

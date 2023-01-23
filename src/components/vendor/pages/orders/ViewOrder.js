@@ -8,6 +8,15 @@ import ComponentToPrint from "../../components/ComponentToPrint";
 import ReactToPrint from "react-to-print";
 import { convertDeliveryDay } from "../../helpers";
 import Spinner from "../../components/Spinner";
+import Slider from "react-slick";
+
+var sliderSettings = {
+  dots: true,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+};
 
 const ViewOrder = () => {
   const history = useHistory();
@@ -20,6 +29,7 @@ const ViewOrder = () => {
   const [selectedOrderStatus, setSelectedOrderStatus] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("Today");
   const [orderStatusOptions, setOrderStatusOptions] = useState([]);
+  const [carouselImages, setCarouselImages] = useState([]);
 
   const [order, setOrder] = useState({
     products: [],
@@ -95,8 +105,9 @@ const ViewOrder = () => {
       .then(
         (result) => {
           if (result.status === 200) {
-            setOrder({ ...result.body, coupon: result.body.coupon || {} });
-            setSelectedOrderStatus(result.body.orderStatus);
+            setOrder({ ...result.body, coupon: result.body?.coupon || {} });
+
+            setSelectedOrderStatus(result.body?.orderStatus);
             const dlvryDate = convertDeliveryDay(result.body.shippingMethod);
             setDeliveryDate(dlvryDate);
           } else {
@@ -132,7 +143,7 @@ const ViewOrder = () => {
   }, [order.orderStatus]);
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper px-0 pt-0">
       <div className="container-fluid">
         {/* <!-- ============================================================== --> */}
         {/* <!-- Bread crumb and right sidebar toggle --> */}
@@ -140,7 +151,7 @@ const ViewOrder = () => {
         <Breadcrumb title={"ORDERS"} pageTitle={"View Odrer"} />
 
         {/* Add order Form */}
-        <div className="row">
+        <div className="row page-titles px-1 my-0 shadow-none">
           {dataLoading ? (
             <div className={"col-md-11 mx-auto"}>
               {/* order Details */}
@@ -159,11 +170,15 @@ const ViewOrder = () => {
                       <div className="card bg-white">
                         <div className="card-header d-flex justify-content-between bg-white">
                           <h5>
-                            Order Details (Status :{" "}
+                            Order Details (Status :
                             <span className="badge bg-success text-light">
                               {order.orderStatus}
                             </span>{" "}
-                            ){" "}
+                            | Payment :
+                            <span className="badge bg-success text-light">
+                              {order.paymentMethod}
+                            </span>
+                            )
                           </h5>
                         </div>
                         <div className="card-body">
@@ -182,31 +197,54 @@ const ViewOrder = () => {
                                     >
                                       <div className="d-flex justify-content-between">
                                         <div className="">
-                                          <img
-                                            style={{
-                                              height: "150px",
-                                              width: "150px",
-                                              borderRadius: "20px",
+                                          <button
+                                            data-toggle="modal"
+                                            data-target="#carouselModal"
+                                            className="btn"
+                                            onClick={() => {
+                                              const img = [
+                                                { url: item.image },
+                                                ...item.images,
+                                              ];
+
+                                              setCarouselImages(img);
                                             }}
-                                            src={item.image}
-                                            alt="Product Image"
-                                          />
+                                          >
+                                            <img
+                                              style={{
+                                                height: "150px",
+                                                width: "150px",
+                                                borderRadius: "20px",
+                                              }}
+                                              src={item.image}
+                                              alt="Product Image"
+                                            />
+                                          </button>
                                         </div>
                                         <div className="px-2 py-3">
-                                          <h5 className="">{item.name}</h5>
+                                          <h5 className="text-dark font-weight-bold">
+                                            {item.name}
+                                          </h5>
                                           <p className="text-small">
-                                            <span className="text-dark font-weight-bold">
-                                              Shape:{" "}
-                                            </span>{" "}
-                                            {item.shape} |{" "}
-                                            <span className="text-dark font-weight-bold">
-                                              Flavour:{" "}
-                                            </span>{" "}
-                                            {item.flavour} |{" "}
-                                            <span className="text-dark font-weight-bold">
-                                              Type:{" "}
+                                            <span className="text-dark">
+                                              Shape: {item.shape}
                                             </span>
-                                            {item.cakeType}
+                                          </p>
+                                          <p className="text-small">
+                                            <span className="text-dark">
+                                              Flavour: {item.flavour}
+                                            </span>
+                                          </p>
+                                          <p className="text-small">
+                                            <span className="text-dark">
+                                              Type: {item.cakeType}
+                                            </span>
+                                          </p>
+                                          <p className="text-small">
+                                            <span className="text-dark">
+                                              Bread Type:{" "}
+                                              {item.breadType || "N/A"}
+                                            </span>
                                           </p>
                                           <h6 className="">
                                             <span className="text-dark font-weight-bold">
@@ -503,6 +541,50 @@ const ViewOrder = () => {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* <!-- Modal --> */}
+      <div
+        class="modal fade"
+        id="carouselModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="carouselModalTitle"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="carouselModalTitle">
+                Cake Image
+              </h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body p-4">
+              <Slider {...sliderSettings}>
+                {carouselImages.map((image, index) => (
+                  <div className={"card"} key={index}>
+                    <div className="card-body">
+                      <img className="img img-responsive" src={image.url} />
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            </div>
+            {/* <div class="modal-footer">
+              <button type="button" class="btn btn-info" data-dismiss="modal">
+                Close
+              </button>
+            </div> */}
+          </div>
         </div>
       </div>
     </div>

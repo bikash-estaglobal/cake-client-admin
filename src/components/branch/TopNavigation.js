@@ -59,23 +59,23 @@ function TopNavigation() {
               <b>
                 {/* <!-- Dark Logo icon --> */}
                 <img
-                  style={{ height: "40px" }}
+                  style={{ width: "80px", marginLeft: "5px" }}
                   src="/assets/images/logo.png"
                   className="dark-logo"
                 />
                 {/* <!-- Light Logo icon --> */}
-                <img
-                  style={{ height: "40px" }}
+                {/* <img
+                  style={{ height: "35px" }}
                   src={"/assets/images/logo.png"}
                   className="light-logo"
-                />
+                /> */}
               </b>
               {/* <!--End Logo icon --> */}
               {/* <!-- Logo text --> */}
               <span>
                 {/* <!-- dark Logo text --> */}
                 {/* <img
-                  src="/assets/images/logo-text.png"
+                  src="/assets/images/logo.png"
                   className="dark-logo"
                   style={{ width: "120px" }}
                 /> */}
@@ -111,6 +111,7 @@ function TopNavigation() {
                     border: "none",
                     outline: "none",
                     background: "none",
+                    marginLeft: "20px",
                   }}
                 >
                   <i className="ti-menu"></i>

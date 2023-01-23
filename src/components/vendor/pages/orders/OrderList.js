@@ -239,8 +239,8 @@ const OrderList = (props) => {
                             <th>PRODUCT NAME/WEIGHT</th>
                             <th>ORDER ITEMS</th>
                             <th>DELIVERY DETAILS</th>
-                            <th>CREATED AT</th>
                             <th>STATUS</th>
+                            <th>CREATED AT</th>
                             <th className="text-center">ACTION</th>
                           </tr>
                         </thead>

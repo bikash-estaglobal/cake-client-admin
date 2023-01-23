@@ -59,7 +59,7 @@ function TopNavigation() {
               <b>
                 {/* <!-- Dark Logo icon --> */}
                 <img
-                  style={{ height: "40px" }}
+                  style={{ width: "80px", marginLeft: "5px" }}
                   src="/assets/images/logo.png"
                   className="dark-logo"
                 />
@@ -111,6 +111,7 @@ function TopNavigation() {
                     border: "none",
                     outline: "none",
                     background: "none",
+                    marginLeft: "20px",
                   }}
                 >
                   <i className="ti-menu"></i>

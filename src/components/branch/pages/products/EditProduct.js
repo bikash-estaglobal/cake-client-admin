@@ -31,9 +31,10 @@ function EditProduct() {
     // color: "",
     shape: "",
     images: [],
-    isEggCake: false,
-    isPhotoCake: false,
+    isEggCake: "false",
+    isPhotoCake: "false",
     featuredCake: "false",
+    breadType: "",
     description: "",
   });
 
@@ -814,7 +815,11 @@ function EditProduct() {
                         type="radio"
                         id="cakeType1"
                         name="eggCake"
-                        checked={product.isEggCake ? true : false}
+                        checked={
+                          product?.isEggCake?.toString() == "true"
+                            ? true
+                            : false
+                        }
                         value={true}
                         onChange={(evt) =>
                           setProduct({
@@ -833,7 +838,11 @@ function EditProduct() {
                         type="radio"
                         id="cakeType2"
                         name="eggCake"
-                        checked={product.isEggCake ? false : true}
+                        checked={
+                          product?.isEggCake?.toString() == "false"
+                            ? true
+                            : false
+                        }
                         value={false}
                         onChange={(evt) =>
                           setProduct({
@@ -862,7 +871,11 @@ function EditProduct() {
                         id="cakeType3"
                         name="photoCake"
                         value={true}
-                        checked={product.isPhotoCake ? true : false}
+                        checked={
+                          product?.isPhotoCake?.toString() == "true"
+                            ? true
+                            : false
+                        }
                         onChange={(evt) =>
                           setProduct({
                             ...product,
@@ -880,7 +893,11 @@ function EditProduct() {
                         type="radio"
                         id="cakeType4"
                         name="photoCake"
-                        checked={product.isPhotoCake ? false : true}
+                        checked={
+                          product?.isPhotoCake?.toString() == "false"
+                            ? true
+                            : false
+                        }
                         value={false}
                         onChange={(evt) => {
                           setProduct({
@@ -956,6 +973,22 @@ function EditProduct() {
                       </label>
                     </div>
                   </div>
+                </div>
+
+                {/* TYPE OF BREAD */}
+                <div className={"form-group col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    TYPE OF BREAD HERE !
+                  </label>
+                  <input
+                    type="text"
+                    value={product.breadType}
+                    onChange={(evt) =>
+                      setProduct({ ...product, breadType: evt.target.value })
+                    }
+                    className="form-control"
+                    placeholder={"Vanilla"}
+                  />
                 </div>
 
                 {/* SELECT STATUS */}
