@@ -114,6 +114,12 @@ import AddInquiry from "./pages/inquiries/AddInquiry";
 import EditInquiry from "./pages/inquiries/EditInquiry";
 import AddInquiryFromCSV from "./pages/inquiries/AddInquiryFromCSV";
 import EditInquiryFromCSV from "./pages/inquiries/EditInquiryFromCSV";
+import OccasionList from "./pages/occasions/OccasionList";
+import AddOccasion from "./pages/occasions/AddOccassion";
+import AddOccasionFromCSV from "./pages/occasions/AddOccasionFromCSV";
+import EditOccasion from "./pages/occasions/EditOccasion";
+import ReviewsList from "./pages/reviews/ReviewsList";
+import PendingReviewList from "./pages/reviews/PendingReviewList";
 
 // Create Context
 export const BranchContext = createContext();
@@ -303,6 +309,21 @@ const Routing = () => {
       />
       <Route exact path="/branch/shape/edit/:id" component={EditShape} />
 
+      {/* Occasions */}
+      <Route exact path="/branch/occasions" component={OccasionList} />
+      <Route exact path="/branch/occasion/add" component={AddOccasion} />
+      <Route
+        exact
+        path="/branch/occasion/addByCSV"
+        component={AddOccasionFromCSV}
+      />
+      {/* <Route
+        exact
+        path="/branch/occasion/editByCSV"
+        component={EditOccasio}
+      /> */}
+      <Route exact path="/branch/occasion/edit/:id" component={EditOccasion} />
+
       {/* Types */}
       <Route exact path="/branch/types" component={TypeList} />
       <Route exact path="/branch/type/add" component={AddType} />
@@ -335,6 +356,14 @@ const Routing = () => {
       />
       <Route exact path="/branch/color/add" component={AddColor} />
       <Route exact path="/branch/color/edit/:id" component={EditColor} />
+
+      {/* Reviews */}
+      <Route exact path="/branch/reviews" component={ReviewsList} />
+      <Route
+        exact
+        path="/branch/review/pending"
+        component={PendingReviewList}
+      />
 
       {/* Orders */}
       <Route exact path="/branch/newOrders" component={NewOrders} />

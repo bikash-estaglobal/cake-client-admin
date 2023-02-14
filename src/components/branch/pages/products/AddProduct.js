@@ -29,17 +29,18 @@ function AddProduct() {
     sku: "",
     flavour: "",
     shape: "",
+    occasion: "",
     type: "",
     images: [],
     isEggCake: "false",
     isPhotoCake: "false",
     featuredCake: "false",
+    bestseller: "false",
     breadType: "",
     description: "",
     shortDescription: "",
     tags: "",
   });
-  const [logoDefault, setlogoDefault] = useState("https://bit.ly/3kPLfxF");
   const [previewImages, setPreviewImages] = useState([]);
   const [progressInfos, setProgressInfos] = useState([]);
 
@@ -47,6 +48,7 @@ function AddProduct() {
   const [parentCategory, setParentCategory] = useState([]);
   const [flavour, setFlavour] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const [occasions, setOccasions] = useState([]);
   const [types, setTypes] = useState([]);
   const [color, setColor] = useState([]);
   const [progress, setProgress] = useState("");
@@ -264,6 +266,33 @@ function AddProduct() {
               return { label: value.name, value: value._id };
             });
             setShapes(modifyForSelect);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
+
+  // get Occasions
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/occasions?skip=0&limit=0`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            let modifyForSelect = result.body.map((value) => {
+              return { label: value.name, value: value._id };
+            });
+            setOccasions(modifyForSelect);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -709,6 +738,22 @@ function AddProduct() {
                   </div>
                 </div>
 
+                {/* CAKE OCCASION */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT CAKE OCCASION !
+                  </label>
+
+                  <div className="">
+                    <Select
+                      options={occasions}
+                      onChange={(evt) => {
+                        setProduct({ ...product, occasion: evt.value });
+                      }}
+                    />
+                  </div>
+                </div>
+
                 {/* EGG CAKE*/}
                 <div className={"col-md-6"}>
                   <label htmlFor="" className="text-dark h6 active">
@@ -844,6 +889,53 @@ function AddProduct() {
                         className="custom-control-input"
                       />
                       <label className="custom-control-label" for="featured2">
+                        NO
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BESTSELLER CAKE*/}
+                <div className={"col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    BEST SELLER CAKE
+                  </label>
+                  <div className="d-flex my-3">
+                    <div className="custom-control custom-radio pl-0 ml-0">
+                      <input
+                        type="radio"
+                        id="bestseller1"
+                        name="bestseller"
+                        value={true}
+                        checked={product.bestseller == "true" ? true : false}
+                        onChange={(evt) =>
+                          setProduct({
+                            ...product,
+                            bestseller: evt.target.value,
+                          })
+                        }
+                        className="custom-control-input"
+                      />
+                      <label className="custom-control-label" for="bestseller1">
+                        YES
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio">
+                      <input
+                        type="radio"
+                        id="bestseller2"
+                        name="bestseller"
+                        checked={product.bestseller == "false" ? true : false}
+                        value={false}
+                        onChange={(evt) => {
+                          setProduct({
+                            ...product,
+                            bestseller: evt.target.value,
+                          });
+                        }}
+                        className="custom-control-input"
+                      />
+                      <label className="custom-control-label" for="bestseller2">
                         NO
                       </label>
                     </div>

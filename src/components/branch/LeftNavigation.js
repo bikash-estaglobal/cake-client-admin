@@ -153,6 +153,14 @@ function LeftNavigation() {
                       </Link>
                     </li>
                     <li>
+                      <Link
+                        to="/branch/occasions"
+                        onClick={removeLeftNavigation}
+                      >
+                        Occasions
+                      </Link>
+                    </li>
+                    <li>
                       <Link to="/branch/types" onClick={removeLeftNavigation}>
                         Cake Type
                       </Link>
@@ -213,6 +221,32 @@ function LeftNavigation() {
                         onClick={removeLeftNavigation}
                       >
                         Inquiries Data
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+
+                {/* Reviews Section */}
+                <li>
+                  <Link
+                    className="has-arrow waves-dark"
+                    to="/"
+                    aria-expanded="false"
+                  >
+                    <i className="mdi mdi-book"></i>
+                    <span className="hide-menu">REVIEWS</span>
+                  </Link>
+
+                  <ul aria-expanded="false" className="collapse">
+                    <li>
+                      <Link
+                        to="/branch/review/pending"
+                        onClick={removeLeftNavigation}
+                      >
+                        Pending Reviews
+                      </Link>
+                      <Link to="/branch/reviews" onClick={removeLeftNavigation}>
+                        Reviews List
                       </Link>
                     </li>
                   </ul>

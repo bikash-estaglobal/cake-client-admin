@@ -34,6 +34,7 @@ function EditProduct() {
     isEggCake: "false",
     isPhotoCake: "false",
     featuredCake: "false",
+    bestseller: "false",
     breadType: "",
     description: "",
   });
@@ -45,6 +46,7 @@ function EditProduct() {
   const [parentCategory, setParentCategory] = useState([]);
   const [flavour, setFlavour] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const [occasions, setOccasions] = useState([]);
   const [types, setTypes] = useState([]);
   const [color, setColor] = useState([]);
   const [progress, setProgress] = useState("");
@@ -52,6 +54,7 @@ function EditProduct() {
   const [selectPCat, setSelectPCat] = useState([]);
   const [selectSCat, setSelectSCat] = useState([]);
   const [selectShape, setSelectShape] = useState([]);
+  const [selectOccasion, setSelectOccasion] = useState([]);
   const [selectFlavour, setSelectFlavour] = useState("");
   const [selectType, setSelectType] = useState("");
   const [selectColor, setSelectColor] = useState("");
@@ -184,6 +187,7 @@ function EditProduct() {
       color: selectColor.value,
       description: productDescriptions,
       shape: selectShape.value,
+      occasion: selectOccasion.value,
       _id: undefined,
       id: undefined,
       createdAt: undefined,
@@ -259,15 +263,23 @@ function EditProduct() {
             }
 
             // Set Shape
-            if (result.body.shape) {
+            if (result.body?.shape) {
               setSelectShape({
                 label: result.body.shape.name,
                 value: result.body.shape._id,
               });
             }
 
+            // Set Occasion
+            if (result?.body?.occasion) {
+              setSelectOccasion({
+                label: result.body.occasion.name,
+                value: result.body.occasion._id,
+              });
+            }
+
             // Set Flavour
-            if (result.body.flavour) {
+            if (result.body?.flavour) {
               setSelectFlavour({
                 label: result.body.flavour.name,
                 value: result.body.flavour._id,
@@ -275,7 +287,7 @@ function EditProduct() {
             }
 
             // Set Type
-            if (result.body.type) {
+            if (result.body?.type) {
               setSelectType({
                 label: result.body.type.name,
                 value: result.body.type._id,
@@ -283,7 +295,7 @@ function EditProduct() {
             }
 
             // Set Parent Category
-            if (result.body.parentCategories.length) {
+            if (result.body?.parentCategories?.length) {
               let c = [];
               result.body.parentCategories.forEach((item) => {
                 c.push({ name: item.name, catId: item._id });
@@ -292,7 +304,7 @@ function EditProduct() {
             }
 
             // Set Sub Categories
-            if (result.body.categories.length) {
+            if (result.body?.categories?.length) {
               let c = [];
               result.body.categories.forEach((item) => {
                 c.push({ name: item.name, catId: item._id });
@@ -354,6 +366,33 @@ function EditProduct() {
               return { label: value.name, value: value._id };
             });
             setShapes(modifyForSelect);
+          } else {
+            M.toast({ html: result.message, classes: "bg-danger" });
+          }
+        },
+        (error) => {
+          M.toast({ html: error, classes: "bg-danger" });
+        }
+      );
+  }, []);
+
+  // get Occasions
+  useEffect(() => {
+    fetch(`${Config.SERVER_URL}/occasions?skip=0&limit=0`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt_branch_token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === 200) {
+            let modifyForSelect = result.body.map((value) => {
+              return { label: value.name, value: value._id };
+            });
+            setOccasions(modifyForSelect);
           } else {
             M.toast({ html: result.message, classes: "bg-danger" });
           }
@@ -798,7 +837,24 @@ function EditProduct() {
                       value={selectShape}
                       options={shapes}
                       onChange={(evt) => {
-                        setShapes(evt);
+                        setSelectShape(evt);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Cake Occasion */}
+                <div className={"form-group col-md-6 overflow-none"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    SELECT CAKE OCCASION !
+                  </label>
+
+                  <div className="">
+                    <Select
+                      value={selectOccasion}
+                      options={occasions}
+                      onChange={(evt) => {
+                        setSelectOccasion(evt);
                       }}
                     />
                   </div>
@@ -969,6 +1025,61 @@ function EditProduct() {
                         className="custom-control-label"
                         for="featuredCake2"
                       >
+                        NO
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BESTSELLER CAKE*/}
+                <div className={"col-md-6"}>
+                  <label htmlFor="" className="text-dark h6 active">
+                    BESTSELLER CAKE
+                  </label>
+                  <div className="d-flex my-3">
+                    <div className="custom-control custom-radio pl-0 ml-0">
+                      <input
+                        type="radio"
+                        id="bestseller1"
+                        name="bestseller"
+                        value={"true"}
+                        checked={
+                          product?.bestseller?.toString() == "true"
+                            ? true
+                            : false
+                        }
+                        onChange={(evt) =>
+                          setProduct({
+                            ...product,
+                            bestseller: evt.target.value,
+                          })
+                        }
+                        className="custom-control-input"
+                      />
+                      <label className="custom-control-label" for="bestseller1">
+                        YES
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio">
+                      <input
+                        type="radio"
+                        id="bestseller2"
+                        name="bestseller"
+                        checked={
+                          product?.bestseller?.toString() == "false"
+                            ? true
+                            : false
+                        }
+                        value={"false"}
+                        onChange={(evt) => {
+                          setProduct({
+                            ...product,
+                            bestseller: evt.target.value,
+                          });
+                        }}
+                        className="custom-control-input"
+                      />
+                      <label className="custom-control-label" for="bestseller2">
                         NO
                       </label>
                     </div>
